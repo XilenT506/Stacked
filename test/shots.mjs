@@ -12,7 +12,7 @@ await mkdir('test/shots', { recursive: true });
 const browser = await chromium.launch({ args: ['--use-gl=angle', '--enable-unsafe-swiftshader'] });
 const tab = await browser.newPage({ viewport: { width: 1280, height: 720 }, deviceScaleFactor: 1 });
 const errors = [];
-tab.on('pageerror', (e) => errors.push(String(e)));
+tab.on('pageerror', (e) => { errors.push(String(e)); console.log('PAGE ERROR', String(e)); });
 tab.on('console', (m) => { if (m.type() === 'error') errors.push(m.text()); });
 await tab.goto('http://localhost:8481/?q=high&place=playground');
 const at = async (t, name) => { await tab.waitForFunction((x) => globalThis.__stacked2?.clock.time > x, t, { timeout: 120000 }); await tab.screenshot({ path: `test/shots/${name}.png` }); };
@@ -76,7 +76,7 @@ console.log('pile', JSON.stringify(cs), cs.count === 1 && cs.pile ? 'OK' : 'FAIL
 
 // the supermarket: an overview with the planning overlay, then every area seen from the coat's camera
 const shop = await browser.newPage({ viewport: { width: 1280, height: 720 }, deviceScaleFactor: 1 });
-shop.on('pageerror', (e) => errors.push(String(e)));
+shop.on('pageerror', (e) => { errors.push(String(e)); console.log('PAGE ERROR', String(e)); });
 shop.on('console', (m) => { if (m.type() === 'error') errors.push(m.text()); });
 await shop.goto('http://localhost:8481/?q=high');
 await shop.waitForFunction(() => globalThis.__stacked2?.clock.time > 1, null, { timeout: 120000 });

@@ -72,7 +72,7 @@ export class CoatHud {
     const ids = coat.pile ? [...coat.pile.kids, ...coat.stack] : [...coat.stack, ...coat.loose.map((k) => k.id)];
     this.heads.innerHTML = ids.map((id) => {
       const out = coat.loose.some((k) => k.id === id), hid = coat.pile?.kids.includes(id);
-      return `<span class="head${out ? ' out' : ''}${hid ? ' hid' : ''}" style="background:#${KID_COLORS[id].toString(16).padStart(6, '0')}"></span>`;
+      return `<span class="head${out ? ' out' : ''}${hid ? ' hid' : ''}" style="background:#${(KID_COLORS[id] ?? 0xf2e6d8).toString(16).padStart(6, '0')}"></span>`;
     }).join('');
     this.bar.style.width = (coat.wobble * 100).toFixed(1) + '%';
     this.bar.style.background = coat.wobble > 0.75 ? '#c4553d' : coat.wobble > 0.45 ? '#e0a83a' : '#7fbf5f';

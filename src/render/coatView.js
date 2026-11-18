@@ -4,7 +4,7 @@ import * as T from 'three';
 import { bubble } from './peopleView.js';
 import { loadHero, bendUniforms, bendMaterial, bendPoint, HERO_S, HEAD_Y } from './heroModel.js';
 
-export const KID_COLORS = { sid: 0xe2694f, mo: 0x4f9fc9, tank: 0x7fbf5f, pip: 0xe0a83a };
+export const KID_COLORS = { sid: 0xe2694f, mo: 0x4f9fc9, tank: 0x7fbf5f, pip: 0xe0a83a, spare1: 0xc9a8d8, spare2: 0x8e5bc4 };
 const COAT = 0x6b4838, SKIN = 0xf0c8a0;
 const ease = (dt, r) => 1 - Math.exp(-dt * r);
 const lam = (c) => new T.MeshStandardMaterial({ color: c, roughness: 0.8 });
