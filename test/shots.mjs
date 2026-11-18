@@ -159,6 +159,21 @@ console.log('shopper slip', slipped ? 'OK' : 'FAIL');
 console.log('people', JSON.stringify(await ppl()));
 
 }
+// caught and rescue: the guard catches a lone kid, a Spare Kid comes in, the caught kid sits in the cage; then open the gate
+await shop.evaluate(() => { const S = __stacked2, c = S.coat; S.job.over = false; S.job.result = null;
+  c.stack = ['sid', 'mo', 'tank']; c.loose = []; c.pile = null; c.grabbedBy = null; c.caught = null; c.inCage = false; c.mods = {}; c.hidden = null; c.wobble = 0; c.applyHeight();
+  for (const g of S.people.list) { g.hostile.clear(); g.sus.clear(); } });
+await shop.evaluate(() => { const S = __stacked2, g = S.people.byType('guard')[0], f = g.feet, c = S.coat;
+  g.set('idle'); c.walker.body.setTranslation({ x: f.x + Math.sin(g.walker.yaw) * 1.6, y: 1.2, z: f.z + Math.cos(g.walker.yaw) * 1.6 }, true); c.toggleStack(); c.pile = null; });
+const spare = await shop.evaluate(() => new Promise((res) => { const S = __stacked2, t0 = S.clock.time; const f = () => (S.rescue.spares < 2 ? res(true) : S.clock.time - t0 > 10 ? res(false) : requestAnimationFrame(f)); f(); }));
+await wait2(1); await shot('rescue_spare_kid');
+const caged = await shop.evaluate(() => new Promise((res) => { const S = __stacked2, t0 = S.clock.time; const f = () => (S.coat.loose.some((k) => k.caged) ? res(true) : S.clock.time - t0 > 30 ? res(false) : requestAnimationFrame(f)); f(); }));
+await shop.evaluate(() => { const S = __stacked2; S.rescue.warden.walker.body.setTranslation({ x: -12, y: 0.9, z: -12 }, true); });
+await go(-4.9, -14.0); await wait2(0.6); await shot('rescue_cage');
+await key('KeyE', 0.1); await wait2(1); await shot('rescue_open');
+const opened = await shop.evaluate(() => __stacked2.rescue.open);
+console.log('rescue', JSON.stringify({ spare, caged, opened }), spare && caged && opened ? 'OK' : 'FAIL');
+
 // disguise and Heat: a cashier's "?" meter, Act Natural, a bust, Heat 3 with the Caretaker, Closing Time
 await shop.evaluate(() => { const S = __stacked2, c = S.coat; S.sus.points = 0; S.sus.level = 0;
   for (const g of S.people.list) { g.sus.clear(); g.hostile.clear(); if (g.carrying) g.dropKid(true); g.holding = null; g.back(); }
@@ -211,20 +226,6 @@ await key('KeyE', 0.1); await wait2(0.6); await shot('loot_results');
 const res = await shop.evaluate(() => __stacked2.job.result && { banked: __stacked2.job.result.banked, total: __stacked2.job.result.total, met: __stacked2.job.result.met });
 console.log('loot', JSON.stringify(carrying), JSON.stringify(res), res && res.banked > 0 ? 'OK' : 'FAIL');
 
-// caught and rescue: the guard catches a lone kid, a Spare Kid comes in, the caught kid sits in the cage; then open the gate
-await shop.evaluate(() => { const S = __stacked2, c = S.coat; S.job.over = false; S.job.result = null;
-  c.stack = ['sid', 'mo', 'tank']; c.loose = []; c.pile = null; c.grabbedBy = null; c.caught = null; c.inCage = false; c.mods = {}; c.hidden = null; c.wobble = 0; c.applyHeight();
-  for (const g of S.people.list) { g.hostile.clear(); g.sus.clear(); } });
-await shop.evaluate(() => { const S = __stacked2, g = S.people.byType('guard')[0], f = g.feet, c = S.coat;
-  g.back(); c.walker.body.setTranslation({ x: f.x + Math.sin(g.walker.yaw) * 3, y: 1.2, z: f.z + Math.cos(g.walker.yaw) * 3 }, true); c.toggleStack(); c.pile = null; });
-const spare = await shop.evaluate(() => new Promise((res) => { const S = __stacked2, t0 = S.clock.time; const f = () => (S.rescue.spares < 2 ? res(true) : S.clock.time - t0 > 10 ? res(false) : requestAnimationFrame(f)); f(); }));
-await wait2(1); await shot('rescue_spare_kid');
-const caged = await shop.evaluate(() => new Promise((res) => { const S = __stacked2, t0 = S.clock.time; const f = () => (S.coat.loose.some((k) => k.caged) ? res(true) : S.clock.time - t0 > 30 ? res(false) : requestAnimationFrame(f)); f(); }));
-await shop.evaluate(() => { const S = __stacked2; S.rescue.warden.walker.body.setTranslation({ x: -12, y: 0.9, z: -12 }, true); });
-await go(-4.9, -14.0); await wait2(0.6); await shot('rescue_cage');
-await key('KeyE', 0.1); await wait2(1); await shot('rescue_open');
-const opened = await shop.evaluate(() => __stacked2.rescue.open);
-console.log('rescue', JSON.stringify({ spare, caged, opened }), spare && caged && opened ? 'OK' : 'FAIL');
 console.log(errors.length ? 'ERRORS ' + errors.join(' | ') : 'no errors');
 await browser.close(); server.close();
 if (errors.length) process.exit(1);
