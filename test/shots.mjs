@@ -50,6 +50,29 @@ await waitGame(0.6);
 const shelf = await tab.evaluate(() => __stacked2.fade.items.map((i) => ({ blocking: i.blocking, k: +i.k.toFixed(2) })));
 await tab.screenshot({ path: 'test/shots/wall_fade.png' });
 console.log('wall fade', JSON.stringify(shelf), shelf.some((s) => s.blocking && s.k < 0.4) ? 'OK' : 'FAIL');
+
+// the coat: all three heights, loose kids, and the coat lying on the floor like laundry (closer camera)
+await tab.evaluate(() => { const S = __stacked2; S.walker.body.setTranslation({ x: 1, y: 1.2, z: 3.5 }, true); S.camRig.offset.multiplyScalar(0.5); });
+await tab.mouse.move(640, 600); await waitGame(1.2);
+const coatState = () => tab.evaluate(() => { const c = __stacked2.coat; return { count: c.count, speed: c.walker.speed, loose: c.loose.length, pile: !!c.pile, wobble: +c.wobble.toFixed(2), model: !!__stacked2.coatView.U }; });
+let cs = await coatState(); await tab.screenshot({ path: 'test/shots/coat_3_kids.png' });
+console.log('coat 3', JSON.stringify(cs), cs.count === 3 && cs.speed === 4.2 && cs.model ? 'OK' : 'FAIL');
+await tab.keyboard.press('KeyK'); await waitGame(1.2);
+cs = await coatState(); await tab.screenshot({ path: 'test/shots/coat_2_kids.png' });
+console.log('coat 2', JSON.stringify(cs), cs.count === 2 && cs.speed === 4.8 && cs.loose === 1 ? 'OK' : 'FAIL');
+await tab.keyboard.press('KeyK'); await waitGame(1.2);
+cs = await coatState(); await tab.screenshot({ path: 'test/shots/coat_1_kid.png' });
+console.log('coat 1', JSON.stringify(cs), cs.count === 1 && cs.speed === 6 && cs.loose === 2 ? 'OK' : 'FAIL');
+// gather everyone back: put the loose kids at your feet
+await waitGame(9.5);
+await tab.evaluate(() => { const c = __stacked2.coat, p = c.walker.feet; c.loose.forEach((k, i) => { k.x = p.x + 0.2 * i; k.z = p.z; }); });
+await waitGame(0.3); cs = await coatState();
+console.log('restack', JSON.stringify(cs), cs.count === 3 && cs.loose === 0 ? 'OK' : 'FAIL');
+// R: the coat drops like laundry, you walk away as one kid
+await tab.keyboard.down('KeyR'); await waitGame(0.3); await tab.keyboard.up('KeyR');
+await tab.keyboard.down('KeyD'); await waitGame(0.35); await tab.keyboard.up('KeyD'); await waitGame(0.8);
+cs = await coatState(); await tab.screenshot({ path: 'test/shots/coat_pile.png' });
+console.log('pile', JSON.stringify(cs), cs.count === 1 && cs.pile ? 'OK' : 'FAIL');
 console.log(errors.length ? 'ERRORS ' + errors.join(' | ') : 'no errors');
 await browser.close(); server.close();
 if (errors.length) process.exit(1);

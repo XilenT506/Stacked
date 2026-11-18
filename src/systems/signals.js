@@ -17,6 +17,7 @@ export class Signals {
   }
 
   // listener: { position: {x,y,z} | () => {x,y,z}, types?: [..] (all when missing), hear(signal, distance) }
+  // or { everywhere: true, ... } to hear every signal wherever it is (the floor remembering slippery patches)
   // returns a function that removes the listener
   listen(listener) { this.listeners.add(listener); return () => this.listeners.delete(listener); }
 
@@ -39,6 +40,7 @@ export class Signals {
       for (const l of this.listeners) {
         if (l.types && !l.types.includes(s.type)) continue;
         if (l.source !== undefined && l.source === s.source) continue;     // nothing hears itself
+        if (l.everywhere) { l.hear(s, 0); heard++; continue; }
         const p = typeof l.position === 'function' ? l.position() : l.position;
         const d = Math.hypot(p.x - s.position.x, (p.y ?? 0) - s.position.y, p.z - s.position.z);
         if (d <= s.range) { l.hear(s, d); heard++; }

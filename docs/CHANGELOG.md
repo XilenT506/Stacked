@@ -2,6 +2,19 @@
 
 Newest first. One entry per build session (one prompt from the Build guide in the doc "STACKED – Game Plan").
 
+## 2026-11-18 · Prompt 4 of 16 (M0-04): The coat
+
+- **The coat** (`src/entities/coat.js`, numbers in the new `data/balance.json`): three kids in one trench coat. Your health is your height: 3 kids is a tall grown-up (4.2 m/s, full disguise), 2 kids a short grown-up (4.8 m/s, less disguise), 1 kid is just a kid (6 m/s, no disguise). Shift runs 1.4 times faster.
+- **The wobble bar** (bottom left, under three coloured heads): running, carrying, sharp turns and slippery floors fill it; standing calm empties it, Q (act natural) empties it faster. When it is full the top kid falls out. A small hit wobbles you, a big one (a flying melon, a trolley) knocks a kid out straight away.
+- **Loose kids** run around in a zig-zag for 10 seconds, then stand and wave. Walk over one to stack them back in (there is one second after falling out before they can be picked up, so they don't jump straight back).
+- **R unstacks:** the coat drops on the floor like laundry, with two pairs of eyes peeking out of the collar and the hat next to it, and you go on as one fast kid. Back at the pile, R stacks you up again.
+- **Slippery floors:** any slippery signal (the cream cake splatting, or J in the test build) leaves a shiny puddle for 20 seconds. On it you slide (grip drops to 12%) and the wobble fills fast.
+- The coat pushes boxes and tins out of the way.
+- **Looks** (`src/render/coatView.js`, `src/render/heroModel.js`): the trench-coat model and its one-piece bending shader from the old game. The coat sways more the fuller the wobble bar is, leans into the walk, and the arms flail when it is wobbly. Two kids is a shorter coat; one kid is a little kid in their own colour wearing a far too big hat.
+- Test keys: K whacks the coat (a kid falls out), J spills a slippery puddle where you aim.
+- Tests: 24 logic tests pass (8 new: heights and speeds from balance.json, small hit vs. big hit, a melon knocking a kid out, running spills but calm walking never does, loose kids run 10 s then wait and walking over them restacks, slippery patch, unstack and restack (and too far does nothing), pushing a box). High-quality screenshots of all three heights and of the coat on the floor, all checks OK.
+- The page grew to 5.4 MB because the coat model and its back picture are inside it now.
+
 ## 2026-11-18 · Prompt 3 of 16 (M0-03): Camera and controls
 
 - **Controls from data** (`data/controls.json`, read by `src/core/input.js`): every action from the plan's Controls table on keyboard, mouse and gamepad (standard layout). Twin-stick: left stick walks, right stick aims; small stick pushes are ignored (dead zone 0.18). The game remembers whether you last used keys or a pad.

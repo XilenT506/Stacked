@@ -1,0 +1,23 @@
+{
+  "_about": "Every gameplay number lives here. Speeds in m/s, times in seconds, wobble from 0 (steady) to 1 (a kid falls out).",
+  "heights": {
+    "3": { "label": "A tall grown-up",  "speed": 4.2, "disguise": 1.0,   "suspicionRate": 1.0, "height": 2.2 },
+    "2": { "label": "A short grown-up", "speed": 4.8, "disguise": 0.625, "suspicionRate": 1.6, "height": 1.6 },
+    "1": { "label": "Just a kid",       "speed": 6.0, "disguise": 0,     "suspicionRate": null, "height": 0.9 }
+  },
+  "run": { "speedMultiplier": 1.4 },
+  "wobble": {
+    "calmDrain": 0.35,
+    "runFill": 0.22,
+    "carryFillPerKg": 0.012,
+    "slipperyFill": 0.5,
+    "turnFill": 0.08,
+    "hitPerForce": 0.12,
+    "spillHitForce": 6,
+    "afterSpill": 0.35,
+    "actNaturalDrain": 0.9
+  },
+  "slippery": { "patchSeconds": 20, "grip": 0.12 },
+  "looseKid": { "seconds": 10, "speed": 2.6, "pickupRadius": 0.75, "spillSpeed": 3.5 },
+  "unstack": { "restackRadius": 1.3 }
+}

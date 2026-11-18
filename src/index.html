@@ -7,11 +7,20 @@
 <style>
   html, body { margin: 0; height: 100%; background: #fff3e2; overflow: hidden; font-family: "Trebuchet MS", "Segoe UI", sans-serif; }
   canvas { display: block; }
+  #coathud { position: fixed; left: 16px; bottom: 16px; color: #33201a; font-size: 15px; pointer-events: none; }
+  #heads { display: flex; gap: 6px; margin-bottom: 6px; }
+  .head { width: 26px; height: 26px; border-radius: 50%; border: 3px solid #33201a; box-sizing: border-box; }
+  .head.out { animation: bob 0.3s infinite alternate; opacity: 0.55; }
+  .head.hid { opacity: 0.6; border-style: dashed; }
+  @keyframes bob { to { transform: translateY(-5px); } }
+  #wobblebox { width: 220px; height: 14px; border: 3px solid #33201a; border-radius: 8px; overflow: hidden; background: #fff; }
+  #wobble { height: 100%; width: 0; }
   #hud { position: fixed; left: 16px; top: 12px; color: #33201a; font-size: 14px; pointer-events: none; }
 </style>
 </head>
 <body>
-<div id="hud">STACKED, new build: foundation</div>
+<div id="hud">STACKED, new build</div>
+<div id="coathud"><div id="heads"></div><div id="wobblebox"><div id="wobble"></div></div><div id="height"></div></div>
 <script type="module" src="./main.js"></script>
 </body>
 </html>
