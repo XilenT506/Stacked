@@ -33,6 +33,6 @@ export class JobEvents {
 
   emit(a) {
     const pts = a.points || [typeof a.at === 'string' ? this.ctx.spots[a.at] : a.at];
-    for (const [x, z] of pts) this.ctx.signals.emit({ type: a.signal, position: { x, y: 0, z }, range: a.range, source: this, data: { event: 'timed', color: a.color } });
+    for (const [x, z] of pts) this.ctx.signals.emit({ type: a.signal, position: { x, y: 0, z }, range: a.range, source: this, data: { event: 'timed', color: a.color, ...(a.data || {}) } });
   }
 }

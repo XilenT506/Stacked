@@ -40,8 +40,9 @@ export class GrownUp {
   hear(s) {
     if (s.source === this || BUSY.has(this.state)) return;
     const p = s.position, run = this.type.run;
-    if (s.type === 'smell') { this.flee(p); this.say('smell'); return; }
-    if (s.type === 'food') { if (!this.type.stays && this.state !== 'crowd') { this.go('crowd', p, this.type.walk * 1.4, this.T.crowdTime); this.say('food'); } return; }
+    if (s.type === 'smell' && !s.data?.nice) { if (!this.type.stays) this.flee(p); this.say('smell'); return; }
+    if (s.type === 'food' || s.type === 'smell') {                         // food, or a nice smell of baking
+      if (!this.type.stays && this.state !== 'crowd') { this.go('crowd', p, this.type.walk * 1.4, this.T.crowdTime); this.say('food'); } return; }
     if (s.type === 'noise' || s.type === 'crash' || s.type === 'alarm' || s.type === 'spill') {
       if (this.state === 'crowd' && !(s.type === 'alarm' && s.data?.event === 'shout')) return;   // free cake beats a bit of noise
       if (this.type.stays) { this.face(p); this.say('notice'); return; }   // cashiers just turn and look

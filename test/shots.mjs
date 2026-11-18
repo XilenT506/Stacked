@@ -103,7 +103,7 @@ const key = async (code, sec = 0.25) => { await shop.keyboard.down(code); await 
 const shot = (name) => shop.screenshot({ path: `test/shots/${name}.png` });
 const logHas = (ev) => shop.evaluate((e) => __stacked2.signals.log.some((s) => s.data?.event === e), ev);
 await shop.evaluate(() => __stacked2.camRig.offset.multiplyScalar(1.3));
-await go(-4.6, -8.4); await wait2(0.8);
+await go(-4.4, -8.3); await wait2(0.8);
 const hint = await shop.evaluate(() => __stacked2.hands.hint());
 await key('KeyE'); await go(-3.5, 4.2); await wait2(0.5); await shot('living_kick');
 await wait2(2.5); await shot('living_chain');

@@ -1,5 +1,5 @@
 {
-  "_about": "Timed events for the supermarket. A job plays 2 or 3 of them, the first at balance.events.firstAt seconds and then every balance.events.gap seconds. Actions: say (an announcement on the tannoy), signal (type, at = a spot name from the place's events or [x, z], points = several [x, z], range, repeat, every), spawn (thing, at = list of [x, z] or [x, y, z]). Nothing else happens on its own: grown-ups and things react to the signals.",
+  "_about": "Timed events for the supermarket. A job plays 2 or 3 of them, the first at balance.events.firstAt seconds and then every balance.events.gap seconds. Actions: say (an announcement on the tannoy), signal (type, data, at = a spot name from the place's events or [x, z], points = several [x, z], range, repeat, every), spawn (thing, at = list of [x, z] or [x, y, z]). Nothing else happens on its own: grown-ups and things react to the signals.",
   "events": [
     {
       "id": "freeSamples", "name": "Free samples at the bakery",
@@ -7,7 +7,7 @@
       "actions": [
         { "spawn": "cream_cake", "at": [[12.5, 1, -5], [13.5, 1, -5], [14.5, 1, -5]] },
         { "signal": "food",  "at": "freeSamples", "range": 45, "repeat": 6, "every": 10 },
-        { "signal": "smell", "at": "freeSamples", "range": 12, "repeat": 6, "every": 10 }
+        { "signal": "smell", "at": "freeSamples", "range": 12, "repeat": 6, "every": 10, "data": { "nice": true } }
       ]
     },
     {
