@@ -23,6 +23,19 @@ export class CoatHud {
     this.closeEl.className = closing.started ? 'urgent' : '';
   }
 
+  // the gadget slots, bottom right: name, ammo, the one in hand, and the slingshot's charge
+  gadgets(coat, data) {
+    const G = coat.gadgets, el = this.gadEl ??= document.getElementById('gadgets');
+    if (!G) { el.style.display = 'none'; return; }
+    el.style.display = 'block';
+    const html = G.slots.map((id, i) => { const d = data.gadgets[id], cur = i === G.i;
+      const charge = cur && d.charge ? `<div class="charge"><div style="width:${Math.min(100, G.charge / d.charge.full * 100)}%"></div></div>` : '';
+      return `<div class="slot${cur ? ' cur' : ''}"><b>${i + 1}</b> ${d.name} <span>${G.ammo[id]}</span>${charge}</div>`; }).join('');
+    if (html !== this.lastGad) { el.innerHTML = html; this.lastGad = html; }
+    this.blindEl ??= document.getElementById('blind');
+    this.blindEl.style.opacity = (coat.effects?.blinded ?? 0) > 0 ? 0.85 : 0;
+  }
+
   top(text) { this.topEl.textContent = text; }
 
   announce(text, title = 'Tannoy') {

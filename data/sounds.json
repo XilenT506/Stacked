@@ -1,25 +1,166 @@
 {
   "_about": "Placeholder sounds, made by the browser (no files): wave = noise, square, sine, triangle or sawtooth; f0 to f1 = pitch slide in Hz; dur in seconds; vol 0..1. Real recorded sounds replace these later under the same names.",
   "sounds": {
-    "tin_clang":      { "wave": "square",   "f0": 900,  "f1": 600,  "dur": 0.12, "vol": 0.25 },
-    "can_rattle":     { "wave": "square",   "f0": 1300, "f1": 900,  "dur": 0.08, "vol": 0.2 },
-    "box_thud":       { "wave": "noise",    "f0": 200,  "f1": 80,   "dur": 0.12, "vol": 0.4 },
-    "plastic_clack":  { "wave": "triangle", "f0": 700,  "f1": 400,  "dur": 0.07, "vol": 0.3 },
-    "switch_click":   { "wave": "square",   "f0": 2000, "f1": 1800, "dur": 0.03, "vol": 0.2 },
-    "machine_clunk":  { "wave": "sawtooth", "f0": 120,  "f1": 60,   "dur": 0.3,  "vol": 0.45 },
-    "tannoy_ding":    { "wave": "sine",     "f0": 880,  "f1": 660,  "dur": 0.6,  "vol": 0.35 },
-    "freezer_whoosh": { "wave": "noise",    "f0": 1200, "f1": 300,  "dur": 0.5,  "vol": 0.3 },
-    "trolley_rattle": { "wave": "noise",    "f0": 600,  "f1": 400,  "dur": 0.25, "vol": 0.35 },
-    "belt_hum":       { "wave": "sawtooth", "f0": 90,   "f1": 90,   "dur": 0.4,  "vol": 0.2 },
-    "box_rustle":     { "wave": "noise",    "f0": 900,  "f1": 700,  "dur": 0.2,  "vol": 0.2 },
-    "pose_ding":      { "wave": "sine",     "f0": 1320, "f1": 1320, "dur": 0.25, "vol": 0.25 },
-    "coat_rustle":    { "wave": "noise",    "f0": 500,  "f1": 300,  "dur": 0.25, "vol": 0.2 },
-    "squeak":         { "wave": "sine",     "f0": 600,  "f1": 1400, "dur": 0.3,  "vol": 0.3 },
-    "mop_clack":      { "wave": "triangle", "f0": 400,  "f1": 250,  "dur": 0.1,  "vol": 0.3 },
-    "paper_flap":     { "wave": "noise",    "f0": 1500, "f1": 800,  "dur": 0.1,  "vol": 0.2 },
-    "splat":          { "wave": "noise",    "f0": 400,  "f1": 60,   "dur": 0.3,  "vol": 0.5 },
-    "squelch":        { "wave": "noise",    "f0": 300,  "f1": 100,  "dur": 0.2,  "vol": 0.4 },
-    "melon_thump":    { "wave": "sine",     "f0": 140,  "f1": 70,   "dur": 0.2,  "vol": 0.5 },
-    "slip_whee":      { "wave": "sine",     "f0": 400,  "f1": 1200, "dur": 0.35, "vol": 0.3 }
+    "tin_clang": {
+      "wave": "square",
+      "f0": 900,
+      "f1": 600,
+      "dur": 0.12,
+      "vol": 0.25
+    },
+    "can_rattle": {
+      "wave": "square",
+      "f0": 1300,
+      "f1": 900,
+      "dur": 0.08,
+      "vol": 0.2
+    },
+    "box_thud": {
+      "wave": "noise",
+      "f0": 200,
+      "f1": 80,
+      "dur": 0.12,
+      "vol": 0.4
+    },
+    "plastic_clack": {
+      "wave": "triangle",
+      "f0": 700,
+      "f1": 400,
+      "dur": 0.07,
+      "vol": 0.3
+    },
+    "switch_click": {
+      "wave": "square",
+      "f0": 2000,
+      "f1": 1800,
+      "dur": 0.03,
+      "vol": 0.2
+    },
+    "machine_clunk": {
+      "wave": "sawtooth",
+      "f0": 120,
+      "f1": 60,
+      "dur": 0.3,
+      "vol": 0.45
+    },
+    "tannoy_ding": {
+      "wave": "sine",
+      "f0": 880,
+      "f1": 660,
+      "dur": 0.6,
+      "vol": 0.35
+    },
+    "freezer_whoosh": {
+      "wave": "noise",
+      "f0": 1200,
+      "f1": 300,
+      "dur": 0.5,
+      "vol": 0.3
+    },
+    "trolley_rattle": {
+      "wave": "noise",
+      "f0": 600,
+      "f1": 400,
+      "dur": 0.25,
+      "vol": 0.35
+    },
+    "belt_hum": {
+      "wave": "sawtooth",
+      "f0": 90,
+      "f1": 90,
+      "dur": 0.4,
+      "vol": 0.2
+    },
+    "box_rustle": {
+      "wave": "noise",
+      "f0": 900,
+      "f1": 700,
+      "dur": 0.2,
+      "vol": 0.2
+    },
+    "pose_ding": {
+      "wave": "sine",
+      "f0": 1320,
+      "f1": 1320,
+      "dur": 0.25,
+      "vol": 0.25
+    },
+    "coat_rustle": {
+      "wave": "noise",
+      "f0": 500,
+      "f1": 300,
+      "dur": 0.25,
+      "vol": 0.2
+    },
+    "squeak": {
+      "wave": "sine",
+      "f0": 600,
+      "f1": 1400,
+      "dur": 0.3,
+      "vol": 0.3
+    },
+    "mop_clack": {
+      "wave": "triangle",
+      "f0": 400,
+      "f1": 250,
+      "dur": 0.1,
+      "vol": 0.3
+    },
+    "paper_flap": {
+      "wave": "noise",
+      "f0": 1500,
+      "f1": 800,
+      "dur": 0.1,
+      "vol": 0.2
+    },
+    "splat": {
+      "wave": "noise",
+      "f0": 400,
+      "f1": 60,
+      "dur": 0.3,
+      "vol": 0.5
+    },
+    "squelch": {
+      "wave": "noise",
+      "f0": 300,
+      "f1": 100,
+      "dur": 0.2,
+      "vol": 0.4
+    },
+    "melon_thump": {
+      "wave": "sine",
+      "f0": 140,
+      "f1": 70,
+      "dur": 0.2,
+      "vol": 0.5
+    },
+    "slip_whee": {
+      "wave": "sine",
+      "f0": 400,
+      "f1": 1200,
+      "dur": 0.35,
+      "vol": 0.3
+    },
+    "squirt": {
+      "wave": "noise",
+      "f0": 2500,
+      "f1": 1200,
+      "dur": 0.06,
+      "vol": 0.15
+    },
+    "twang": {
+      "wave": "triangle",
+      "f0": 300,
+      "f1": 900,
+      "dur": 0.18,
+      "vol": 0.35
+    },
+    "bonk": {
+      "wave": "square",
+      "f0": 500,
+      "f1": 200,
+      "dur": 0.08,
+      "vol": 0.35
+    }
   }
 }

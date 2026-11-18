@@ -2,6 +2,17 @@
 
 Newest first. One entry per build session (one prompt from the Build guide in the doc "STACKED – Game Plan").
 
+## 2026-11-18 · Prompt 9 of 16 (M1-05): Gadgets
+
+- **A gadget system run entirely from data** (`data/gadgets.json`, `src/systems/gadgets.js`). A gadget is one of three modes: **projectile** (flies at what you aim at and hits the first thing in the way; can auto-fire, or charge while you hold), **thrown** (an arc that bursts and splashes everyone in a radius), or **place** (put down in front of you; whoever steps on it gets it). What a hit does is data too: an **effect** (soaked, slipped, blinded, embarrassed, with their times), a **knock**, and **signals** where it lands.
+- **Three gadgets** (all three in the test build; the plan's two-slot limit comes with the shop):
+  - **Water pistol** (1): sprays while you hold the left mouse button. A **soaked** grown-up slips on their next sharp turn (drips fall off them while they are wet). Shots that miss sometimes leave a small puddle (slippery signal); a hit makes a little noise.
+  - **Slingshot** (2): hold to charge (a bar fills under its slot), let go to fire. A full charge **blinds** a grown-up for 3 seconds: stars round the head, can't see anything, staggers about. A quick flick just knocks. Hits make noise. It knocks props flying, brings down tin pyramids and **flips the light switch from across the room**.
+  - **Banana peel** (3): click to drop one in front of you. It is slippery where it lies (a slippery signal) and whoever steps on it next (grown-up, friend, loose kid or you) spins round and falls flat; one use per peel.
+- **On everyone:** grown-ups (effects, knock, and they turn to look where it came from; if they saw you do it, their "?" meter jumps), **friends (friendly fire is always on)**: a soaked coat stumbles on its next sharp turn, a blinded coat's screen goes dark round the edges and its steering wanders, a slip stops you and fills the wobble bar; **loose kids** get knocked about; **things** get pushed, broken or switched.
+- Gadget slots and ammo bottom right; **1, 2, 3** or the mouse wheel to pick. (Holding something in your hands takes the left click away from the gadget.)
+- Tests: 61 logic tests pass (7 new): every gadget's data is complete; **water pistol soaks a grown-up who then slips on a corner**; **a charged slingshot blinds** and a flick doesn't; **a banana peel floors a grown-up** and is slippery itself; **friendly fire** with all three on a second coat; **gadgets on things** (the pyramid comes down, the light switch flips); and **a fourth gadget made only in JSON** (a water balloon, thrown, soaking two cashiers and leaving a puddle) works with no code changes.
+
 ## 2026-11-18 · Prompt 8 of 16 (M1-04): Disguise and Heat
 
 - **The "?" meters** (`src/systems/suspicion.js`, numbers under `suspicion` in `data/balance.json`): every grown-up keeps a meter for every coat, shown as a "?" with a bar over their head that goes from yellow to red. It fills while they can see you doing odd things: **running, wobbling, carrying something silly (a melon, a cake), riding a trolley, unstacking or restacking, a kid falling out, throwing, and bumping into them** (and anyone watching a bump notices too). It fills faster when you are close and when you are a short grown-up (two kids). It drains when you keep your distance or stay out of sight, faster when you hide, and fastest with **Act Natural: hold Q** and the coat nods, waves and says something grown-up in a bubble ("Lovely weather!", "Marvellous tins.").

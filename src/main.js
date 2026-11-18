@@ -34,6 +34,9 @@ import { Suspicion } from './systems/suspicion.js';
 import { ClosingTime } from './systems/closingTime.js';
 import { Security } from './systems/security.js';
 import { ShutterView } from './render/shutterView.js';
+import { Gadgets } from './systems/gadgets.js';
+import { GadgetView } from './render/gadgetView.js';
+import GADGETS from '../data/gadgets.json';
 import SUPERMARKET from '../data/places/supermarket.json';
 import SHOP_EVENTS from '../data/places/supermarket/events.json';
 import THINGS from '../data/interactables.json';
@@ -60,7 +63,7 @@ const sfx = new Sfx(SOUNDS.sounds), voices = new Voices();
 const hud = new CoatHud();
 
 const R = await initPhysics();
-let people = null, peopleView = null, sus = null, closing = null, security = null, shutterView = null, scene, world, place, placeView, areaNow = null, signals, mess, things, thingsView, jobEvents, hands, pg, rings, lights, coat, coatView, fade, aimMark, aimNow = null, events = [];
+let gadgets = null, gadgetView = null, people = null, peopleView = null, sus = null, closing = null, security = null, shutterView = null, scene, world, place, placeView, areaNow = null, signals, mess, things, thingsView, jobEvents, hands, pg, rings, lights, coat, coatView, fade, aimMark, aimNow = null, events = [];
 
 function reset() {
   scene = new T.Scene(); scene.background = new T.Color(0xfff3e2);
@@ -94,6 +97,8 @@ function reset() {
     jobEvents = new JobEvents(SHOP_EVENTS.events, { signals, things, spots, say: (text, name) => { hud.announce(text, name); sfx.play('tannoy_ding'); } }, BALANCE.events);
   }
   hands = new Hands(coat, things, BALANCE);
+  gadgets = new Gadgets(GADGETS, { R, world, signals, things, people, sus, balance: BALANCE }); gadgets.arm(coat);
+  gadgetView = new GadgetView(scene, gadgets);
   thingsView = new ThingsView(scene, things, mess);
   coatView = new CoatView(scene, coat, BALANCE.suspicion.actNaturalLines);
   if (peopleView) peopleView.watch = coat;
@@ -148,10 +153,13 @@ function frame(now) {
   let grab = input.pressed('grab'), throwIt = input.pressed('throw');
   for (let i = 0; i < steps; i++) {
     people?.step(STEP, [coat]);
+    // the gadget in hand: left click fires it (unless you hold a ketchup bottle to squirt), 1 2 3 or the wheel picks
+    const sel = input.pressed('slot1') ? 0 : input.pressed('slot2') ? 1 : input.pressed('slot3') ? 2 : null;
+    gadgets.use(coat, STEP, { fire: input.down('use') && !hands.held?.def.squirt && !hands.held, select: i === 0 ? sel : null, cycle: i === 0 && input.pressed('switch') ? 1 : 0, aim: aimNow });
     hands.step(STEP, { grab, throwIt, use: input.down('use'), natural: input.down('natural'), aim: aimNow }); grab = throwIt = false;
     coat.step(STEP, move, input.down('run'), aimNow, input.down('natural')); events.push(...coat.events);
     if (sus) { sus.step(STEP, people, [coat]); for (const e of hands.events) if (e.type === 'throw') sus.instant(people, coat, BALANCE.suspicion.throw); }
-    closing?.step(STEP); security?.step();
+    closing?.step(STEP); security?.step(); gadgets.step(STEP, [coat]);
     hands.carry();
     world.step(); coat.events = []; coat.checkHits(world); events.push(...coat.events);
     things.step(STEP); signals.flush(STEP); mess.step(STEP); jobEvents?.step(STEP);
@@ -172,6 +180,12 @@ function frame(now) {
     if (e.type === 'shut') sfx.play('machine_clunk');
   }
   shutterView?.update(dt); hud.status(sus, closing);
+  gadgetView.update(); hud.gadgets(coat, GADGETS);
+  for (const e of gadgets.take()) {
+    if (e.type === 'fire' && e.sound) sfx.play(e.sound, e.at);
+    if (e.type === 'hit') sfx.play('bonk', e.at);
+    if (e.type === 'trigger') sfx.play('slip_whee', e.at);
+  }
   coatView.update(dt, events); hud.update(dt, coat, events, areaNow, hands.hint()); events = [];
   aimMark.visible = !!aimNow;
   if (aimNow) aimMark.position.set(wp.x + aimNow.x * 1.6, 0.03, wp.z + aimNow.z * 1.6);
@@ -187,7 +201,7 @@ function frame(now) {
   if (fpsT >= 0.5) {
     fps = Math.round(frames / fpsT); frames = 0; fpsT = 0;
     const next = jobEvents?.upcoming ? ` · next event in ${Math.max(0, Math.ceil(jobEvents.nextAt - jobEvents.time))} s (T: now)` : '';
-    hud.top(`STACKED ${place ? place.data.name : 'playground'} · ${fps} fps · ${input.device === 'pad' ? 'gamepad' : 'keyboard and mouse'}${next}  |  WASD walk, mouse aim, Shift run, E grab/use, right click throw, Q act natural, R unstack  ·  O plan  Space melon  J puddle  K whack  V rings  Backspace reset`);
+    hud.top(`STACKED ${place ? place.data.name : 'playground'} · ${fps} fps · ${input.device === 'pad' ? 'gamepad' : 'keyboard and mouse'}${next}  |  WASD walk, mouse aim, Shift run, left click gadget (1 2 3 pick), E grab/use, right click throw, Q act natural, R unstack  ·  O plan  Space melon  J puddle  K whack  V rings  Backspace reset`);
   }
   requestAnimationFrame(frame);
 }
@@ -195,4 +209,4 @@ requestAnimationFrame(frame);
 addEventListener('resize', () => { renderer.setSize(innerWidth, innerHeight); camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix(); });
 globalThis.__stacked2 = { get world() { return world; }, get pg() { return pg; }, get walker() { return coat.walker; }, get coat() { return coat; }, get coatView() { return coatView; },
   get place() { return place; }, get placeView() { return placeView; }, get area() { return areaNow; }, get things() { return things; }, get hands() { return hands; }, get mess() { return mess; },
-  get jobEvents() { return jobEvents; }, get people() { return people; }, get sus() { return sus; }, get closing() { return closing; }, get security() { return security; }, get peopleView() { return peopleView; }, camRig, get fade() { return fade; }, input, get aim() { return aimNow; }, get signals() { return signals; }, clock, quality, renderer, get fps() { return fps; }, bowl };
+  get jobEvents() { return jobEvents; }, get people() { return people; }, get sus() { return sus; }, get gadgets() { return gadgets; }, get closing() { return closing; }, get security() { return security; }, get peopleView() { return peopleView; }, camRig, get fade() { return fade; }, input, get aim() { return aimNow; }, get signals() { return signals; }, clock, quality, renderer, get fps() { return fps; }, bowl };

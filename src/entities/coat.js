@@ -43,6 +43,17 @@ export class Coat {
     return this.mess.slipperyAt(f.x, f.z);
   }
 
+  // gadget effects (friendly fire): slipped spins you round and fills the wobble, soaked makes the next sharp
+  // turn a stumble, blinded blurs your view (and your steering), embarrassed freezes you for a moment
+  applyEffect(name, seconds) {
+    const G = this.B.gadgetsOnCoat;
+    this.effects ??= {};
+    if (name === 'slipped') { this.stunned = Math.max(this.stunned, G.slippedStun); this.wobble = Math.min(1, this.wobble + G.slippedWobble); this.spin = 1; if (this.wobble >= 1) this.spill(); }
+    else if (name === 'embarrassed') this.stunned = Math.max(this.stunned, G.embarrassedStun);
+    else this.effects[name] = Math.max(this.effects[name] ?? 0, seconds);
+    this.events.push({ type: 'effect', name });
+  }
+
   // a hit with a force (Newton-ish, 1 = a nudge, 6+ = a proper whack)
   hit(force) {
     this.events.push({ type: 'hit', force });
@@ -98,6 +109,12 @@ export class Coat {
     this.walker.speed = M.speed ?? this.state.speed;
     this.walker.grip = Math.min(slip ? this.B.slippery.grip : 1, M.grip ?? 1);
     if (this.stunned > 0) { this.stunned -= dt; move = { x: 0, z: 0 }; }
+    this.effects ??= {};
+    for (const k of Object.keys(this.effects)) this.effects[k] = Math.max(0, this.effects[k] - dt);
+    this.spin = Math.max(0, (this.spin ?? 0) - dt);
+    if (this.effects.blinded > 0 && (move.x || move.z)) {        // can't see where you're going: the steering wanders
+      const a = Math.sin(this.time * 3.1) * 0.8, c = Math.cos(a), s = Math.sin(a); move = { x: move.x * c - move.z * s, z: move.x * s + move.z * c };
+    }
     if (M.frozen) { move = { x: 0, z: 0 }; run = false; }
     if (M.forceMove) { move = M.forceMove; run = false; }
     this.walker.step(dt, move, run, face);
@@ -111,6 +128,7 @@ export class Coat {
     if (slip && moving) fill += B.slipperyFill;
     if (this.walker.turnRate > 4 && moving) fill += B.turnFill * this.walker.turnRate / 4;
     if (M.wobble && moving) fill += M.wobble * sp / 4;
+    if (this.effects.soaked > 0 && moving && this.walker.turnRate > 4) { this.effects.soaked = 0; this.wobble += this.B.gadgetsOnCoat.soakedTurnWobble; this.events.push({ type: 'stumble' }); }
     const scale = this.count === 3 ? 1 : this.count === 2 ? 0.7 : 0.3;     // a shorter stack is steadier
     if (fill > 0) this.wobble += fill * scale * dt;
     else this.wobble -= (actNatural ? B.actNaturalDrain : B.calmDrain) * dt;

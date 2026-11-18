@@ -6,7 +6,7 @@
 import { Walker } from '../entities/walker.js';
 
 const DEG = Math.PI / 180;
-const BUSY = new Set(['chase', 'carry', 'grab', 'slipped', 'stunned', 'shout']);
+const BUSY = new Set(['chase', 'carry', 'grab', 'slipped', 'stunned', 'shout', 'blinded', 'embarrassed']);
 
 export class GrownUp {
   constructor(R, world, type, spec, ctx) {
@@ -18,7 +18,7 @@ export class GrownUp {
     this.step_i = 0; this.state = this.routine && !(this.routine.startAt > 0) ? 'routine' : type.stays ? 'idle' : 'wander';
     this.t = 0; this.path = null; this.goal = null; this.repathT = 0; this.events = [];
     this.target = null; this.lastSeen = null; this.lostT = 0; this.carrying = null; this.inspected = new Map();
-    this.sus = new Map(); this.hostile = new Set();      // per coat: the "?" meter (0..1) and who they know is not a grown-up
+    this.sus = new Map(); this.hostile = new Set(); this.effects = {};      // per coat: the "?" meter (0..1) and who they know is not a grown-up
     this.onIce = false; this.doing = null; this.rnd = mulberry(spec.seed ?? 1);
     this.unlisten = ctx.signals?.listen({ position: () => this.walker.feet, hear: (s, d) => this.hear(s, d) });
   }
@@ -30,6 +30,7 @@ export class GrownUp {
 
   // can I see this point? (in range, inside my cone, nothing tall in between)
   sees(p) {
+    if (this.effects.blinded > 0) return false;
     const f = this.feet, dx = p.x - f.x, dz = p.z - f.z, d = Math.hypot(dx, dz);
     if (d > this.type.sight || d < 0.01) return d < 0.01;
     let a = Math.atan2(dx, dz) - this.walker.yaw; a = Math.atan2(Math.sin(a), Math.cos(a));
@@ -78,6 +79,9 @@ export class GrownUp {
     this.look(coats);
     this.think(dt, coats, time);
     this.checkSlip();
+    for (const k of Object.keys(this.effects)) this.effects[k] = Math.max(0, this.effects[k] - dt);
+    // soaked shoes: a sharp turn and they go over
+    if (this.effects.soaked > 0 && this.state !== 'slipped' && this.walker.turnRate > 3 && this.walker.flatSpeed > 0.8) { this.effects.soaked = 0; this.slip('soaked'); }
     const m = this.move || { x: 0, z: 0 };
     this.walker.grip = this.state === 'slipped' ? 0.08 : 1;          // slipped: they skid on along the floor
     this.walker.step(dt, m, false, this.faceTo || null); this.faceTo = null;
@@ -150,7 +154,11 @@ export class GrownUp {
       case 'grab':
         if (this.t <= 0) { const c = this.holding; if (c) { c.grabbedBy = null; c.mods = {}; } this.holding = null; this.set('stunned', T.stunnedTime * (this.type.toughness ?? 1)); this.events.push({ type: 'wriggleFree' }); }
         break;
-      case 'slipped': case 'stunned': if (this.t <= 0) this.back(); break;
+      case 'slipped': case 'stunned': case 'embarrassed': if (this.t <= 0) this.back(); break;
+      case 'blinded':                       // staggering about, arms out
+        this.walker.speed = this.type.walk * 0.6; this.move = { x: Math.sin(this.t * 2.3 + this.id), z: Math.cos(this.t * 1.7) };
+        if (this.t <= 0) this.back();
+        break;
     }
   }
 
@@ -232,15 +240,33 @@ export class GrownUp {
     if (!wet) { this.onIce = false; return; }
     if (this.onIce || !moving) return;
     this.onIce = true;                       // one roll of the dice per puddle
-    if (this.rnd() < this.type.slipChance * (ice && !mess?.slipperyAt(f.x, f.z) ? 0.4 : 1)) {
-      if (this.carrying) this.dropKid(false);
-      if (this.holding) { this.holding.grabbedBy = null; this.holding.mods = {}; this.holding = null; }
-      this.slipDir = { x: this.walker.vel.x, z: this.walker.vel.z };
-      this.set('slipped', this.T.slippedTime * (this.type.toughness ?? 1)); this.say('slip');
-      this.ctx.signals?.emit({ type: 'noise', position: f, source: this, range: 8, data: { event: 'grown-up slip' } });
-      this.events.push({ type: 'slip' });
-    }
+    if (this.rnd() < this.type.slipChance * (ice && !mess?.slipperyAt(f.x, f.z) ? 0.4 : 1)) this.slip('puddle');
   }
+
+  // down they go: drop whatever they hold, skid, lie there with stars
+  slip(why, seconds = this.T.slippedTime) {
+    const f = this.feet;
+    if (this.carrying) this.dropKid(false);
+    if (this.holding) { this.holding.grabbedBy = null; this.holding.mods = {}; this.holding = null; }
+    this.set('slipped', seconds * (this.type.toughness ?? 1)); this.say('slip');
+    this.ctx.signals?.emit({ type: 'noise', position: f, source: this, range: 8, data: { event: 'grown-up slip' } });
+    this.events.push({ type: 'slip', why });
+  }
+
+  // gadget effects (data/gadgets.json): soaked (slips on the next sharp turn), blinded (can't see, staggers
+  // about), embarrassed (stands there red-faced), slipped (straight down)
+  applyEffect(name, seconds) {
+    if (name === 'slipped') { if (this.state !== 'slipped') this.slip('gadget', seconds); return; }
+    if (name === 'soaked') { this.effects.soaked = Math.max(this.effects.soaked ?? 0, seconds); this.events.push({ type: 'soaked' }); return; }
+    if (this.state === 'slipped') return;
+    if (this.carrying && name === 'blinded') this.dropKid(false);
+    if (name === 'blinded') { this.effects.blinded = seconds; this.set('blinded', seconds); this.say('slip'); }
+    if (name === 'embarrassed') { this.set('embarrassed', seconds); this.say('giveUp'); }
+    this.events.push({ type: name });
+  }
+
+  // a hit makes them turn round and look (they might see who did it)
+  struckFrom(p) { if (!BUSY.has(this.state)) { this.face(p); this.go('investigate', p, this.type.walk * 1.3, this.T.investigateLook); } }
 
   remove() { this.unlisten?.(); }
 }

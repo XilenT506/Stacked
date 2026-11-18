@@ -93,7 +93,8 @@
       "Marvellous tins.",
       "Taxes, eh?",
       "How about that match?"
-    ]
+    ],
+    "gadgetHitSeen": 0.5
   },
   "heat": {
     "_about": "Heat for the whole job: points from busts and shouts; level = how many thresholds are passed (0 Calm, 1 Twitchy, 2 Alert, 3 Panic). Several grown-ups catching you in the same moment (within sameIncident seconds) count as one incident: the first adds 'bust', the others 'bustSameIncident'.",
@@ -133,5 +134,12 @@
     "sectionEvery": 25,
     "warn": 8,
     "shutterHeight": 3
+  },
+  "gadgetsOnCoat": {
+    "_about": "what gadget effects do to a coat (friendly fire)",
+    "slippedWobble": 0.55,
+    "slippedStun": 0.9,
+    "soakedTurnWobble": 0.35,
+    "embarrassedStun": 1.5
   }
 }

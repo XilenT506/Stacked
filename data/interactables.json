@@ -58,7 +58,7 @@
     },
     "light_switch": {
       "kind": "machine", "name": "Light switch", "body": "fixed", "verb": "flip the lights",
-      "shape": { "type": "box", "size": [0.12, 0.18, 0.04] },
+      "shape": { "type": "box", "size": [0.2, 0.3, 0.05] },
       "color": "#fff3e2",
       "use": { "type": "toggle", "toggles": "lights", "start": "on", "signalsWhenOff": ["dark"], "signalsWhenOn": ["noise"] },
       "sound": "switch_click",

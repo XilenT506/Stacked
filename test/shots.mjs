@@ -185,6 +185,18 @@ await key('KeyC', 0.1); await wait2(9);
 await shop.evaluate(() => __stacked2.camRig.offset.multiplyScalar(2.6)); await go(0, -2); await wait2(1.5); await shot('heat_closing_time');
 const shut = await shop.evaluate(() => [...__stacked2.closing.closed]);
 console.log('closing time', JSON.stringify(shut), shut.length >= 3 ? 'OK' : 'FAIL');
+
+// gadgets: water pistol, slingshot and a banana peel down the back walkway
+await shop.evaluate(() => { const S = __stacked2, c = S.coat; S.camRig.offset.multiplyScalar(1 / 2.6);
+  c.stack = ['sid', 'mo', 'tank']; c.loose = []; c.pile = null; c.grabbedBy = null; c.mods = {}; c.hidden = null; c.wobble = 0; c.applyHeight(); S.gadgets.arm(c); });
+await go(-15, -8); await wait2(0.8);
+await shop.evaluate(() => { const g = __stacked2.people.list.find((p) => p.typeName === 'shopper'); g.walker.body.setTranslation({ x: -10, y: 0.9, z: -8 }, true); g.set('idle'); g.type = { ...g.type, stays: true }; });
+await shop.mouse.move(1150, 330);
+await key('Digit1', 0.1); await shop.mouse.down(); await wait2(0.6); await shot('gadget_water'); await shop.mouse.up(); await wait2(0.5);
+await key('Digit2', 0.1); await shop.mouse.down(); await wait2(1.1); await shop.mouse.up(); await wait2(0.3); await shot('gadget_slingshot'); await wait2(0.6);
+await key('Digit3', 0.1); await shop.mouse.down(); await wait2(0.1); await shop.mouse.up(); await wait2(0.4); await shot('gadget_banana');
+const gad = await shop.evaluate(() => ({ counts: __stacked2.gadgets.counts, bananas: __stacked2.gadgets.items.length, ammo: __stacked2.coat.gadgets.ammo }));
+console.log('gadgets', JSON.stringify(gad), gad.counts.grownup > 0 && gad.bananas === 1 ? 'OK' : 'FAIL');
 console.log(errors.length ? 'ERRORS ' + errors.join(' | ') : 'no errors');
 await browser.close(); server.close();
 if (errors.length) process.exit(1);

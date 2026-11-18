@@ -139,8 +139,14 @@ export class PeopleView {
       v.body.rotation.x += (-Math.PI / 2 * down - v.body.rotation.x) * Math.min(1, dt * (down ? 14 : 5));
       v.body.position.y = down * 0.25 + Math.abs(Math.sin(v.ph)) * 0.03 * sw;
       v.body.position.z = -down * 0.4;
-      v.stars.visible = !!down;
-      v.stars.children.forEach((s, i) => { const a = this.t * 4 + i * 2.1; s.position.set(Math.sin(a) * 0.35, 0.5, -1.2 + Math.cos(a) * 0.35); });
+      // stars go round their head when they are down or blinded (round where the head is)
+      const blind = st === 'blinded';
+      v.stars.visible = !!down || blind;
+      v.stars.children.forEach((s, i) => { const a = this.t * 4 + i * 2.1; s.position.set(Math.sin(a) * 0.35, blind ? v.height + 0.1 : 0.5, (blind ? 0 : -1.2) + Math.cos(a) * 0.35); });
+      // soaked: drips falling off them
+      if (!v.drips) { v.drips = new T.Group(); for (let i = 0; i < 4; i++) { const d = new T.Mesh(new T.SphereGeometry(0.035, 6, 4), new T.MeshBasicMaterial({ color: 0x7fc8ff })); v.drips.add(d); } v.root.add(v.drips); }
+      v.drips.visible = (g.effects?.soaked ?? 0) > 0;
+      if (v.drips.visible) v.drips.children.forEach((d, i) => { const k = (this.t * 1.6 + i * 0.27) % 1; d.position.set(Math.sin(i * 2.4) * 0.28, v.height * (0.85 - k * 0.8), Math.cos(i * 2.4) * 0.2); });
       const sus = this.watch ? g.sus.get(this.watch) ?? 0 : 0, hostile = this.watch && g.hostile.has(this.watch);
       v.q.visible = (CURIOUS.has(st) || sus > 0.03) && !ALERT.has(st) && !hostile; v.ex.visible = ALERT.has(st) || (hostile && st !== 'slipped');
       v.bar.visible = v.barBg.visible = sus > 0.03 && !hostile;
