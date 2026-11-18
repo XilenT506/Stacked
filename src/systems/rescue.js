@@ -27,7 +27,7 @@ export class Rescue {
 
   get gateAt() { const [a, b, c, d] = this.gateSeg; return { x: (a + c) / 2, z: (b + d) / 2 }; }
   inside() { const [x0, z0, x1, z1] = this.C.rect; return { x: (x0 + x1) / 2, z: (z0 + z1) / 2 }; }
-  setGate(open) { this.open = open; this.gateBar.setEnabled(!open); this.events.push({ type: open ? 'gateOpen' : 'gateShut' }); }
+  setGate(open) { this.open = open; if (open) this.opened = (this.opened ?? 0) + 1; this.gateBar.setEnabled(!open); this.events.push({ type: open ? 'gateOpen' : 'gateShut' }); }
 
   // a grown-up got hold of the last kid in this coat
   caught(coat, g) {

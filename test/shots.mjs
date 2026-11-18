@@ -172,7 +172,7 @@ await shop.evaluate(() => { const S = __stacked2, c = S.coat; S.rescue.warden.wa
   c.stack = [c.stack[0], 'mo', 'sid'].slice(0, 3); c.applyHeight(); });     // walk in as a full coat (a lone kid gets chased)
 await go(-4.9, -14.0); await wait2(0.6); await shot('rescue_cage');
 await key('KeyE', 0.1); await wait2(1); await shot('rescue_open');
-const opened = await shop.evaluate(() => __stacked2.rescue.open);
+const opened = await shop.evaluate(() => (__stacked2.rescue.opened ?? 0) > 0);
 console.log('rescue', JSON.stringify({ spare, caged, opened }), spare && caged && opened ? 'OK' : 'FAIL');
 
 // disguise and Heat: a cashier's "?" meter, Act Natural, a bust, Heat 3 with the Caretaker, Closing Time
@@ -182,7 +182,7 @@ await shop.evaluate(() => { const S = __stacked2, c = S.coat; S.sus.points = 0; 
 await go(-5.8, 6); await wait2(0.4);
 const susOf = () => shop.evaluate(() => Math.max(...__stacked2.people.byType('cashier').map((g) => g.sus.get(__stacked2.coat) ?? 0)));
 await shop.keyboard.down('ShiftLeft');
-await key('KeyS', 0.35); await key('KeyW', 0.3);
+await key('KeyS', 0.35); await key('KeyW', 0.35); await key('KeyS', 0.35);
 await shop.keyboard.up('ShiftLeft');
 const filled = await susOf(); await shot('heat_meter');
 await shop.keyboard.down('KeyQ'); await wait2(1.5); await shot('heat_act_natural'); await shop.keyboard.up('KeyQ');
