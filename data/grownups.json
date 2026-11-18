@@ -1,27 +1,222 @@
 {
   "_about": "Grown-up types and the seven models from the old game. Speeds in m/s, sight in metres and degrees, times in seconds. voice = which recorded clip (assets/voices/<file>.mp3) each model says for each reaction; tools/gen_people_voices.mjs bundles exactly these.",
-  "states": ["idle", "wander", "routine", "investigate", "crowd", "flee", "inspect", "shout", "chase", "search", "carry", "grab", "slipped", "stunned"],
+  "states": [
+    "idle",
+    "wander",
+    "routine",
+    "investigate",
+    "crowd",
+    "flee",
+    "inspect",
+    "shout",
+    "chase",
+    "search",
+    "carry",
+    "grab",
+    "slipped",
+    "stunned"
+  ],
   "types": {
-    "shopper":       { "name": "Shopper",       "models": ["pip", "price", "mabel"], "walk": 1.3, "run": 3.2, "sight": 9,  "fov": 110, "slipChance": 0.9, "chases": false, "stays": false, "colors": ["#7fae4e", "#5f7d99", "#c9a8d8"] },
-    "granny":        { "name": "Granny",        "models": ["dot"],   "walk": 0.8, "run": 1.6, "sight": 6,  "fov": 100, "slipChance": 0.7, "chases": false, "stays": false },
-    "shelf_stacker": { "name": "Shelf stacker", "models": ["gus"],   "walk": 1.3, "run": 3.5, "sight": 8,  "fov": 110, "slipChance": 0.9, "chases": false, "stays": false },
-    "guard":         { "name": "Security guard","models": ["hale"],  "walk": 1.5, "run": 5.2, "sight": 12, "fov": 120, "slipChance": 1.0, "chases": true,  "stays": false, "grabRadius": 0.85 },
-    "cashier":       { "name": "Cashier",       "models": ["ruth"],  "walk": 1.2, "run": 3.0, "sight": 7,  "fov": 120, "slipChance": 0.9, "chases": false, "stays": true },
-    "baker":         { "name": "Baker",         "models": ["mabel"], "walk": 1.2, "run": 3.0, "sight": 7,  "fov": 120, "slipChance": 0.9, "chases": false, "stays": true }
+    "shopper": {
+      "name": "Shopper",
+      "models": [
+        "pip",
+        "price",
+        "mabel"
+      ],
+      "walk": 1.3,
+      "run": 3.2,
+      "sight": 9,
+      "fov": 110,
+      "slipChance": 0.9,
+      "chases": false,
+      "stays": false,
+      "colors": [
+        "#7fae4e",
+        "#5f7d99",
+        "#c9a8d8"
+      ]
+    },
+    "granny": {
+      "name": "Granny",
+      "models": [
+        "dot"
+      ],
+      "walk": 0.8,
+      "run": 1.6,
+      "sight": 6,
+      "fov": 100,
+      "slipChance": 0.7,
+      "chases": false,
+      "stays": false
+    },
+    "shelf_stacker": {
+      "name": "Shelf stacker",
+      "models": [
+        "gus"
+      ],
+      "walk": 1.3,
+      "run": 3.5,
+      "sight": 8,
+      "fov": 110,
+      "slipChance": 0.9,
+      "chases": false,
+      "stays": false
+    },
+    "guard": {
+      "name": "Security guard",
+      "models": [
+        "hale"
+      ],
+      "walk": 1.5,
+      "run": 5.2,
+      "sight": 12,
+      "fov": 120,
+      "slipChance": 1.0,
+      "chases": true,
+      "stays": false,
+      "grabRadius": 0.85
+    },
+    "cashier": {
+      "name": "Cashier",
+      "models": [
+        "ruth"
+      ],
+      "walk": 1.2,
+      "run": 3.0,
+      "sight": 7,
+      "fov": 120,
+      "slipChance": 0.9,
+      "chases": false,
+      "stays": true
+    },
+    "baker": {
+      "name": "Baker",
+      "models": [
+        "mabel"
+      ],
+      "walk": 1.2,
+      "run": 3.0,
+      "sight": 7,
+      "fov": 120,
+      "slipChance": 0.9,
+      "chases": false,
+      "stays": true
+    }
   },
   "timing": {
-    "investigateLook": 3, "crowdTime": 15, "fleeTime": 4, "fleeDistance": 7, "inspectTime": 3, "inspectCooldown": 20,
-    "shoutTime": 1.6, "lostSightAfter": 4, "searchTime": 3, "slippedTime": 2.4, "stunnedTime": 1.5, "grabHold": 2, "repath": 0.6,
-    "wanderRadius": 7, "wanderWait": [2, 5]
+    "investigateLook": 3,
+    "crowdTime": 15,
+    "fleeTime": 4,
+    "fleeDistance": 7,
+    "inspectTime": 3,
+    "inspectCooldown": 20,
+    "shoutTime": 1.6,
+    "lostSightAfter": 4,
+    "searchTime": 3,
+    "slippedTime": 2.4,
+    "stunnedTime": 1.5,
+    "grabHold": 2,
+    "repath": 0.6,
+    "wanderRadius": 7,
+    "wanderWait": [
+      2,
+      5
+    ],
+    "shoutCooldown": 10
   },
   "models": {
     "_about": "height in metres. voice: notice 'Hm?', children 'THOSE ARE CHILDREN!', gotYou 'Got you!', slip, food, smell, inspect, giveUp.",
-    "hale":  { "height": 2.05, "voice": { "notice": "hale_5",  "children": "hale_4",  "gotYou": "hale_7",  "slip": "hale_B9",  "food": "hale_B7",  "smell": "hale_B8",  "inspect": "hale_10", "giveUp": "hale_B6" } },
-    "ruth":  { "height": 1.88, "voice": { "notice": "ruth_5",  "children": "ruth_4",  "gotYou": "ruth_7",  "slip": "ruth_B9",  "food": "ruth_B7",  "smell": "ruth_B8",  "inspect": "ruth_B0", "giveUp": "ruth_B6" } },
-    "gus":   { "height": 1.86, "voice": { "notice": "gus_5",   "children": "gus_4",   "gotYou": "gus_7",   "slip": "gus_B9",   "food": "gus_B7",   "smell": "gus_B8",   "inspect": "gus_10",  "giveUp": "gus_B6" } },
-    "price": { "height": 1.98, "voice": { "notice": "price_B0","children": "price_B3","gotYou": "price_B9","slip": "price_B9", "food": "price_B5", "smell": "price_2",  "inspect": "price_B2","giveUp": "price_B6" } },
-    "pip":   { "height": 1.86, "voice": { "notice": "pip_5",   "children": "pip_4",   "gotYou": "pip_7",   "slip": "pip_3",    "food": "pip_2",    "smell": "pip_3",    "inspect": "pip_10",  "giveUp": "pip_3" } },
-    "mabel": { "height": 1.78, "voice": { "notice": "mabel_5", "children": "mabel_4", "gotYou": "mabel_7", "slip": "mabel_3",  "food": "mabel_2",  "smell": "mabel_3",  "inspect": "mabel_10","giveUp": "mabel_3" } },
-    "dot":   { "height": 1.72, "voice": { "notice": "dot_5",   "children": "dot_4",   "gotYou": "dot_7",   "slip": "dot_3",    "food": "dot_2",    "smell": "dot_3",    "inspect": "dot_8",   "giveUp": "dot_3" } }
+    "hale": {
+      "height": 2.05,
+      "voice": {
+        "notice": "hale_5",
+        "children": "hale_4",
+        "gotYou": "hale_7",
+        "slip": "hale_B9",
+        "food": "hale_B7",
+        "smell": "hale_B8",
+        "inspect": "hale_10",
+        "giveUp": "hale_B6"
+      }
+    },
+    "ruth": {
+      "height": 1.88,
+      "voice": {
+        "notice": "ruth_5",
+        "children": "ruth_4",
+        "gotYou": "ruth_7",
+        "slip": "ruth_B9",
+        "food": "ruth_B7",
+        "smell": "ruth_B8",
+        "inspect": "ruth_B0",
+        "giveUp": "ruth_B6"
+      }
+    },
+    "gus": {
+      "height": 1.86,
+      "voice": {
+        "notice": "gus_5",
+        "children": "gus_4",
+        "gotYou": "gus_7",
+        "slip": "gus_B9",
+        "food": "gus_B7",
+        "smell": "gus_B8",
+        "inspect": "gus_10",
+        "giveUp": "gus_B6"
+      }
+    },
+    "price": {
+      "height": 1.98,
+      "voice": {
+        "notice": "price_B0",
+        "children": "price_B3",
+        "gotYou": "price_B9",
+        "slip": "price_B9",
+        "food": "price_B5",
+        "smell": "price_2",
+        "inspect": "price_B2",
+        "giveUp": "price_B6"
+      }
+    },
+    "pip": {
+      "height": 1.86,
+      "voice": {
+        "notice": "pip_5",
+        "children": "pip_4",
+        "gotYou": "pip_7",
+        "slip": "pip_3",
+        "food": "pip_2",
+        "smell": "pip_3",
+        "inspect": "pip_10",
+        "giveUp": "pip_3"
+      }
+    },
+    "mabel": {
+      "height": 1.78,
+      "voice": {
+        "notice": "mabel_5",
+        "children": "mabel_4",
+        "gotYou": "mabel_7",
+        "slip": "mabel_3",
+        "food": "mabel_2",
+        "smell": "mabel_3",
+        "inspect": "mabel_10",
+        "giveUp": "mabel_3"
+      }
+    },
+    "dot": {
+      "height": 1.72,
+      "voice": {
+        "notice": "dot_5",
+        "children": "dot_4",
+        "gotYou": "dot_7",
+        "slip": "dot_3",
+        "food": "dot_2",
+        "smell": "dot_3",
+        "inspect": "dot_8",
+        "giveUp": "dot_3"
+      }
+    }
   }
 }

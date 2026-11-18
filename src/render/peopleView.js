@@ -117,7 +117,7 @@ export class PeopleView {
       const pulse = 1 + Math.sin(this.t * 10) * 0.08; v.ex.scale.setScalar(0.55 * pulse);
       // the cone: red when they are after someone, hidden while they are down
       v.cone.visible = !down; v.cone.material.color.setHex(ALERT.has(st) ? 0xff7a6a : CURIOUS.has(st) ? 0xffd27a : 0xfff1a8);
-      v.cone.material.opacity = ALERT.has(st) ? 0.22 : 0.14;
+      v.cone.material.opacity = ALERT.has(st) ? 0.13 : 0.08;
       // a kid held out in front, legs kicking
       const k = g.carrying || (g.holding ? { id: g.holding.stack[0] } : null);
       v.kid.visible = !!k;

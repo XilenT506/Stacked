@@ -94,6 +94,8 @@ export class GrownUp {
         if (!this.sees(k.p)) continue;
         if (this.state === 'chase') { if (this.target.kid === k.kid && this.target.coat === k.coat) { this.lastSeen = { ...k.p }; this.lostT = 0; } continue; }
         if (this.type.chases) { this.set('chase'); this.target = k; this.lastSeen = { ...k.p }; this.lostT = 0; this.say('children'); this.events.push({ type: 'chase' }); return; }
+        if (this.clock < (this.shoutCool ?? -1)) { this.faceTo = { x: k.p.x - this.feet.x, z: k.p.z - this.feet.z }; continue; }   // already shouted: just stare
+        this.shoutCool = this.clock + this.T.shoutCooldown;
         this.set('shout', this.T.shoutTime); this.face(k.p); this.say('children');
         this.ctx.signals.emit({ type: 'alarm', position: k.p, source: this, range: 25, data: { event: 'shout' } });
         return;
