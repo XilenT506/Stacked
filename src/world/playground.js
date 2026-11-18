@@ -3,18 +3,20 @@
 // Returns the fixed shapes (for drawing) and the things.
 export function buildPlayground(R, world, things) {
   const statics = [];
-  const fixedBox = (size, pos, rotZ = 0, color = '#e9b48a') => {
+  const fixedBox = (size, pos, rotZ = 0, color = '#e9b48a', fade = false) => {
     const d = R.ColliderDesc.cuboid(size[0] / 2, size[1] / 2, size[2] / 2).setTranslation(pos[0], pos[1], pos[2]).setFriction(0.7);
     if (rotZ) { const h = rotZ / 2; d.setRotation({ x: 0, y: 0, z: Math.sin(h), w: Math.cos(h) }); }
     world.createCollider(d);
-    statics.push({ size, pos, rotZ, color });
+    statics.push({ size, pos, rotZ, color, fade });
   };
-  // floor 16 x 12 and walls 1.2 high
+  // floor 16 x 12 and walls 2.4 high (they fade when they hide a player)
   fixedBox([16, 0.2, 12], [0, -0.1, 0], 0, '#e9b48a');
-  fixedBox([16, 1.2, 0.2], [0, 0.6, -6], 0, '#f2d3b3');
-  fixedBox([16, 1.2, 0.2], [0, 0.6, 6], 0, '#f2d3b3');
-  fixedBox([0.2, 1.2, 12], [-8, 0.6, 0], 0, '#f2d3b3');
-  fixedBox([0.2, 1.2, 12], [8, 0.6, 0], 0, '#f2d3b3');
+  fixedBox([16, 2.4, 0.2], [0, 1.2, -6], 0, '#f2d3b3', true);
+  fixedBox([16, 2.4, 0.2], [0, 1.2, 6], 0, '#f2d3b3', true);
+  fixedBox([0.2, 2.4, 12], [-8, 1.2, 0], 0, '#f2d3b3', true);
+  fixedBox([0.2, 2.4, 12], [8, 1.2, 0], 0, '#f2d3b3', true);
+  // a tall shelf unit, like a supermarket aisle, to walk behind
+  fixedBox([3.2, 2.2, 0.6], [-2.6, 1.1, 2.6], 0, '#c7d6cf', true);
   // ramp: 4 m long, high end at the left, low end touching the floor
   const a = 0.32, len = 4;
   fixedBox([len, 0.2, 1.6], [-5, Math.sin(a) * len / 2, 0], -a, '#d9906a');

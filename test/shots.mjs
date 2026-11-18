@@ -20,6 +20,36 @@ await at(0.5, 'playground_start');
 await at(3.2, 'playground_crash');
 await at(7, 'playground_after');
 const state = await tab.evaluate(() => ({ fps: __stacked2.fps, trolleyX: +__stacked2.pg.trolley.position.x.toFixed(2), signals: __stacked2.signals.sent, shadows: __stacked2.renderer.shadowMap.enabled, quality: __stacked2.quality }));
-console.log('playground', JSON.stringify(state), errors.length ? 'ERRORS ' + errors.join(' | ') : 'no errors');
+console.log('playground', JSON.stringify(state));
+
+// controls: keyboard walk and mouse aim
+const pos = () => tab.evaluate(() => { const p = __stacked2.walker.position; return { x: +p.x.toFixed(2), z: +p.z.toFixed(2) }; });
+const waitGame = (sec) => tab.evaluate((s) => new Promise((res) => { const t0 = __stacked2.clock.time; const f = () => (__stacked2.clock.time - t0 >= s ? res() : requestAnimationFrame(f)); f(); }), sec);
+const p0 = await pos();
+await tab.mouse.move(1100, 360);
+await tab.keyboard.down('KeyW'); await waitGame(0.8); await tab.keyboard.up('KeyW'); await waitGame(0.3);
+const p1 = await pos(), aimK = await tab.evaluate(() => __stacked2.aim && { x: +__stacked2.aim.x.toFixed(2), z: +__stacked2.aim.z.toFixed(2) });
+await tab.screenshot({ path: 'test/shots/controls_keyboard.png' });
+console.log('keyboard', JSON.stringify({ from: p0, to: p1, aim: aimK }), p1.z < p0.z - 1.5 && aimK?.x > 0.5 ? 'OK' : 'FAIL');
+
+// controls: a gamepad (a fake one, as the test browser has none): left stick left, right stick aims down-screen
+await tab.evaluate(() => {
+  const btn = () => Array.from({ length: 17 }, () => ({ pressed: false, value: 0 }));
+  globalThis.__pad = { axes: [-1, 0, 0, 1], buttons: btn(), connected: true, mapping: 'standard' };
+  navigator.getGamepads = () => [globalThis.__pad];
+});
+const p2 = await pos(); await waitGame(0.8);
+await tab.evaluate(() => { __pad.axes[0] = 0; }); await waitGame(0.3);
+const p3 = await pos(), padState = await tab.evaluate(() => ({ device: __stacked2.input.device, aim: __stacked2.aim && { x: +__stacked2.aim.x.toFixed(2), z: +__stacked2.aim.z.toFixed(2) } }));
+await tab.screenshot({ path: 'test/shots/controls_gamepad.png' });
+console.log('gamepad', JSON.stringify({ from: p2, to: p3, ...padState }), p3.x < p2.x - 1.5 && padState.device === 'pad' && padState.aim?.z > 0.9 ? 'OK' : 'FAIL');
+
+// wall fade: stand behind the shelf unit (between it and the back wall), seen from the camera side
+await tab.evaluate(() => { __pad.axes = [0, 0, 0, 0]; __stacked2.walker.body.setTranslation({ x: -2.6, y: 0.9, z: 1.7 }, true); });
+await waitGame(0.6);
+const shelf = await tab.evaluate(() => __stacked2.fade.items.map((i) => ({ blocking: i.blocking, k: +i.k.toFixed(2) })));
+await tab.screenshot({ path: 'test/shots/wall_fade.png' });
+console.log('wall fade', JSON.stringify(shelf), shelf.some((s) => s.blocking && s.k < 0.4) ? 'OK' : 'FAIL');
+console.log(errors.length ? 'ERRORS ' + errors.join(' | ') : 'no errors');
 await browser.close(); server.close();
 if (errors.length) process.exit(1);

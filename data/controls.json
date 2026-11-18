@@ -1,0 +1,23 @@
+{
+  "_about": "Every control, from the Controls table in the plan. keys = KeyboardEvent.code, mouse = button number (0 left, 1 middle, 2 right), pad = standard gamepad button number. Remapping later just rewrites this file's values per player.",
+  "deadzone": 0.18,
+  "move": {
+    "keys": { "up": ["KeyW", "ArrowUp"], "down": ["KeyS", "ArrowDown"], "left": ["KeyA", "ArrowLeft"], "right": ["KeyD", "ArrowRight"] },
+    "padAxes": [0, 1]
+  },
+  "aim": { "mouse": true, "padAxes": [2, 3] },
+  "actions": {
+    "use":     { "label": "Use weapon",                 "mouse": [0], "pad": [7] },
+    "throw":   { "label": "Throw",                      "mouse": [2], "pad": [6] },
+    "grab":    { "label": "Grab, carry, use",           "keys": ["KeyE"], "pad": [0] },
+    "natural": { "label": "Act Natural (hold: emotes)", "keys": ["KeyQ"], "pad": [4] },
+    "drink":   { "label": "Drink a fizzy drink",        "keys": ["KeyF"], "pad": [5] },
+    "slot1":   { "label": "Gadget 1",                   "keys": ["Digit1"] },
+    "slot2":   { "label": "Gadget 2",                   "keys": ["Digit2"] },
+    "switch":  { "label": "Switch gadget",              "wheel": true, "pad": [3] },
+    "run":     { "label": "Run (more wobble)",          "keys": ["ShiftLeft", "ShiftRight"], "pad": [10] },
+    "stack":   { "label": "Unstack, restack, Mega Coat", "keys": ["KeyR"], "pad": [1] },
+    "point":   { "label": "Point at something",         "mouse": [1], "pad": [11] },
+    "map":     { "label": "Crayon map",                 "keys": ["Tab"], "pad": [8] }
+  }
+}
