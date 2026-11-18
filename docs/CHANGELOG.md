@@ -2,6 +2,16 @@
 
 Newest first. One entry per build session (one prompt from the Build guide in the doc "STACKED – Game Plan").
 
+## 2026-11-18 · Prompt 5 of 16 (M1-01): The supermarket layout
+
+- **Bargain Bonanza** (`data/places/supermarket.json`, hand-made): car park, entrance with automatic doors, four tills, aisles 1 to 4 (tins, cereal, loo roll, pop), the sweet aisle (pink shelves), the freezer aisle (icy floor: you slide and wobble), the bakery with its counter and ovens, fruit and veg, a back walkway, the staff room, the storeroom with the back door, a loading yard, a service lane round the side and the getaway gate in the car park. About 44 by 46 metres; walking the whole tour takes about a minute.
+- The file also holds: spawn points (4 players, guard, cashiers, shoppers, shelf stacker, baker, toddler, staff room, Caretaker), 13 loot spots (small and big, with values), 9 hiding-spot places (boxes, mannequin row, coat rack, inflatable), where the timed events happen, and **Closing Time** in 6 steps that close the shop towards the front doors: back rooms, bakery, aisles 1 to 3, sweets/pop/freezers, fruit and veg, and last the tills and front doors.
+- The floor-plan outline for the crayon map (building and grounds outlines, areas with names, doors) is stored in the same file.
+- `src/world/place.js` turns any place file into walls, fences and furniture; `src/render/placeView.js` draws it with coloured floors per area, hanging area signs, stocked shelves, the icy floor and the GETAWAY! banner.
+- **O** shows the planning overlay: gold stars for loot, green rings for hiding spots, small rings for spawn points, and the Closing Time shutters as red lines numbered in the order they close. The HUD shows which area you are in.
+- The test build now opens in the supermarket. The old playground is still there with `?place=playground`. Space now bowls a melon where you aim.
+- Tests: 28 logic tests pass (4 new: every area from the plan exists and the data is complete; spawn, loot and hiding spots are in an area and not inside furniture; the coat walks a tour through every area and every door to the getaway gate; the freezer aisle is icy). High-quality screenshots of all 16 areas and an overview with the overlay.
+
 ## 2026-11-18 · Prompt 4 of 16 (M0-04): The coat
 
 - **The coat** (`src/entities/coat.js`, numbers in the new `data/balance.json`): three kids in one trench coat. Your health is your height: 3 kids is a tall grown-up (4.2 m/s, full disguise), 2 kids a short grown-up (4.8 m/s, less disguise), 1 kid is just a kid (6 m/s, no disguise). Shift runs 1.4 times faster.

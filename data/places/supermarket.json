@@ -1,0 +1,147 @@
+{
+  "_about": "Bargain Bonanza supermarket, hand-made for the M1 fun test. Metres. x runs left to right on screen, z runs towards the camera (the entrance side). Every point is [x, z]; a rect is [x0, z0, x1, z1]; a wall is [x0, z0, x1, z1]. Heights are in 'h'.",
+  "name": "Bargain Bonanza",
+  "bounds": [-22, -26, 22, 20],
+  "ground": { "rect": [-22, -26, 22, 20], "color": "#9a958c" },
+
+  "areas": [
+    { "id": "carpark",  "name": "Car park",        "rect": [-22, 12, 22, 20],   "floor": "#8f8a82", "outside": true },
+    { "id": "entrance", "name": "Entrance",        "rect": [-18, 8.5, -10, 12], "floor": "#e8dcc6", "sign": [-14, 10] },
+    { "id": "tills",    "name": "Tills",           "rects": [[-18, 4, 8, 8.5], [-10, 8.5, 8, 12]], "floor": "#ece3d2", "sign": [-4, 10.5] },
+    { "id": "aisle1",   "name": "Aisle 1: Tins",   "rect": [-17, -6, -14, 4],   "floor": "#f1e9d8", "sign": [-15.5, -6.6] },
+    { "id": "aisle2",   "name": "Aisle 2: Cereal", "rect": [-13, -6, -10, 4],   "floor": "#f1e9d8", "sign": [-11.5, -6.6] },
+    { "id": "aisle3",   "name": "Aisle 3: Loo roll", "rect": [-9, -6, -6, 4],   "floor": "#f1e9d8", "sign": [-7.5, -6.6] },
+    { "id": "aisle4",   "name": "Aisle 4: Pop",    "rect": [-5, -6, -2, 4],     "floor": "#f1e9d8", "sign": [-3.5, -6.6] },
+    { "id": "sweets",   "name": "Sweet aisle",     "rect": [-1, -6, 2, 4],      "floor": "#f6dfe6", "sign": [0.5, -6.6] },
+    { "id": "freezer",  "name": "Freezer aisle",   "rect": [3, -6, 6, 4],       "floor": "#dcecf2", "sign": [4.5, -6.6] },
+    { "id": "backwalk", "name": "Back walkway",    "rect": [-18, -10, 8, -6],   "floor": "#ebe2cf" },
+    { "id": "bakery",   "name": "Bakery",          "rect": [8, -10, 18, -2],    "floor": "#f3dcc0", "sign": [13, -6] },
+    { "id": "produce",  "name": "Fruit and veg",   "rect": [8, -2, 18, 12],     "floor": "#e3ecd0", "sign": [13, 3] },
+    { "id": "staff",    "name": "Staff room",      "rect": [-14, -18, -2, -10], "floor": "#d9cdb8", "sign": [-8, -14] },
+    { "id": "store",    "name": "Storeroom and back door", "rect": [-2, -18, 12, -10], "floor": "#cfc6b6", "sign": [5, -14] },
+    { "id": "yard",     "name": "Loading yard",    "rect": [-6, -26, 22, -18],  "floor": "#8f8a82", "outside": true },
+    { "id": "lane",     "name": "Service lane",    "rects": [[18, -10, 22, 12], [12, -18, 22, -10]], "floor": "#8f8a82", "outside": true },
+    { "id": "getaway",  "name": "Getaway gate",    "rect": [13, 16, 19, 20],    "floor": "#8f8a82", "outside": true, "sign": [16, 14.5] }
+  ],
+
+  "walls": {
+    "_about": "outer shop walls 3 m, back-room walls 2.6 m, outdoor fences 1.2 m. Gaps are the doors.",
+    "shop": { "h": 3, "color": "#efd9bd", "list": [
+      [-18, 12, -16, 12], [-13, 12, 18, 12],
+      [-18, -10, -18, 12], [18, -10, 18, 12],
+      [-18, -10, -10, -10], [-8, -10, 3, -10], [5, -10, 18, -10]
+    ] },
+    "back": { "h": 2.6, "color": "#dccbb0", "list": [
+      [-14, -18, -14, -10], [12, -18, 12, -10],
+      [-14, -18, 5, -18], [7, -18, 12, -18],
+      [-2, -18, -2, -15], [-2, -13.5, -2, -10]
+    ] },
+    "fence": { "h": 1.2, "color": "#6f7d6a", "list": [
+      [-6, -26, -6, -18], [-6, -26, 22, -26], [22, -26, 22, 20],
+      [-22, 20, 13, 20], [19, 20, 22, 20], [-22, 12, -22, 20], [-22, 12, -18, 12]
+    ] }
+  },
+
+  "doors": [
+    { "id": "front",  "name": "Automatic doors", "between": ["carpark", "entrance"], "span": [-16, 12, -13, 12] },
+    { "id": "staffdoor", "name": "Staff only",   "between": ["backwalk", "staff"],  "span": [-10, -10, -8, -10] },
+    { "id": "storedoor", "name": "Swing doors",  "between": ["backwalk", "store"],  "span": [3, -10, 5, -10] },
+    { "id": "inner",  "name": "Staff room to storeroom", "between": ["staff", "store"], "span": [-2, -15, -2, -13.5] },
+    { "id": "back",   "name": "Back door",       "between": ["store", "yard"],      "span": [5, -18, 7, -18] },
+    { "id": "gate",   "name": "Getaway gate",    "between": ["carpark", "outside"], "span": [13, 20, 19, 20] }
+  ],
+
+  "solids": {
+    "_about": "fixed furniture: [x, z, width, height, depth, kind]",
+    "list": [
+      [-17.5, -1, 1, 2, 10, "shelf"], [-13.5, -1, 1, 2, 10, "shelf"], [-9.5, -1, 1, 2, 10, "shelf"],
+      [-5.5, -1, 1, 2, 10, "shelf"], [-1.5, -1, 1, 2, 10, "sweetshelf"], [2.5, -1, 1, 2, 10, "sweetshelf"],
+      [6.6, -1, 1.2, 2.1, 10, "freezer"],
+      [-12, 7.5, 0.9, 0.9, 3, "till"], [-8, 7.5, 0.9, 0.9, 3, "till"], [-4, 7.5, 0.9, 0.9, 3, "till"], [0, 7.5, 0.9, 0.9, 3, "till"],
+      [13.5, -5, 7, 1, 0.8, "counter"], [14, -9.4, 6, 1.8, 0.8, "oven"],
+      [11, 2, 1.6, 0.8, 1.2, "crate"], [11, 5.5, 1.6, 0.8, 1.2, "crate"], [14, 8, 1.6, 0.8, 1.2, "crate"],
+      [-8, -14, 2.4, 0.8, 1.2, "table"], [-11, -17.2, 3, 0.8, 1, "sofa"], [-13.4, -12.5, 0.6, 2, 4, "lockers"],
+      [2, -16.6, 4, 2.2, 0.8, "rack"], [9.5, -11, 3, 2.2, 0.8, "rack"], [1, -12.5, 1.6, 1.4, 1.6, "pallet"],
+      [3, -22, 1.4, 1.3, 1, "bin"], [5, -22, 1.4, 1.3, 1, "bin"], [12, -21.5, 5, 2.2, 2.2, "van"],
+      [-6, 16, 2, 1.4, 4.2, "car"], [1, 16.5, 2, 1.4, 4.2, "car"], [7, 15.5, 2, 1.4, 4.2, "car"], [-19.5, 16, 1, 2, 4, "trolleybay"]
+    ]
+  },
+
+  "slippery": {
+    "_about": "freezer-aisle ice: always slippery (rects). Wet-floor events add more later.",
+    "list": [[3.2, -5, 5.8, -2], [3.2, 0.5, 5.8, 2.5]]
+  },
+
+  "spawns": {
+    "players": [[-15.5, 15], [-13.5, 15], [-15.5, 17], [-13.5, 17]],
+    "guard": [[-12, 10.2]],
+    "cashiers": [[-11.2, 7.5], [-7.2, 7.5], [-3.2, 7.5], [0.8, 7.5]],
+    "shoppers": [[-15.5, -3], [-11.5, 2], [-7.5, -4], [0.5, 1], [4.5, -1], [12, 4], [-4, 5], [-10, -8]],
+    "shelfStacker": [[-7.5, -5]],
+    "baker": [[13, -7.5]],
+    "toddler": [[10, 9]],
+    "staffRoom": [[-8, -12]],
+    "caretaker": [[9, -16]]
+  },
+
+  "loot": {
+    "_about": "small fits in a pocket, big is carried (two players can carry together). value in pence.",
+    "list": [
+      { "id": "pick_n_mix",   "kind": "small", "value": 120, "at": [-0.8, 1.1, -4] },
+      { "id": "lollies",      "kind": "small", "value": 80,  "at": [-0.8, 1.1, -0.5] },
+      { "id": "chocolate",    "kind": "small", "value": 150, "at": [-0.8, 1.1, 2.5] },
+      { "id": "gummy_worms",  "kind": "small", "value": 90,  "at": [1.8, 1.1, -3] },
+      { "id": "fizzy_cola",   "kind": "small", "value": 100, "at": [1.8, 1.1, 0.5] },
+      { "id": "giant_lolly",  "kind": "big",   "value": 400, "at": [0.5, 0, 3.5] },
+      { "id": "birthday_cake","kind": "big",   "value": 800, "at": [13.5, 1.05, -5] },
+      { "id": "coin_jar",     "kind": "small", "value": 300, "at": [-4, 0.95, 6.4] },
+      { "id": "ice_lollies",  "kind": "small", "value": 110, "at": [5.9, 1.1, -3.5] },
+      { "id": "biscuit_tin",  "kind": "small", "value": 200, "at": [-8, 0.85, -14] },
+      { "id": "pop_crate",    "kind": "big",   "value": 500, "at": [6, 0, -14] },
+      { "id": "tin_beans",    "kind": "small", "value": 60,  "at": [-14.8, 1.1, 1] },
+      { "id": "cereal_box",   "kind": "small", "value": 70,  "at": [-12.8, 1.1, -3] }
+    ]
+  },
+
+  "hiding": {
+    "_about": "where hiding spots stand; 'thing' is the interactable that goes there (task 6 adds the missing ones)",
+    "list": [
+      { "thing": "big_box",    "at": [10, -15.5] }, { "thing": "big_box", "at": [-0.9, -16.8] },
+      { "thing": "mannequin",  "at": [17, 0.5] }, { "thing": "mannequin", "at": [17, 2] }, { "thing": "mannequin", "at": [17, 3.5] }, { "thing": "mannequin", "at": [17, 5] },
+      { "thing": "coat_rack",  "at": [-3, -11] },
+      { "thing": "inflatable", "at": [-17, 6.5] },
+      { "thing": "big_box",    "at": [8, -23.5] }
+    ]
+  },
+
+  "closingTime": {
+    "_about": "Closing Time closes the shop section by section towards the front doors. Each step's shutters come down in this order; anyone left behind them is caught. The getaway gate is in the car park.",
+    "sections": [
+      { "id": "back",    "name": "Back rooms",       "areas": ["staff", "store"],
+        "shutters": [[-10, -10, -8, -10], [3, -10, 5, -10], [5, -18, 7, -18]] },
+      { "id": "bakery",  "name": "Bakery",           "areas": ["bakery"],
+        "shutters": [[8, -10, 8, -2], [8, -2, 18, -2]] },
+      { "id": "west",    "name": "Aisles 1 to 3",    "areas": ["aisle1", "aisle2", "aisle3"],
+        "shutters": [[-6, -10, -6, 4], [-18, 4, -6, 4]] },
+      { "id": "middle",  "name": "Sweets, pop and freezers", "areas": ["aisle4", "sweets", "freezer", "backwalk"],
+        "shutters": [[-6, 4, 8, 4], [8, -2, 8, 4]] },
+      { "id": "produce", "name": "Fruit and veg",    "areas": ["produce"],
+        "shutters": [[8, 4, 8, 12]] },
+      { "id": "front",   "name": "Tills and entrance", "areas": ["tills", "entrance"],
+        "shutters": [[-16, 12, -13, 12]] }
+    ]
+  },
+
+  "getaway": { "at": [16, 18.5], "radius": 2 },
+
+  "events": {
+    "_about": "where the timed events happen (task 7 and later use them)",
+    "freeSamples": [13, -3], "cleanUp": [-3.5, 0], "delivery": [6, -19.5], "tannoy": [-9, 10.8]
+  },
+
+  "map": {
+    "_about": "what the crayon map draws: the building outline, the fences, room labels come from areas, doors from doors",
+    "building": [[-18, 12], [18, 12], [18, -10], [12, -10], [12, -18], [-14, -18], [-14, -10], [-18, -10]],
+    "grounds": [[-22, 20], [22, 20], [22, -26], [-6, -26], [-6, -18], [-14, -18], [-14, -10], [-18, -10], [-18, 12], [-22, 12]]
+  }
+}

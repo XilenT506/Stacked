@@ -14,7 +14,7 @@ const tab = await browser.newPage({ viewport: { width: 1280, height: 720 }, devi
 const errors = [];
 tab.on('pageerror', (e) => errors.push(String(e)));
 tab.on('console', (m) => { if (m.type() === 'error') errors.push(m.text()); });
-await tab.goto('http://localhost:8481/?q=high');
+await tab.goto('http://localhost:8481/?q=high&place=playground');
 const at = async (t, name) => { await tab.waitForFunction((x) => globalThis.__stacked2?.clock.time > x, t, { timeout: 120000 }); await tab.screenshot({ path: `test/shots/${name}.png` }); };
 await at(0.5, 'playground_start');
 await at(3.2, 'playground_crash');
@@ -73,6 +73,30 @@ await tab.keyboard.down('KeyR'); await waitGame(0.3); await tab.keyboard.up('Key
 await tab.keyboard.down('KeyD'); await waitGame(0.35); await tab.keyboard.up('KeyD'); await waitGame(0.8);
 cs = await coatState(); await tab.screenshot({ path: 'test/shots/coat_pile.png' });
 console.log('pile', JSON.stringify(cs), cs.count === 1 && cs.pile ? 'OK' : 'FAIL');
+
+// the supermarket: an overview with the planning overlay, then every area seen from the coat's camera
+const shop = await browser.newPage({ viewport: { width: 1280, height: 720 }, deviceScaleFactor: 1 });
+shop.on('pageerror', (e) => errors.push(String(e)));
+shop.on('console', (m) => { if (m.type() === 'error') errors.push(m.text()); });
+await shop.goto('http://localhost:8481/?q=high');
+await shop.waitForFunction(() => globalThis.__stacked2?.clock.time > 1, null, { timeout: 120000 });
+const wait2 = (sec) => shop.evaluate((s) => new Promise((res) => { const t0 = __stacked2.clock.time; const f = () => (__stacked2.clock.time - t0 >= s ? res() : requestAnimationFrame(f)); f(); }), sec);
+await shop.mouse.move(640, 300);
+const go = (x, z) => shop.evaluate(([x, z]) => { const w = __stacked2.walker; w.body.setTranslation({ x, y: 1.2, z }, true); w.body.setNextKinematicTranslation({ x, y: 1.2, z }); }, [x, z]);
+await shop.evaluate(() => { const S = __stacked2; S.placeView.overlay.visible = true; S.camRig.offset.multiplyScalar(3.4); });
+await go(0, -3); await wait2(2.5);
+await shop.screenshot({ path: 'test/shots/shop_overview.png' });
+await shop.evaluate(() => { const S = __stacked2; S.placeView.overlay.visible = false; S.camRig.offset.multiplyScalar(1 / 3.4); });
+const spots = [['carpark', -14.5, 16], ['entrance', -14.5, 10.5], ['tills', -6, 10], ['aisle1', -15.5, 0], ['aisle2', -11.5, 0], ['aisle3', -7.5, 0], ['aisle4', -3.5, 0],
+  ['sweets', 0.5, 0], ['freezer', 4.5, 0], ['bakery', 13, -3.5], ['produce', 13, 4], ['staff', -6, -12.5], ['store', 5, -14.5], ['yard', 6, -20.5], ['lane', 20, 0], ['getaway', 16, 17]];
+const wrong = [];
+for (const [id, x, z] of spots) {
+  await go(x, z); await wait2(1.2);
+  const a = await shop.evaluate(() => __stacked2.area?.id);
+  if (a !== id) wrong.push(`${id} -> ${a}`);
+  await shop.screenshot({ path: `test/shots/shop_${id}.png` });
+}
+console.log('shop areas', spots.length, wrong.length ? 'FAIL ' + wrong.join(', ') : 'OK');
 console.log(errors.length ? 'ERRORS ' + errors.join(' | ') : 'no errors');
 await browser.close(); server.close();
 if (errors.length) process.exit(1);

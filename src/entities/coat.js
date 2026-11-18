@@ -37,6 +37,7 @@ export class Coat {
   onSlippery() {
     const f = this.walker.feet;
     this.patches = this.patches.filter((p) => p.until > this.time);
+    if (this.floorZones?.some((r) => f.x >= r[0] && f.x <= r[2] && f.z >= r[1] && f.z <= r[3])) return true;   // ice that is always there
     return this.patches.some((p) => Math.hypot(p.x - f.x, p.z - f.z) <= p.r);
   }
 
