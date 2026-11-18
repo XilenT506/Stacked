@@ -27,7 +27,14 @@ export class NavGrid {
     const g = new NavGrid(place.bounds);
     for (const s of place.statics) if (s.kind !== 'ground') g.addBox(s.pos[0], s.pos[2], s.size[0], s.size[2], s.pos[1] + s.size[1] / 2);
     for (const t of things) {
-      if (t.def.body !== 'fixed' || !t.def.shape || t.gone) continue;
+      if (!t.def.shape || t.gone) continue;
+      // grown-ups walk round displays on the floor (tins, bottles, boxes) instead of through them
+      if (t.def.body !== 'fixed') {
+        if (t.kind === 'ride' || t.position.y > 0.6) continue;
+        const r = t.def.shape.radius ?? Math.max(...(t.def.shape.size || [0.3, 0, 0.3]).filter((_, i) => i !== 1)) / 2;
+        g.addBox(t.position.x, t.position.z, r * 2, r * 2, 0, 0, 0.3);
+        continue;
+      }
       const sh = t.def.shape, p = t.position, parts = sh.type === 'compound' ? sh.parts : [sh];
       let sx = 0.3, sz = 0.3, top = 1;
       for (const q of parts) {

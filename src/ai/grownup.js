@@ -43,7 +43,7 @@ export class GrownUp {
     if (s.type === 'smell') { this.flee(p); this.say('smell'); return; }
     if (s.type === 'food') { if (!this.type.stays && this.state !== 'crowd') { this.go('crowd', p, this.type.walk * 1.4, this.T.crowdTime); this.say('food'); } return; }
     if (s.type === 'noise' || s.type === 'crash' || s.type === 'alarm' || s.type === 'spill') {
-      if (this.state === 'crowd' && s.type === 'noise') return;            // free cake beats a bit of noise
+      if (this.state === 'crowd' && !(s.type === 'alarm' && s.data?.event === 'shout')) return;   // free cake beats a bit of noise
       if (this.type.stays) { this.face(p); this.say('notice'); return; }   // cashiers just turn and look
       const hurry = this.type.chases && (s.type !== 'noise' || s.data?.event === 'shout');
       this.go('investigate', p, hurry ? run : this.type.walk * 1.3, this.T.investigateLook);
