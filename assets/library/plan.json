@@ -1,0 +1,374 @@
+[
+ {
+  "key": "characters/kev",
+  "type": "image",
+  "prompt": "A new character in exactly the same toy-like 3D render style, materials, lighting and plain light grey studio background as the reference figure. Full body, front view, standing straight, arms slightly away from the body, centred, nothing else in frame. Same chunky proportions (big head, small body) as the reference. Character: KEV, a cheeky 14-year-old paperboy: shaggy hair, backwards baseball cap, oversized hoodie, newspaper satchel over his shoulder, scuffed trainers, cheeky grin.",
+  "aspect": "2:3"
+ },
+ {
+  "key": "characters/nan",
+  "type": "image",
+  "prompt": "A new character in exactly the same toy-like 3D render style, materials, lighting and plain light grey studio background as the reference figure. Full body, front view, standing straight, arms slightly away from the body, centred, nothing else in frame. Same chunky proportions (big head, small body) as the reference. Character: NAN IVY, a tiny sweet grandma: white curly hair, pearl necklace, pastel knitted cardigan, tartan skirt, holding a ball of knitting wool with needles, slippers.",
+  "aspect": "2:3"
+ },
+ {
+  "key": "characters/bert",
+  "type": "image",
+  "prompt": "A new character in exactly the same toy-like 3D render style, materials, lighting and plain light grey studio background as the reference figure. Full body, front view, standing straight, arms slightly away from the body, centred, nothing else in frame. Same chunky proportions (big head, small body) as the reference. Character: BERT, a cheerful window cleaner: flat cap, rolled-up sleeves, blue overalls, a squeegee in one hand and a bucket in the other, big smile.",
+  "aspect": "2:3"
+ },
+ {
+  "key": "characters/kid_top",
+  "type": "image",
+  "prompt": "A new character in exactly the same toy-like 3D render style, materials, lighting and plain light grey studio background as the reference figure. Full body, front view, standing straight, arms slightly away from the body, centred, nothing else in frame. Same chunky proportions (big head, small body) as the reference. Character: the TOP KID who is the head of the stack: a cheeky 9-year-old boy with messy brown curly hair and a drawn-on moustache, stripy t-shirt, shorts, red-and-white striped socks, green sneakers.",
+  "aspect": "2:3"
+ },
+ {
+  "key": "characters/kid_middle",
+  "type": "image",
+  "prompt": "A new character in exactly the same toy-like 3D render style, materials, lighting and plain light grey studio background as the reference figure. Full body, front view, standing straight, arms slightly away from the body, centred, nothing else in frame. Same chunky proportions (big head, small body) as the reference. Character: the MIDDLE KID who is the arms of the stack: a determined 8-year-old girl with ginger hair in two bunches and freckles, yellow jumper, dungaree shorts, yellow polka-dot socks, green sneakers.",
+  "aspect": "2:3"
+ },
+ {
+  "key": "characters/kid_bottom",
+  "type": "image",
+  "prompt": "A new character in exactly the same toy-like 3D render style, materials, lighting and plain light grey studio background as the reference figure. Full body, front view, standing straight, arms slightly away from the body, centred, nothing else in frame. Same chunky proportions (big head, small body) as the reference. Character: the BOTTOM KID who is the legs of the stack: a sturdy small 7-year-old boy with a bowl haircut, big glasses, green t-shirt, knee pads, mismatched socks, chunky white sneakers.",
+  "aspect": "2:3"
+ },
+ {
+  "key": "characters/teacher",
+  "type": "image",
+  "prompt": "A new character in exactly the same toy-like 3D render style, materials, lighting and plain light grey studio background as the reference figure. Full body, front view, standing straight, arms slightly away from the body, centred, nothing else in frame. Same chunky proportions (big head, small body) as the reference. Character: MISS PRIM, a strict schoolteacher for a future 'parents evening' errand: tight bun, pointy glasses, cardigan, pencil skirt, holding a red pen and a report card.",
+  "aspect": "2:3"
+ },
+ {
+  "key": "characters/barber",
+  "type": "image",
+  "prompt": "A new character in exactly the same toy-like 3D render style, materials, lighting and plain light grey studio background as the reference figure. Full body, front view, standing straight, arms slightly away from the body, centred, nothing else in frame. Same chunky proportions (big head, small body) as the reference. Character: SAL, a chatty barber for a future barbershop errand: slicked hair, curly moustache, white barber tunic, scissors and comb in hand.",
+  "aspect": "2:3"
+ },
+ {
+  "key": "characters/doctor",
+  "type": "image",
+  "prompt": "A new character in exactly the same toy-like 3D render style, materials, lighting and plain light grey studio background as the reference figure. Full body, front view, standing straight, arms slightly away from the body, centred, nothing else in frame. Same chunky proportions (big head, small body) as the reference. Character: DR PATEL, a kind GP for a future doctor's errand: white coat, stethoscope, clipboard, sensible shoes, friendly smile.",
+  "aspect": "2:3"
+ },
+ {
+  "key": "characters/postmaster",
+  "type": "image",
+  "prompt": "A new character in exactly the same toy-like 3D render style, materials, lighting and plain light grey studio background as the reference figure. Full body, front view, standing straight, arms slightly away from the body, centred, nothing else in frame. Same chunky proportions (big head, small body) as the reference. Character: MR HUGHES, a fussy postmaster for a future post office errand: half-moon glasses, waistcoat, sleeve garters, holding a parcel and a rubber stamp.",
+  "aspect": "2:3"
+ },
+ {
+  "key": "characters/vicar",
+  "type": "image",
+  "prompt": "A new character in exactly the same toy-like 3D render style, materials, lighting and plain light grey studio background as the reference figure. Full body, front view, standing straight, arms slightly away from the body, centred, nothing else in frame. Same chunky proportions (big head, small body) as the reference. Character: REVEREND BELL, a jolly vicar for a future wedding errand: black clerical shirt with white collar, round glasses, holding a prayer book, rosy cheeks.",
+  "aspect": "2:3"
+ },
+ {
+  "key": "characters/dog",
+  "type": "image",
+  "prompt": "A single game prop in exactly the same toy-like 3D render style, soft clay-like materials and warm lighting as the reference, centred on a plain light grey studio background, three-quarter view, nothing else in frame. Prop: BISCUIT, the town's scruffy little terrier dog, sitting, head tilted, one ear up, tail wagging.",
+  "aspect": "1:1"
+ },
+ {
+  "key": "props/milk",
+  "type": "image",
+  "prompt": "A single game prop in exactly the same toy-like 3D render style, soft clay-like materials and warm lighting as the reference, centred on a plain light grey studio background, three-quarter view, nothing else in frame. Prop: an old-fashioned glass milk bottle with a foil cap.",
+  "aspect": "1:1"
+ },
+ {
+  "key": "props/cashbag",
+  "type": "image",
+  "prompt": "A single game prop in exactly the same toy-like 3D render style, soft clay-like materials and warm lighting as the reference, centred on a plain light grey studio background, three-quarter view, nothing else in frame. Prop: a lumpy green cloth money bag tied with string, a few gold coins spilling out.",
+  "aspect": "1:1"
+ },
+ {
+  "key": "props/popcorn",
+  "type": "image",
+  "prompt": "A single game prop in exactly the same toy-like 3D render style, soft clay-like materials and warm lighting as the reference, centred on a plain light grey studio background, three-quarter view, nothing else in frame. Prop: a striped red-and-white cinema popcorn box overflowing with popcorn, plus a large fizzy drink cup with a straw beside it.",
+  "aspect": "1:1"
+ },
+ {
+  "key": "props/disguise",
+  "type": "image",
+  "prompt": "A single game prop in exactly the same toy-like 3D render style, soft clay-like materials and warm lighting as the reference, centred on a plain light grey studio background, three-quarter view, nothing else in frame. Prop: a set of three disguise items laid side by side: an enormous fake bushy moustache, a pair of comically tall platform shoes, and a fedora with a periscope sticking out of the top.",
+  "aspect": "3:2"
+ },
+ {
+  "key": "props/street",
+  "type": "image",
+  "prompt": "A single game prop in exactly the same toy-like 3D render style, soft clay-like materials and warm lighting as the reference, centred on a plain light grey studio background, three-quarter view, nothing else in frame. Prop: a set of street props laid side by side: an orange traffic cone, a yellow 'WET FLOOR' sign, a black street lamp, a wooden park bench and a metal bin.",
+  "aspect": "3:2"
+ },
+ {
+  "key": "props/stall",
+  "type": "image",
+  "prompt": "A single game prop in exactly the same toy-like 3D render style, soft clay-like materials and warm lighting as the reference, centred on a plain light grey studio background, three-quarter view, nothing else in frame. Prop: a little green-and-white striped market stall with crates of fruit, milk bottles and a chalkboard sign.",
+  "aspect": "1:1"
+ },
+ {
+  "key": "props/snackcart",
+  "type": "image",
+  "prompt": "A single game prop in exactly the same toy-like 3D render style, soft clay-like materials and warm lighting as the reference, centred on a plain light grey studio background, three-quarter view, nothing else in frame. Prop: a red cinema snack cart on wheels with a striped awning, popcorn machine and drinks.",
+  "aspect": "1:1"
+ },
+ {
+  "key": "props/car",
+  "type": "image",
+  "prompt": "A single game prop in exactly the same toy-like 3D render style, soft clay-like materials and warm lighting as the reference, centred on a plain light grey studio background, three-quarter view, nothing else in frame. Prop: a tiny red vintage open-top learner car with 'L' plates, cream wheels, seen from the side.",
+  "aspect": "3:2"
+ },
+ {
+  "key": "places/town_overview",
+  "type": "image",
+  "prompt": "Concept art for a location in a cosy British small-town comedy video game, exactly the same toy-like 3D render style, pastel colours and warm late-afternoon light as the reference key art. Wide establishing shot, no text. Place: bird's-eye view of the whole little high street: a corner shop with a market stall, a grand cream bank with columns, a cinema with a marquee, a hidden alley, a driving-test course with cones, cobbled road.",
+  "aspect": "16:9"
+ },
+ {
+  "key": "places/bank_interior",
+  "type": "image",
+  "prompt": "Concept art for a location in a cosy British small-town comedy video game, exactly the same toy-like 3D render style, pastel colours and warm late-afternoon light as the reference key art. Wide establishing shot, no text. Place: inside the small-town bank: polished counter with a teller window, a rope queue line with brass posts, marble floor, a big clock.",
+  "aspect": "16:9"
+ },
+ {
+  "key": "places/cinema",
+  "type": "image",
+  "prompt": "Concept art for a location in a cosy British small-town comedy video game, exactly the same toy-like 3D render style, pastel colours and warm late-afternoon light as the reference key art. Wide establishing shot, no text. Place: the front of an old picture house cinema with a glowing marquee 'NOW SHOWING', a ticket booth, a height sign and a snack cart.",
+  "aspect": "16:9"
+ },
+ {
+  "key": "places/school_evening",
+  "type": "image",
+  "prompt": "Concept art for a location in a cosy British small-town comedy video game, exactly the same toy-like 3D render style, pastel colours and warm late-afternoon light as the reference key art. Wide establishing shot, no text. Place: a primary school classroom at parents' evening: tiny chairs, a teacher's desk, kids' drawings on the walls, a very tall man in a trench coat squeezed onto a tiny chair.",
+  "aspect": "16:9"
+ },
+ {
+  "key": "places/barbershop",
+  "type": "image",
+  "prompt": "Concept art for a location in a cosy British small-town comedy video game, exactly the same toy-like 3D render style, pastel colours and warm late-afternoon light as the reference key art. Wide establishing shot, no text. Place: a cosy old barbershop with red leather chairs, mirrors, a striped pole; a tall man in a trench coat and fedora sitting awkwardly in the chair while the barber stares.",
+  "aspect": "16:9"
+ },
+ {
+  "key": "places/doctor",
+  "type": "image",
+  "prompt": "Concept art for a location in a cosy British small-town comedy video game, exactly the same toy-like 3D render style, pastel colours and warm late-afternoon light as the reference key art. Wide establishing shot, no text. Place: a small doctor's waiting room with a receptionist window, plastic chairs, a height chart and a weighing scale; a tall trench-coat figure looks nervously at the height chart.",
+  "aspect": "16:9"
+ },
+ {
+  "key": "places/postoffice",
+  "type": "image",
+  "prompt": "Concept art for a location in a cosy British small-town comedy video game, exactly the same toy-like 3D render style, pastel colours and warm late-afternoon light as the reference key art. Wide establishing shot, no text. Place: a tiny village post office with a counter, parcel scales, stamps and a queue; a tall trench-coat figure balancing a huge parcel.",
+  "aspect": "16:9"
+ },
+ {
+  "key": "places/wedding",
+  "type": "image",
+  "prompt": "Concept art for a location in a cosy British small-town comedy video game, exactly the same toy-like 3D render style, pastel colours and warm late-afternoon light as the reference key art. Wide establishing shot, no text. Place: a sunny village church wedding with bunting and guests; a tall trench-coat figure in the front row trying to look like a grown-up guest.",
+  "aspect": "16:9"
+ },
+ {
+  "key": "places/car4p",
+  "type": "image",
+  "prompt": "Concept art for a location in a cosy British small-town comedy video game, exactly the same toy-like 3D render style, pastel colours and warm late-afternoon light as the reference key art. Wide establishing shot, no text. Place: inside the little red learner car from above: one kid on the pedals in the footwell, one kid holding the steering wheel, one kid looking at the mirrors from inside the coat collar, one kid working the gear stick; a stern examiner with a clipboard in the passenger seat.",
+  "aspect": "16:9"
+ },
+ {
+  "key": "store/logo",
+  "type": "image",
+  "prompt": "Game logo only: the word 'STACKED' in chunky, playful rounded letters, dark chocolate brown with the A and E in terracotta red, slight 3D clay look, a small brown fedora hat resting on the letter K, centred on a plain white background, nothing else.",
+  "aspect": "16:9"
+ },
+ {
+  "key": "store/icon",
+  "type": "image",
+  "prompt": "App icon for the game STACKED in the same toy-like 3D style as the reference: a close-up of a brown fedora and trench-coat collar with a kid's face peeking out from between the buttons, warm orange background, rounded square composition, no text.",
+  "aspect": "1:1"
+ },
+ {
+  "key": "store/social_square",
+  "type": "image",
+  "prompt": "Social media post art for the co-op comedy game STACKED, same toy-like 3D style and warm light as the reference: the tall trench-coat figure mid-wobble in front of a suspicious bank teller, a speech bubble with a question mark, cheerful and funny, no text.",
+  "aspect": "1:1"
+ },
+ {
+  "key": "store/screenshot_bank",
+  "type": "image",
+  "prompt": "A funny in-game style moment for a store page, same toy-like 3D style as the reference: the tall trench-coat figure signing a form at a bank counter, the pen hand clearly a tiny child's hand poking out of a huge sleeve, the teller raising an eyebrow. No text.",
+  "aspect": "16:9"
+ },
+ {
+  "key": "store/screenshot_scatter",
+  "type": "image",
+  "prompt": "A funny in-game style moment for a store page, same toy-like 3D style as the reference: the trench coat bursting open in the middle of the high street, three kids tumbling out in different directions, the hat flying, buttons scattering, shocked townspeople. No text.",
+  "aspect": "16:9"
+ },
+ {
+  "key": "ui/ranks",
+  "type": "image",
+  "prompt": "A set of five game rank badges in a row, chunky round clay-style medals with the letters S, A, B, C, D, colours gold, green, teal, peach and grey, toy-like 3D style, plain white background.",
+  "aspect": "3:1"
+ },
+ {
+  "key": "ui/parts",
+  "type": "image",
+  "prompt": "A set of three round game icons in a row, toy-like 3D clay style: a pair of sneakers (legs), a pair of hands in big coat cuffs (arms), a fedora hat with a moustache (head). Plain white background.",
+  "aspect": "3:1"
+ },
+ {
+  "key": "characters/mum",
+  "type": "image",
+  "prompt": "A new character in exactly the same toy-like 3D render style, materials, lighting and plain light grey studio background as the reference figure. Full body, front view, standing straight, arms slightly away from the body, centred, nothing else in frame. Same chunky proportions (big head, small body) as the reference. Character: MUM, the three kids' mother and the final boss of the game: hands on hips, raised eyebrow, cardigan and jeans, handbag, car keys in hand, 'I know exactly what you did' expression.",
+  "aspect": "2:3"
+ },
+ {
+  "key": "characters/icecream",
+  "type": "image",
+  "prompt": "A new character in exactly the same toy-like 3D render style, materials, lighting and plain light grey studio background as the reference figure. Full body, front view, standing straight, arms slightly away from the body, centred, nothing else in frame. Same chunky proportions (big head, small body) as the reference. Character: VINNIE, a jolly ice-cream van man: white jacket, paper hat, big moustache, holding a dripping ice-cream cone.",
+  "aspect": "2:3"
+ },
+ {
+  "key": "characters/postman",
+  "type": "image",
+  "prompt": "A new character in exactly the same toy-like 3D render style, materials, lighting and plain light grey studio background as the reference figure. Full body, front view, standing straight, arms slightly away from the body, centred, nothing else in frame. Same chunky proportions (big head, small body) as the reference. Character: a cheerful village postman: blue uniform, peaked cap, red mail bag over his shoulder, holding letters.",
+  "aspect": "2:3"
+ },
+ {
+  "key": "characters/schoolkids",
+  "type": "image",
+  "prompt": "A new character in exactly the same toy-like 3D render style, materials, lighting and plain light grey studio background as the reference figure. Full body, front view, standing straight, arms slightly away from the body, centred, nothing else in frame. Same chunky proportions (big head, small body) as the reference. Character: three ordinary schoolchildren standing in a row in school uniforms with backpacks, for background crowds.",
+  "aspect": "2:3"
+ },
+ {
+  "key": "characters/townsfolk_set",
+  "type": "image",
+  "prompt": "A new character in exactly the same toy-like 3D render style, materials, lighting and plain light grey studio background as the reference figure. Full body, front view, standing straight, arms slightly away from the body, centred, nothing else in frame. Same chunky proportions (big head, small body) as the reference. Character: a line-up of four background townspeople for crowds: a jogger in a tracksuit, a businesswoman with a briefcase, a teenage girl on her phone, an old man with a walking stick.",
+  "aspect": "2:3"
+ },
+ {
+  "key": "characters/cat",
+  "type": "image",
+  "prompt": "A single game prop in exactly the same toy-like 3D render style, soft clay-like materials and warm lighting as the reference, centred on a plain light grey studio background, three-quarter view, nothing else in frame. Prop: a fat ginger tabby cat sitting smugly, half-closed eyes.",
+  "aspect": "1:1"
+ },
+ {
+  "key": "characters/pigeons",
+  "type": "image",
+  "prompt": "A single game prop in exactly the same toy-like 3D render style, soft clay-like materials and warm lighting as the reference, centred on a plain light grey studio background, three-quarter view, nothing else in frame. Prop: three plump grey pigeons standing together, one mid-coo.",
+  "aspect": "1:1"
+ },
+ {
+  "key": "props/bank_set",
+  "type": "image",
+  "prompt": "A single game prop in exactly the same toy-like 3D render style, soft clay-like materials and warm lighting as the reference, centred on a plain light grey studio background, three-quarter view, nothing else in frame. Prop: a set of bank props laid side by side: a fountain pen on a chain, a paper form with a signature line, a brass rope-queue post with red velvet rope, a little 'NEXT PLEASE' sign, a pile of coins.",
+  "aspect": "3:2"
+ },
+ {
+  "key": "props/cinema_set",
+  "type": "image",
+  "prompt": "A single game prop in exactly the same toy-like 3D render style, soft clay-like materials and warm lighting as the reference, centred on a plain light grey studio background, three-quarter view, nothing else in frame. Prop: a set of cinema props: a paper ticket stub, a 'YOU MUST BE THIS TALL' height sign shaped like a film reel, a velvet rope, a usher's torch, a film poster frame.",
+  "aspect": "3:2"
+ },
+ {
+  "key": "props/food_set",
+  "type": "image",
+  "prompt": "A single game prop in exactly the same toy-like 3D render style, soft clay-like materials and warm lighting as the reference, centred on a plain light grey studio background, three-quarter view, nothing else in frame. Prop: a set of food props laid side by side: a loaf of bread, a bunch of bananas, a jar of jam, a box of eggs, a birthday cake, an ice-cream cone.",
+  "aspect": "3:2"
+ },
+ {
+  "key": "props/car_interior",
+  "type": "image",
+  "prompt": "A single game prop in exactly the same toy-like 3D render style, soft clay-like materials and warm lighting as the reference, centred on a plain light grey studio background, three-quarter view, nothing else in frame. Prop: parts of a tiny vintage car interior laid side by side: a cream steering wheel, a gear stick with a round knob, three pedals, a rear-view mirror, a learner 'L' plate.",
+  "aspect": "3:2"
+ },
+ {
+  "key": "props/home_set",
+  "type": "image",
+  "prompt": "A single game prop in exactly the same toy-like 3D render style, soft clay-like materials and warm lighting as the reference, centred on a plain light grey studio background, three-quarter view, nothing else in frame. Prop: a set of household props for future errands: a shopping trolley, a garden gnome, a wheelie bin, a doormat that says nothing, a potted plant, a letterbox.",
+  "aspect": "3:2"
+ },
+ {
+  "key": "textures/cobbles",
+  "type": "image",
+  "prompt": "Seamless tileable square texture for a stylised toy-like 3D game, soft hand-painted clay look, warm pastel colours, flat even lighting, no shadows, top-down, fills the whole frame: warm terracotta and peach cobblestones.",
+  "aspect": "1:1"
+ },
+ {
+  "key": "textures/pavement",
+  "type": "image",
+  "prompt": "Seamless tileable square texture for a stylised toy-like 3D game, soft hand-painted clay look, warm pastel colours, flat even lighting, no shadows, top-down, fills the whole frame: cream square paving slabs with soft grout lines.",
+  "aspect": "1:1"
+ },
+ {
+  "key": "textures/brick",
+  "type": "image",
+  "prompt": "Seamless tileable square texture for a stylised toy-like 3D game, soft hand-painted clay look, warm pastel colours, flat even lighting, no shadows, top-down, fills the whole frame: soft red-orange brick wall.",
+  "aspect": "1:1"
+ },
+ {
+  "key": "textures/grass",
+  "type": "image",
+  "prompt": "Seamless tileable square texture for a stylised toy-like 3D game, soft hand-painted clay look, warm pastel colours, flat even lighting, no shadows, top-down, fills the whole frame: soft green lawn grass with little daisies.",
+  "aspect": "1:1"
+ },
+ {
+  "key": "textures/bank_floor",
+  "type": "image",
+  "prompt": "Seamless tileable square texture for a stylised toy-like 3D game, soft hand-painted clay look, warm pastel colours, flat even lighting, no shadows, top-down, fills the whole frame: cream and soft-grey checkerboard marble floor.",
+  "aspect": "1:1"
+ },
+ {
+  "key": "textures/wood",
+  "type": "image",
+  "prompt": "Seamless tileable square texture for a stylised toy-like 3D game, soft hand-painted clay look, warm pastel colours, flat even lighting, no shadows, top-down, fills the whole frame: warm honey-coloured wooden floorboards.",
+  "aspect": "1:1"
+ },
+ {
+  "key": "ui/menu_bg",
+  "type": "image",
+  "prompt": "Wide menu background for the game STACKED, same toy-like 3D style and warm late-afternoon light as the reference key art: an empty cosy cobbled high street with the shop, bank and cinema, soft focus, lots of calm space on the left for menu buttons, no characters, no text.",
+  "aspect": "16:9"
+ },
+ {
+  "key": "ui/loading",
+  "type": "image",
+  "prompt": "Loading screen art for the game STACKED, same toy-like 3D style as the reference: three kids climbing into a big brown trench coat in a back alley, one standing on another's shoulders, the hat being passed up, giggling. No text.",
+  "aspect": "16:9"
+ },
+ {
+  "key": "ui/achievements",
+  "type": "image",
+  "prompt": "A sheet of nine round achievement badge icons in a 3x3 grid, toy-like 3D clay style: a milk bottle, a money bag, a popcorn box, a steering wheel, a fake moustache, a fedora, a question mark, a running shoe, a gold star. Plain white background, no text.",
+  "aspect": "1:1"
+ },
+ {
+  "key": "ui/endcard_frame",
+  "type": "image",
+  "prompt": "Decorative empty end-card frame for a game results screen, toy-like 3D clay style: a cream paper card with a chunky brown border, little fedora and moustache doodles in the corners, empty in the middle, plain white background, no text.",
+  "aspect": "2:3"
+ },
+ {
+  "key": "places/alley",
+  "type": "image",
+  "prompt": "Concept art, same toy-like 3D style and warm light as the reference key art: the kids' secret back alley behind the shops, a half wall, crates, a washing line, a chalk drawing of a moustache on the wall, cosy and hidden. No text.",
+  "aspect": "16:9"
+ },
+ {
+  "key": "places/park",
+  "type": "image",
+  "prompt": "Concept art for a future errand, same toy-like 3D style as the reference key art: a village park with a duck pond, an ice-cream van, a bandstand and a bench with an old lady feeding pigeons. No text.",
+  "aspect": "16:9"
+ },
+ {
+  "key": "places/supermarket",
+  "type": "image",
+  "prompt": "Concept art for a future errand, same toy-like 3D style as the reference key art: a small supermarket aisle with a self-checkout machine and a tall trench-coat figure trying to reach the top shelf. No text.",
+  "aspect": "16:9"
+ },
+ {
+  "key": "places/home_night",
+  "type": "image",
+  "prompt": "Concept art for the game's final scene, same toy-like 3D style as the reference key art: the kids' house at dusk, front door open, Mum standing in the doorway with arms crossed, the trench coat figure frozen on the garden path. No text.",
+  "aspect": "16:9"
+ }
+]

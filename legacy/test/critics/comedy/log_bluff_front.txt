@@ -1,0 +1,18 @@
+{"t":5.18,"fps":12,"ph":"play","lean":0.1,"down":0,"stum":0,"popped":0,"fl":[2.3,2.3],"sus":[0,0,0.69],"say":[-1,-1,-1],"mode":[0,0,0],"part":"legs","act":[0,0],"nod":0,"kids":[],"ev":[6,13],"rel":0.7}
+{"t":6.08,"fps":11,"ph":"play","lean":0.03,"down":0,"stum":0,"popped":0,"fl":[0.1,0.1],"sus":[0,0,0.69],"say":[-1,-1,-1],"mode":[0,0,0],"part":"legs","act":[0,0],"nod":0,"kids":[],"ev":[6,13],"rel":1.6}
+{"t":6.98,"fps":11,"ph":"play","lean":0.02,"down":0,"stum":0,"popped":0,"fl":[0,0],"sus":[0,0,0.73],"say":[-1,-1,0],"mode":[0,0,0],"part":"legs","act":[0,0],"nod":0,"kids":[],"ev":[6,13],"rel":2.5}
+{"t":7.88,"fps":10,"ph":"play","lean":0.02,"down":0,"stum":0,"popped":0,"fl":[0,0],"sus":[0,0,0.78],"say":[-1,-1,0],"mode":[0,0,0],"part":"legs","act":[0,0],"nod":0,"kids":[],"ev":[6,13],"rel":3.4}
+{"t":9.28,"fps":10,"ph":"play","lean":0.04,"down":0,"stum":0,"popped":0,"fl":[0,0.9],"sus":[0,0.08,0.77],"say":[-1,-1,2],"mode":[0,0,0],"part":"arms","act":[0,1],"nod":0,"kids":[],"ev":[6,13,22],"rel":4.8}
+{"t":10.58,"fps":10,"ph":"play","lean":0.01,"down":0,"stum":0,"popped":0,"fl":[0,0.6],"sus":[0,0.01,0.53],"say":[-1,2,2],"mode":[0,0,0],"part":"head","act":[0,1],"nod":1,"kids":[],"ev":[13,22,22,22],"rel":6.1}
+{"t":11.48,"fps":10,"ph":"play","lean":0.07,"down":0,"stum":0,"popped":0,"fl":[0,1.7],"sus":[0,0.06,0.58],"say":[-1,2,2],"mode":[0,0,0],"part":"head","act":[0,0],"nod":1,"kids":[],"ev":[13,22,22,22],"rel":7}
+{"t":12.88,"fps":10,"ph":"play","lean":0.03,"down":0,"stum":0,"popped":0,"fl":[0,0],"sus":[0,0.13,0.65],"say":[-1,-1,-1],"mode":[0,0,0],"part":"legs","act":[0,0],"nod":1,"kids":[],"ev":[22,22,22,4],"rel":8.4}
+{"t":13.78,"fps":10,"ph":"play","lean":0.01,"down":0,"stum":0,"popped":0,"fl":[0,0],"sus":[0,0.04,0.69],"say":[-1,2,-1],"mode":[0,0,0],"part":"legs","act":[0,0],"nod":0,"kids":[],"ev":[22,22,4,22],"rel":9.3}
+{"t":14.68,"fps":10,"ph":"play","lean":0.02,"down":0,"stum":0,"popped":0,"fl":[0,0],"sus":[0,0.08,0.74],"say":[-1,2,-1],"mode":[0,0,0],"part":"legs","act":[0,0],"nod":0,"kids":[],"ev":[22,22,4,22],"rel":10.2}
+{"t":15.58,"fps":10,"ph":"play","lean":0.04,"down":0,"stum":0,"popped":0,"fl":[0,0],"sus":[0,0.09,0.78],"say":[-1,-1,-1],"mode":[0,0,0],"part":"legs","act":[0,0],"nod":0,"kids":[],"ev":[22,22,4,22],"rel":11.1}
+{"t":16.48,"fps":10,"ph":"play","lean":0.02,"down":0,"stum":0,"popped":0,"fl":[0,0],"sus":[0,0.07,0.83],"say":[-1,-1,-1],"mode":[0,0,0],"part":"legs","act":[0,0],"nod":0,"kids":[],"ev":[22,22,4,22],"rel":12}
+{"t":17.38,"fps":10,"ph":"play","lean":0.01,"down":0,"stum":0,"popped":0,"fl":[0,0],"sus":[0,0.06,0.87],"say":[-1,-1,-1],"mode":[0,0,0],"part":"legs","act":[0,0],"nod":0,"kids":[],"ev":[22,22,4,22],"rel":12.9}
+{"t":18.28,"fps":10,"ph":"play","lean":0.01,"down":0,"stum":0,"popped":0,"fl":[0,0],"sus":[0,0.04,0.92],"say":[-1,-1,-1],"mode":[0,0,0],"part":"legs","act":[0,0],"nod":0,"kids":[],"ev":[22,22,4,22],"rel":13.8}
+{"t":19.18,"fps":10,"ph":"play","lean":0.03,"down":0,"stum":0,"popped":0,"fl":[0,0],"sus":[0,0.02,0.96],"say":[-1,-1,-1],"mode":[0,0,0],"part":"legs","act":[0,0],"nod":0,"kids":[],"ev":[22,22,4,22],"rel":14.7}
+{"t":20.08,"fps":10,"ph":"scatter","lean":0.03,"down":0,"stum":0,"popped":1,"fl":[0,0],"sus":[1,1,1],"say":[-1,-1,9],"mode":[0,1,1],"part":"kid","act":[0,0],"nod":0,"kids":[[3,0.5,0],[2.3,0.6,0],[2.3,-0.2,0]],"ev":[6,13,3,13],"rel":15.6}
+{"t":20.98,"fps":10,"ph":"scatter","lean":0.03,"down":0,"stum":0,"popped":1,"fl":[0,0],"sus":[1,1,1],"say":[-1,-1,9],"mode":[0,1,1],"part":"kid","act":[0,0],"nod":0,"kids":[[3,0.5,0],[2.3,0.6,0],[2.3,-0.2,0]],"ev":[6,13,3,13],"rel":16.5}
+errors []

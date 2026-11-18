@@ -1,0 +1,18 @@
+solo/host, KeyN pressed and released between two frames: registered 0/10
+solo/host, KeyE pressed and released between two frames: registered 0/10
+solo/host, KeyM pressed and released between two frames: registered 0/10
+solo/host, KeyC pressed and released between two frames: registered 0/10
+solo/host, KeyG pressed and released between two frames: registered 10/10
+friend taps KeyE ~35 ms: shown on friend 12/12, reached host 5/12
+friend taps KeyE ~42 ms: shown on friend 12/12, reached host 9/12
+friend taps KeyE ~67 ms: shown on friend 12/12, reached host 11/12
+friend taps KeyE ~84 ms: shown on friend 12/12, reached host 12/12
+friend taps KeyN ~31 ms: shown on friend 12/12, reached host 12/12
+friend taps KeyN ~49 ms: shown on friend 12/12, reached host 12/12
+friend taps KeyN ~64 ms: shown on friend 12/12, reached host 12/12
+friend taps KeyN ~85 ms: shown on friend 12/12, reached host 12/12
+friend taps KeyC ~29 ms: shown on friend 12/12, reached host 12/12
+friend taps KeyC ~52 ms: shown on friend 12/12, reached host 12/12
+friend taps KeyC ~58 ms: shown on friend 12/12, reached host 12/12
+friend taps KeyC ~87 ms: shown on friend 12/12, reached host 12/12
+errors [] []

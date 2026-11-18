@@ -1,0 +1,20 @@
+import { start } from '../lib.mjs';
+const k = await start(8406);
+const h = await k.open('?q=low'), c = await k.open('?q=low');
+const S = (p, f) => p.evaluate(f);
+await h.page.waitForFunction(() => !document.getElementById('host').disabled && /friends/.test(document.getElementById('status').textContent), null, { timeout: 15000 });
+await h.page.click('#host'); await h.page.waitForFunction(() => __stacked.mode === 'play');
+const code = await S(h.page, () => __stacked.link.code);
+await c.page.waitForFunction(() => /friends/.test(document.getElementById('status').textContent));
+await c.page.fill('#code', code); await c.page.click('#join');
+await c.page.waitForFunction(() => __stacked.W.players.length === 2, null, { timeout: 20000 });
+await S(h.page, () => Object.assign(__stacked.W.body, { x: -8.1, z: 1.4, yaw: -0.15, v: 0 }));
+await h.page.waitForTimeout(1500);
+console.log('c before', await S(c.page, () => [__stacked.mode, document.activeElement?.id, document.activeElement?.tagName]));
+await c.page.keyboard.press('Enter'); await c.page.waitForTimeout(200);
+console.log('c after enter', await S(c.page, () => [__stacked.mode, document.activeElement?.id, __stacked.W.players.length]));
+await c.page.fill('#say', 'Lovely weather.'); console.log('typed', await S(c.page, () => [__stacked.mode, document.getElementById('say').value])); await c.page.keyboard.press('Enter'); console.log('sent', await S(c.page, () => __stacked.mode)); await c.page.waitForTimeout(1500);
+console.log('status', await S(c.page, () => document.getElementById('status').textContent));
+for (let i = 0; i < 8; i++) { await h.page.waitForTimeout(700); console.log('client says', await S(c.page, () => __stacked.W.people.map((p) => p.id + ':' + p.say).join(' ')), 'host says', await S(h.page, () => __stacked.W.people.map((p) => p.id + ':' + p.say).join(' '))); console.log(await S(c.page, () => [__stacked.mode, __stacked.W.players.length]), await S(h.page, () => [__stacked.W.players.length, __stacked.W.coatSay, (__stacked.W.talkLog || []).length])); }
+console.log('client logs', c.logs.filter((l) => !/GL Driver|ERR_FAILED/.test(l)).slice(-8)); console.log('host logs', h.logs.filter((l) => !/three|THREE/.test(l)).slice(-10), h.errors(), c.errors());
+await k.stop();

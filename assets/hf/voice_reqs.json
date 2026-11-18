@@ -1,0 +1,119 @@
+[
+ {
+  "index": 0,
+  "id": "ruth",
+  "params": {
+   "model": "seed_audio",
+   "use_unlim": true,
+   "voice_type": "preset",
+   "voice_id": "3c2b83c0-2e0a-5ae8-998a-a5fe71b7eccd",
+   "format": "mp3",
+   "sample_rate": 24000,
+   "prompt": "Afternoon! ... \n\nAre you lost, sir? ... \n\nLovely day! ... \n\nHmph. Rude. ... \n\nTHOSE ARE CHILDREN! ... \n\nHm? ... \n\nLost? You said you were lost? ... \n\nGot you! ... \n\nNext, please! ... \n\nSign on the line, please. ... \n\n...Is that a signature? ... \n\nThank you, sir. ... \n\nHave a nice day! ... \n\nWon't be a moment, sir. ... \n\nHold it flat, please, sir. ... \n\nAnd what do you do for a living, sir? ... \n\nIs this account for you, sir? Date of birth? ... \n\nYou seem... shorter than your signature. Explain?"
+  }
+ },
+ {
+  "index": 1,
+  "id": "gus",
+  "params": {
+   "model": "seed_audio",
+   "use_unlim": true,
+   "voice_type": "preset",
+   "voice_id": "ca12fd00-218c-5198-b10c-7d36e768c12c",
+   "format": "mp3",
+   "sample_rate": 24000,
+   "prompt": "Afternoon! ... \n\nAre you lost, sir? ... \n\nLovely day! ... \n\nHmph. Rude. ... \n\nTHOSE ARE CHILDREN! ... \n\nHm? ... \n\nLost? You said you were lost? ... \n\nGot you! ... \n\nHaven't seen you round here. New in town? ... \n\nOff anywhere nice, then? ... \n\nYour coat just giggled. Did your coat giggle?"
+  }
+ },
+ {
+  "index": 2,
+  "id": "hale",
+  "params": {
+   "model": "seed_audio",
+   "use_unlim": true,
+   "voice_type": "preset",
+   "voice_id": "573e5163-59b3-4926-aab1-951ef2985f81",
+   "format": "mp3",
+   "sample_rate": 24000,
+   "prompt": "Afternoon! ... \n\nAre you lost, sir? ... \n\nLovely day! ... \n\nHmph. Rude. ... \n\nTHOSE ARE CHILDREN! ... \n\nHm? ... \n\nLost? You said you were lost? ... \n\nGot you! ... \n\nName and age, sir? ... \n\nWhere are you headed in such a hurry? ... \n\nWhy is your middle wobbling, sir?"
+  }
+ },
+ {
+  "index": 3,
+  "id": "pip",
+  "params": {
+   "model": "seed_audio",
+   "use_unlim": true,
+   "voice_type": "preset",
+   "voice_id": "e6f9b893-51b1-51d3-afe9-9e0482cb7ac1",
+   "format": "mp3",
+   "sample_rate": 24000,
+   "prompt": "Afternoon! ... \n\nAre you lost, sir? ... \n\nLovely day! ... \n\nHmph. Rude. ... \n\nTHOSE ARE CHILDREN! ... \n\nHm? ... \n\nLost? You said you were lost? ... \n\nGot you! ... \n\nBit short for this film, sir? ... \n\nEnjoy the film, sir. ... \n\nHow old are you, exactly, sir? ... \n\nIs that one ticket or three, sir? ... \n\nWhy have you got six shoes, sir?"
+  }
+ },
+ {
+  "index": 4,
+  "id": "price",
+  "params": {
+   "model": "seed_audio",
+   "use_unlim": true,
+   "voice_type": "preset",
+   "voice_id": "d9d5c263-f84e-4752-97b5-3750fcc6fd2f",
+   "format": "mp3",
+   "sample_rate": 24000,
+   "prompt": "Check your mirrors, please. ... \n\nLovely weather, isn't it? ... \n\nAchoo! ... \n\n*phone rings* Hello? ... \n\nWhere is my pen... ... \n\nMind the cones! ... \n\nStop at the line, please. ... \n\nNow park in the box, please. ... \n\nYou ran the line! ... \n\nVery good. A pass! ... \n\nReady when you are. ... \n\nMind the kerb! ... \n\nSTOP! ... \n\nGood reactions. ... \n\nToo slow! ... \n\nTurn her round, please. ... \n\nDo keep up, sir. ... \n\nVery good, sir. ... \n\nHm? ... \n\nSo. How long have you been driving? ... \n\nWhat's the speed limit on this street? ... \n\nAny pets at home, sir?"
+  }
+ },
+ {
+  "index": 5,
+  "id": "dot",
+  "params": {
+   "model": "seed_audio",
+   "use_unlim": true,
+   "voice_type": "preset",
+   "voice_id": "66f35c82-2088-55eb-a0aa-7bf715dc03b7",
+   "format": "mp3",
+   "sample_rate": 24000,
+   "prompt": "Afternoon! ... \n\nAre you lost, sir? ... \n\nLovely day! ... \n\nHmph. Rude. ... \n\nTHOSE ARE CHILDREN! ... \n\nHm? ... \n\nLost? You said you were lost? ... \n\nGot you! ... \n\nAnd who might YOU be? ... \n\nDoes your mother know you're out? ... \n\nI know every grown-up on this street. Which one are you?"
+  }
+ },
+ {
+  "index": 6,
+  "id": "kev",
+  "params": {
+   "model": "seed_audio",
+   "use_unlim": true,
+   "voice_type": "preset",
+   "voice_id": "1ffcdbb3-078b-5491-959d-359e3021e917",
+   "format": "mp3",
+   "sample_rate": 24000,
+   "prompt": "Afternoon! ... \n\nAre you lost, sir? ... \n\nLovely day! ... \n\nHmph. Rude. ... \n\nTHOSE ARE CHILDREN! ... \n\nHm? ... \n\nLost? You said you were lost? ... \n\nGot you! ... \n\nOi mister, you look well young. How old are ya? ... \n\nWhat's your favourite football team then? ... \n\nIs that a kid in your coat?"
+  }
+ },
+ {
+  "index": 7,
+  "id": "nan",
+  "params": {
+   "model": "seed_audio",
+   "use_unlim": true,
+   "voice_type": "preset",
+   "voice_id": "0c51919f-0756-5f8d-8169-026a339d8fd7",
+   "format": "mp3",
+   "sample_rate": 24000,
+   "prompt": "Afternoon! ... \n\nAre you lost, sir? ... \n\nLovely day! ... \n\nHmph. Rude. ... \n\nTHOSE ARE CHILDREN! ... \n\nHm? ... \n\nLost? You said you were lost? ... \n\nGot you! ... \n\nOoh, aren't you a tall boy. How old are you, dear? ... \n\nHave you eaten your greens today? ... \n\nAre you courting, young man?"
+  }
+ },
+ {
+  "index": 8,
+  "id": "bert",
+  "params": {
+   "model": "seed_audio",
+   "use_unlim": true,
+   "voice_type": "preset",
+   "voice_id": "bd072316-f77c-588b-b6e5-e46b9b03d008",
+   "format": "mp3",
+   "sample_rate": 24000,
+   "prompt": "Afternoon! ... \n\nAre you lost, sir? ... \n\nLovely day! ... \n\nHmph. Rude. ... \n\nTHOSE ARE CHILDREN! ... \n\nHm? ... \n\nLost? You said you were lost? ... \n\nGot you! ... \n\nLovely day for it, eh? What line of work you in? ... \n\nYou want your windows done, mate? ... \n\nIs your coat... breathing?"
+  }
+ }
+]

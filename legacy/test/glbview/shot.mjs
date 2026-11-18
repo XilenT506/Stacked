@@ -1,0 +1,10 @@
+import { chromium } from '../pw.mjs';
+import { spawn } from 'child_process';
+const [file, out] = process.argv.slice(2);
+const PORT = 8191; const server = spawn('node', ['server/signal.mjs'], { env: { ...process.env, PORT, PAGE: 'test/glbview/index.html' }, stdio: 'ignore' });
+await new Promise(r => setTimeout(r, 800));
+const br = await chromium.launch({ args: ['--use-gl=swiftshader', '--enable-unsafe-swiftshader'] });
+const page = await br.newPage({ viewport: { width: 1200, height: 600 } });
+page.on('pageerror', e => console.log('ERR', e.message)); page.on('console', m => console.log(m.text()));
+await page.goto(`http://localhost:${PORT}/?f=${file}`); await page.waitForFunction(() => window.done, null, { timeout: 60000 });
+await page.screenshot({ path: out }); await br.close(); server.kill();

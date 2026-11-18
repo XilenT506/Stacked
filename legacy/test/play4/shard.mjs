@@ -1,0 +1,13 @@
+import { start } from '../lib.mjs';
+const k = await start(8473, { page: 'dist/next.html' });
+const { page } = await k.open('?hq=1&cam=out&errand=bank');
+await page.click('#solo'); await page.waitForTimeout(3000);
+await page.evaluate(() => { const B = __stacked.W.body; B.x = -2.5; B.z = 1.2; B.yaw = 0.6; }); await page.waitForTimeout(2500);
+const shot = (n) => page.screenshot({ path: `test/play4/sh_${n}.png`, clip: { x: 440, y: 120, width: 420, height: 520 } });
+await shot('all');
+await page.evaluate(() => { const S = __stacked.stackView; S.heroHands.forEach((m) => { m.visible = false; m.userData.keep = 1; }); S.__noHands = 1; });
+await page.evaluate(() => { const S = __stacked.stackView; const u = S.update.bind(S); S.update = (...a) => { u(...a); S.heroHands.forEach((m) => (m.visible = false)); }; });
+await page.waitForTimeout(500); await shot('nohands');
+await page.evaluate(() => { const S = __stacked.stackView; const u = S.update.bind(S); S.update = (...a) => { u(...a); S.head.visible = false; }; });
+await page.waitForTimeout(500); await shot('nohead');
+await k.stop();

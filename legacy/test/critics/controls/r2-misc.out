@@ -1,0 +1,46 @@
+MISC solo opts='?q=low' 320x180 fps 56.2
+T1 release W (walk): first slowdown ms                     med 1.4 worst 5.6 min 1.0 n=6
+   until speed 0 ms                                        med 347.9 worst 529.3 min 277.8 n=6
+   coast distance cm                                       med 38.5 worst 38.5 min 38.5 n=6
+T1 release W (stride): first slowdown ms                   med 1.8 worst 3.2 min 1.3 n=6
+   until speed 0 ms                                        med 485.4 worst 655.4 min 396.2 n=6
+   coast distance cm                                       med 66.5 worst 70.9 min 62.7 n=6
+T1 release W (tiptoe): first slowdown ms                   med 4.2 worst 8.7 min 0.7 n=6
+   until speed 0 ms                                        med 158.8 worst 208.6 min 37.2 n=6
+   coast distance cm                                       med 7.7 worst 10.5 min 6.0 n=6
+T1 release W (shuffle): first slowdown ms                  med 2.0 worst 3.2 min 1.6 n=6
+   until speed 0 ms                                        med 103.2 worst 216.3 min 80.2 n=6
+   coast distance cm                                       med 3.6 worst 4.6 min 2.9 n=6
+T2 legs, W held                                            {"part":"legs","keep":false,"lf":1,"lt":0,"gait":0,"v":2.2,"of":1,"ogait":0,"nod":0,"brow":0,"hy":0,"hz":0,"hp":0,"down":0,"x":-2.37,"z":0.5,"phase":"play"}
+   -> 2 (arms), W still held                               {"part":"arms","keep":false,"lf":0,"lt":0,"gait":0,"v":0,"of":0,"ogait":0,"nod":0,"brow":0,"hy":0,"hz":0.51,"hp":0,"down":0,"x":-1.95,"z":0.5,"phase":"play"}
+   -> 1 (legs), W still held                               {"part":"legs","keep":false,"lf":1,"lt":0,"gait":0,"v":2.2,"of":1,"ogait":0,"nod":0,"brow":0,"hy":0,"hz":0.52,"hp":0,"down":0,"x":-0.72,"z":0.5,"phase":"play"}
+   -> 3 (head), W still held (head pitch hp moves)         {"part":"head","keep":false,"lf":0,"lt":0,"gait":0,"v":0,"of":0,"ogait":0,"nod":0,"brow":0,"hy":0,"hz":0.52,"hp":0.7,"down":0,"x":-0.3,"z":0.5,"phase":"play"}
+T3 legs, W held, K pressed                                 {"part":"legs","keep":true,"lf":1,"lt":0,"gait":0,"v":2.2,"of":1,"ogait":0,"nod":0,"brow":0,"hy":0,"hz":0.52,"hp":0.7,"down":0,"x":-2.66,"z":0.5,"phase":"play"}
+   -> arms, W released, 1.0 s later                        {"part":"arms","keep":true,"lf":1,"lt":0,"gait":0,"v":2.2,"of":1,"ogait":0,"nod":0,"brow":0,"hy":0,"hz":0.75,"hp":0.7,"down":0,"x":0.45,"z":0.5,"phase":"play"}
+   K again while in arms (keep off)                        {"part":"arms","keep":false,"lf":0,"lt":0,"gait":0,"v":0,"of":0,"ogait":0,"nod":0,"brow":0,"hy":0,"hz":0.75,"hp":0.7,"down":0,"x":0.88,"z":0.5,"phase":"play"}
+   K a third time while in arms, standing (keep on, nothing to keep) {"part":"arms","keep":false,"lf":0,"lt":0,"gait":0,"v":0,"of":0,"ogait":0,"nod":0,"brow":0,"hy":0,"hz":0.75,"hp":0.7,"down":1,"x":0.88,"z":0.5,"phase":"play"}
+   legs W, -> head, release W (keep was left on)           {"part":"head","keep":false,"lf":0,"lt":0,"gait":0,"v":0,"of":0,"ogait":0,"nod":0,"brow":0,"hy":0,"hz":0.75,"hp":0.7,"down":1,"x":0.88,"z":0.5,"phase":"play"}
+   back to legs, no key held                               {"part":"legs","keep":false,"lf":0,"lt":0,"gait":0,"v":0,"of":0,"ogait":0,"nod":0,"brow":0,"hy":0,"hz":0.75,"hp":0.7,"down":0,"x":0.88,"z":0.5,"phase":"play"}
+   to arms again (keep still on?)                          {"part":"arms","keep":false,"lf":0,"lt":0,"gait":0,"v":0,"of":0,"ogait":0,"nod":0,"brow":0,"hy":0,"hz":0.75,"hp":0.7,"down":0,"x":0.88,"z":0.5,"phase":"play"}
+T3b keep with W+A+Shift then all released, in arms         {"part":"arms","keep":true,"lf":1,"lt":-1,"gait":1,"v":0.9,"of":1,"ogait":1,"nod":0,"brow":0,"hy":0,"hz":0.75,"hp":0.7,"down":0,"x":-0.55,"z":-0.16,"phase":"play"}
+   K off                                                   {"part":"arms","keep":false,"lf":0,"lt":0,"gait":0,"v":0,"of":0,"ogait":0,"nod":0,"brow":0,"hy":0,"hz":0.75,"hp":0.7,"down":0,"x":-0.58,"z":-0.09,"phase":"play"}
+T3c keep on, then a (staged) fall                          {"part":"arms","keep":false,"lf":0,"lt":0,"gait":0,"v":0,"of":0,"ogait":0,"nod":0,"brow":0,"hy":0,"hz":0.75,"hp":0.7,"down":1,"x":-2.3,"z":0.5,"phase":"play"}
+   after getting up                                        {"part":"arms","keep":false,"lf":0,"lt":0,"gait":0,"v":0,"of":0,"ogait":0,"nod":0,"brow":0,"hy":0,"hz":0.75,"hp":0.7,"down":0,"x":-2.3,"z":0.5,"phase":"play"}
+T4 head, N held                                            {"part":"head","keep":false,"lf":0,"lt":0,"gait":0,"v":0,"of":0,"ogait":0,"nod":1,"brow":0,"hy":0,"hz":0.75,"hp":0.7,"down":0,"x":-2.3,"z":0.5,"phase":"play"}
+   -> legs 0.4 s, N still held                             {"part":"legs","keep":false,"lf":0,"lt":0,"gait":0,"v":0,"of":0,"ogait":0,"nod":1,"brow":0,"hy":0,"hz":0.75,"hp":0.7,"down":0,"x":-2.3,"z":0.5,"phase":"play"}
+   -> legs 1.3 s, N still held                             {"part":"legs","keep":false,"lf":0,"lt":0,"gait":0,"v":0,"of":0,"ogait":0,"nod":0,"brow":0,"hy":0,"hz":0.75,"hp":0.7,"down":0,"x":-2.3,"z":0.5,"phase":"play"}
+   -> back to head, N still held                           {"part":"head","keep":false,"lf":0,"lt":0,"gait":0,"v":0,"of":0,"ogait":0,"nod":0,"brow":0,"hy":0,"hz":0.75,"hp":0.7,"down":0,"x":-2.3,"z":0.5,"phase":"play"}
+T5 legs, E+W held (stride)                                 {"part":"legs","keep":false,"lf":1,"lt":0,"gait":2,"v":3,"of":1,"ogait":2,"nod":0,"brow":0,"hy":0,"hz":0.75,"hp":0.7,"down":0,"x":-2.94,"z":0.5,"phase":"play"}
+   Tab -> arms, E+W still held (hand y rises, z forward)   {"part":"arms","keep":false,"lf":0,"lt":0,"gait":0,"v":0,"of":0,"ogait":0,"nod":0,"brow":0,"hy":0,"hz":0.75,"hp":0.7,"down":0,"x":-2.11,"z":0.5,"phase":"play"}
+   Tab -> head, E+W still held (eyebrows up, pitch)        {"part":"head","keep":false,"lf":0,"lt":0,"gait":0,"v":0,"of":0,"ogait":0,"nod":0,"brow":0,"hy":0,"hz":0.75,"hp":0.7,"down":1,"x":-2.11,"z":0.5,"phase":"play"}
+T7 W held, window loses focus                              {"part":"legs","keep":false,"lf":0,"lt":0,"gait":0,"v":0,"of":0,"ogait":0,"nod":0,"brow":0,"hy":0,"hz":0.75,"hp":0.7,"down":1,"x":-4,"z":0.5,"phase":"play"}
+   focus back, W still physically held                     {"part":"legs","keep":false,"lf":0,"lt":0,"gait":0,"v":0,"of":0,"ogait":0,"nod":0,"brow":0,"hy":0,"hz":0.75,"hp":0.7,"down":0,"x":-4,"z":0.5,"phase":"play"}
+T9 tap for ~15 ms: taps that registered (nod N, brow E)    {"KeyN_real":23,"KeyN":"20/20","KeyE_real":17,"KeyE":"20/20"}
+T9 tap for ~30 ms: taps that registered (nod N, brow E)    {"KeyN_real":31,"KeyN":"20/20","KeyE_real":45,"KeyE":"20/20"}
+T9 tap for ~50 ms: taps that registered (nod N, brow E)    {"KeyN_real":51,"KeyN":"20/20","KeyE_real":74,"KeyE":"20/20"}
+T9 tap for ~80 ms: taps that registered (nod N, brow E)    {"KeyN_real":88,"KeyN":"20/20","KeyE_real":87,"KeyE":"20/20"}
+T9 tap for ~120 ms: taps that registered (nod N, brow E)   {"KeyN_real":121,"KeyN":"20/20","KeyE_real":122,"KeyE":"20/20"}
+T9 15 ms taps of G (grab) that registered                  20/20
+T11 mouse drag look: handler -> camera yaw drawn ms        med 1.5 worst 89.1 min 1.0 n=14
+   browser event time -> drawn ms                          med 12.1 worst 101.0 min 2.9 n=14
+errors []

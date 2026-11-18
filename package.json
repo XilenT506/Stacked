@@ -1,0 +1,21 @@
+{
+  "name": "stacked",
+  "version": "1.0.0",
+  "description": "STACKED: a 1-4 player co-op comedy game. Three kids, one trench coat.",
+  "scripts": {
+    "build": "node build.mjs",
+    "test": "node --test test/logic/*.test.mjs",
+    "shots": "node build.mjs && node test/shots.mjs",
+    "legacy:build": "cd legacy && node build.mjs"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@dimforge/rapier3d-compat": "^0.14.0",
+    "esbuild": "^0.21.5",
+    "three": "^0.160.0"
+  },
+  "private": true,
+  "type": "module"
+}

@@ -1,0 +1,58 @@
+[
+ {
+  "errand": "drive",
+  "players": 1,
+  "median": 52,
+  "longest": 79,
+  "scatters": 0.05,
+  "idle": 27,
+  "idlePart": "arms",
+  "done": 95,
+  "risk": 70,
+  "ranks": "ASAABAAAAASBDAAASAAA",
+  "fails": "Mr Price saw through the coat",
+  "surv": 0
+ },
+ {
+  "errand": "drive",
+  "players": 2,
+  "median": 45,
+  "longest": 47,
+  "scatters": 0.05,
+  "idle": 19,
+  "idlePart": "arms",
+  "done": 95,
+  "risk": 100,
+  "ranks": "BBAAABAAAADAABBAAABB",
+  "fails": "Mr Price saw through the coat",
+  "surv": 0
+ },
+ {
+  "errand": "drive",
+  "players": 3,
+  "median": 45,
+  "longest": 49,
+  "scatters": 0.1,
+  "idle": 19,
+  "idlePart": "arms",
+  "done": 90,
+  "risk": 100,
+  "ranks": "BABABDAAAAAADAAABBBA",
+  "fails": "Mr Price saw through the coat",
+  "surv": 0
+ },
+ {
+  "errand": "drive",
+  "players": 4,
+  "median": 45,
+  "longest": 49,
+  "scatters": 0.05,
+  "idle": 19,
+  "idlePart": "armL",
+  "done": 95,
+  "risk": 100,
+  "ranks": "BAAAAAADABAAAABAAAAA",
+  "fails": "Mr Price saw through the coat",
+  "surv": 0
+ }
+]

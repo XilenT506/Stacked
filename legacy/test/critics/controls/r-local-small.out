@@ -1,0 +1,30 @@
+
+== LOCAL RESPONSE: SOLO opts='?q=low' 320x180  fps(game)=59.6 pixelRatio=0.75 shadows=false
+frame time ms: med 16.7 worst 34.4 min 8.9 n=2477 | sampler after render() by ms: med 0.0 worst 0.8 min 0.0 n=2589
+columns: A = handler->end of frame ms | B = browser event timestamp->end of frame ms | frames
+legs W/S walk / input.legs.f                     A med 5.7 worst 8.0 | B med 7.6 worst 13.8 | frames med 1.0 worst 1.0 | missed 0/14
+legs W/S walk / W.body.v                         A med 5.7 worst 8.0 | B med 7.6 worst 13.8 | frames med 1.0 worst 1.0 | missed 0/14
+legs W/S walk / W.body pos                       A med 5.7 worst 8.0 | B med 7.6 worst 13.8 | frames med 1.0 worst 1.0 | missed 0/14
+legs W/S walk / camera pos (drawn)               A med 5.7 worst 8.0 | B med 7.6 worst 13.8 | frames med 1.0 worst 1.0 | missed 0/14
+legs A/D turn / W.body.yaw                       A med 5.0 worst 9.3 | B med 8.9 worst 17.2 | frames med 1.0 worst 1.0 | missed 0/14
+legs A/D turn / camera yaw (drawn)               A med 5.0 worst 9.3 | B med 8.9 worst 17.2 | frames med 1.0 worst 1.0 | missed 0/14
+arms A/D hand / input.hand.x                     A med 5.1 worst 6.3 | B med 8.5 worst 17.5 | frames med 1.0 worst 1.0 | missed 0/14
+arms A/D hand / W.ord.hand.x                     A med 5.1 worst 6.3 | B med 8.5 worst 17.5 | frames med 1.0 worst 1.0 | missed 0/14
+arms A/D hand / W.hands (host sim)               A med 5.1 worst 6.3 | B med 8.5 worst 17.5 | frames med 1.0 worst 1.0 | missed 0/14
+arms A/D hand / hand mesh (drawn)                A med 5.1 worst 6.3 | B med 8.5 worst 17.5 | frames med 1.0 worst 1.0 | missed 0/14
+arms G grab / input.n counter                    A med 3.6 worst 7.3 | B med 11.8 worst 17.3 | frames med 1.0 worst 1.0 | missed 0/14
+arms C wave / input act                          A med 4.9 worst 6.7 | B med 7.0 worst 15.6 | frames med 1.0 worst 1.0 | missed 0/14
+arms C wave / W.ord act                          A med 4.9 worst 6.7 | B med 7.0 worst 15.6 | frames med 1.0 worst 1.0 | missed 0/14
+arms C wave / hand mesh y first twitch (drawn)   A med 4.9 worst 6.7 | B med 7.0 worst 15.6 | frames med 1.0 worst 1.0 | missed 0/14
+arms C wave / hand mesh y risen 5 cm (drawn)     A med 21.5 worst 22.5 | B med 23.6 worst 33.4 | frames med 2.0 worst 2.0 | missed 0/14
+head N nod / input.head.nod                      A med 2.3 worst 5.2 | B med 9.9 worst 18.0 | frames med 1.0 worst 1.0 | missed 0/14
+head N nod / W.ord.nod                           A med 2.3 worst 5.2 | B med 9.9 worst 18.0 | frames med 1.0 worst 1.0 | missed 0/14
+head N nod / camera pitch (drawn)                A med 2.3 worst 5.2 | B med 9.9 worst 18.0 | frames med 1.0 worst 1.0 | missed 0/14
+head E brow / input.head.brow                    A med 2.7 worst 6.3 | B med 9.9 worst 15.6 | frames med 1.0 worst 1.0 | missed 0/14
+head E brow / W.ord.brow                         A med 2.7 worst 6.3 | B med 9.9 worst 15.6 | frames med 1.0 worst 1.0 | missed 0/14
+head E brow / brow mesh (drawn, hidden from own head view) A med 2.7 worst 6.3 | B med 9.9 worst 15.6 | frames med 1.0 worst 1.0 | missed 0/14
+head A/D look / input.head.y                     A med 2.0 worst 7.8 | B med 11.0 worst 20.5 | frames med 1.0 worst 1.0 | missed 0/14
+head A/D look / W.ord.hy                         A med 2.0 worst 7.8 | B med 11.0 worst 20.5 | frames med 1.0 worst 1.0 | missed 0/14
+head A/D look / camera yaw (drawn)               A med 2.0 worst 7.8 | B med 11.0 worst 20.5 | frames med 1.0 worst 1.0 | missed 0/14
+stats.localMs (game own): med 5.3 worst 71.4 min 1.2 n=115
+errors []

@@ -1,0 +1,27 @@
+ONLINE opts='?q=low' 320x180 link=webrtc seats={"legs":0,"armL":1,"armR":1,"head":1} host fps 25.3 friend fps 24.8
+
+== SEAT SWAP: friend becomes the legs
+seats after V on host: {"legs":1,"armL":0,"armR":0,"head":0} friend sees {"legs":1,"armL":0,"armR":0,"head":0}
+friend W key -> own body moves on friend screen ms: med 3.0 worst 6.0 min 2.0 n=10
+friend W key -> host body moves (host world) ms:    med 35.0 worst 136.0 min 25.0 n=10
+friend W key -> host confirmation back on friend ms: med 118.0 worst 167.0 min 44.0 n=10
+friend releases W -> local speed 0 ms: med 363.0 worst 526.0 min 294.0 n=10 | host speed 0 ms: med 423.0 worst 609.0 min 336.0 n=10
+after local stop, body keeps sliding (m): med 0.1cm worst 0.2cm min 0.1cm n=10 | settle ms: med 0.0 worst 0.0 min 0.0 n=10
+   [straight then turns] host end (7.72, -3.88) friend end (7.72, -3.88) host fell: false
+[straight then turns] friend body vs host body, same instant (m): med 0.005 worst 0.243 | vs last snapshot (m): med 0.000 worst 0.523 | yaw diff (rad): med 0.000 worst 0.272 | extra per-frame pull beyond own speed (m): med 0.000 worst 0.024
+   [straight only] host end (-4.00, 0.50) friend end (-4.00, 0.50) host fell: false
+[straight only] friend body vs host body, same instant (m): med 0.000 worst 0.000 | vs last snapshot (m): med 0.000 worst 0.000 | yaw diff (rad): med 0.000 worst 0.000 | extra per-frame pull beyond own speed (m): med 0.000 worst 0.000
+
+== LOCAL RESPONSE: FRIEND (client) owning legs  fps(game)=12.5 pixelRatio=0.75 shadows=false
+frame time ms: med 67.8 worst 358.8 min 21.5 n=150 | sampler after render() by ms: med 0.0 worst 8.0 min 0.0 n=170
+columns: A = handler->end of frame ms | B = browser event timestamp->end of frame ms | frames
+legs W/S walk / input.legs.f                     A med 2.3 worst 5.0 | B med 40.0 worst 74.3 | frames med 1.0 worst 1.0 | missed 0/10
+legs W/S walk / W.body.v                         A n=0 | B n=0 | frames n=0 | missed 10/10
+legs W/S walk / W.body pos                       A n=0 | B n=0 | frames n=0 | missed 10/10
+legs W/S walk / camera pos (drawn)               A n=0 | B n=0 | frames n=0 | missed 10/10
+legs A/D turn / W.body.yaw                       A n=0 | B n=0 | frames n=0 | missed 10/10
+legs A/D turn / camera yaw (drawn)               A n=0 | B n=0 | frames n=0 | missed 10/10
+stats.localMs (game own): med 79.9 worst 255.6 min 46.6 n=21
+
+snapGap overall ms: med 90.9 worst 615.9 min 0.0 n=300 | host fps 12.6 friend fps 12.6
+errors host [] friend []

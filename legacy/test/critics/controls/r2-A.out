@@ -1,0 +1,27 @@
+ONLINE opts='?q=low' 320x180 link=webrtc seats={"legs":0,"armL":1,"armR":1,"head":1} host fps 25.7 friend fps 28.9
+
+== LOCAL RESPONSE: FRIEND (client) owning head+arms  fps(game)=24.6 pixelRatio=0.75 shadows=false
+frame time ms: med 50.7 worst 1519.8 min 19.4 n=690 | sampler after render() by ms: med 0.0 worst 1.6 min 0.0 n=774
+columns: A = handler->end of frame ms | B = browser event timestamp->end of frame ms | frames
+arms A/D hand / input.hand.x                     A med 2.7 worst 13.6 | B med 32.1 worst 141.6 | frames med 1.0 worst 1.0 | missed 0/14
+arms A/D hand / W.ord.hand.x                     A med 93.4 worst 1559.3 | B med 129.7 worst 1566.5 | frames med 2.0 worst 4.0 | missed 0/14
+arms A/D hand / W.hands (host sim)               A med 88.8 worst 1559.3 | B med 96.2 worst 1566.5 | frames med 2.0 worst 4.0 | missed 0/14
+arms A/D hand / hand mesh (drawn)                A med 2.7 worst 13.6 | B med 32.1 worst 141.6 | frames med 1.0 worst 1.0 | missed 0/14
+arms G grab / input.n counter                    A med 4.7 worst 26.1 | B med 33.9 worst 109.0 | frames med 1.0 worst 1.0 | missed 0/14
+arms C wave / input act                          A med 3.1 worst 8.9 | B med 38.5 worst 115.3 | frames med 1.0 worst 1.0 | missed 0/14
+arms C wave / W.ord act                          A med 94.9 worst 226.9 | B med 143.4 worst 238.6 | frames med 3.0 worst 9.0 | missed 1/14
+arms C wave / hand mesh y first twitch (drawn)   A med 3.1 worst 8.9 | B med 38.5 worst 115.3 | frames med 1.0 worst 1.0 | missed 0/14
+arms C wave / hand mesh y risen 5 cm (drawn)     A med 3.1 worst 8.9 | B med 38.5 worst 115.3 | frames med 1.0 worst 1.0 | missed 0/14
+head N nod / input.head.nod                      A med 2.8 worst 34.9 | B med 44.1 worst 308.1 | frames med 1.0 worst 1.0 | missed 0/14
+head N nod / W.ord.nod                           A med 107.9 worst 270.8 | B med 137.7 worst 575.3 | frames med 3.0 worst 5.0 | missed 1/14
+head N nod / camera pitch (drawn)                A med 2.8 worst 34.9 | B med 44.1 worst 308.1 | frames med 1.0 worst 1.0 | missed 0/14
+head E brow / input.head.brow                    A med 5.9 worst 9.1 | B med 38.0 worst 77.6 | frames med 1.0 worst 1.0 | missed 0/14
+head E brow / W.ord.brow                         A med 103.0 worst 358.0 | B med 137.3 worst 400.3 | frames med 3.0 worst 4.0 | missed 0/14
+head E brow / brow mesh (drawn, hidden from own head view) A med 8.2 worst 358.0 | B med 57.3 worst 400.3 | frames med 1.0 worst 3.0 | missed 0/14
+head A/D look / input.head.y                     A med 4.3 worst 7.3 | B med 19.5 worst 83.0 | frames med 1.0 worst 1.0 | missed 0/14
+head A/D look / W.ord.hy                         A med 105.7 worst 161.2 | B med 130.2 worst 183.4 | frames med 3.0 worst 4.0 | missed 0/14
+head A/D look / camera yaw (drawn)               A med 4.3 worst 7.3 | B med 19.5 worst 83.0 | frames med 1.0 worst 1.0 | missed 0/14
+stats.localMs (game own): med 58.2 worst 1523.3 min 24.5 n=86
+
+snapGap overall ms: med 94.4 worst 477.7 min 0.0 n=300 | host fps 22.9 friend fps 23.5
+errors host [] friend []

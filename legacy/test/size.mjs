@@ -1,0 +1,11 @@
+globalThis.THREE = {};
+const { newWorld, pack, stepWorld, setPlayers } = await import('../js/game.js');
+const { spawnKid } = await import('../js/parts.js');
+const { emptyPacket } = await import('../js/parts.js');
+const W = newWorld(['aaaaaaaaaaaaaaaa']); setPlayers(W, ['k3v6q2rt7wacd4fn', 'k3v6q2rt7wacd4fa', 'k3v6q2rt7wacd4fb', 'k3v6q2rt7wacd4fc']);
+for (let i = 0; i < 300; i++) stepWorld(W, 1 / 60, W.players.map(() => emptyPacket()));
+for (let i = 0; i < 4; i++) spawnKid(W, -3.123 + i, 0.456, i, i);
+W.people.forEach((p) => { p.say = 12; p.sus = 0.777; });
+for (let i = 0; i < 6; i++) W.ev.push([100 + i, 13, 11]);
+const s = JSON.stringify({ r: 'h', d: pack(W) });
+console.log('snapshot bytes:', s.length, '| input packet bytes:', JSON.stringify({ r: 'c', d: emptyPacket() }).length);

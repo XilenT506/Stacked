@@ -1,0 +1,417 @@
+{
+ "story": [
+  "shop",
+  "bank",
+  "cinema",
+  "drive"
+ ],
+ "survival": [
+  "shop",
+  "bank",
+  "cinema"
+ ],
+ "zones": {
+  "alley": {
+   "x0": -8.85,
+   "z0": -6.85,
+   "x1": -5.15,
+   "z1": -2.75
+  },
+  "bank": {
+   "x0": -3.85,
+   "z0": 3.65,
+   "x1": 3.85,
+   "z1": 10.85
+  },
+  "corner": {
+   "x": 8.5,
+   "z": 0.2,
+   "r": 1.4
+  },
+  "queue": {
+   "x": 0,
+   "z": 6.3,
+   "r": 0.6
+  },
+  "counter": {
+   "x": 0.3,
+   "z": 7.8,
+   "r": 0.9
+  },
+  "shopFront": {
+   "x": -8.3,
+   "z": 1.95,
+   "r": 0.6
+  },
+  "cartFront": {
+   "x": 2.35,
+   "z": -3.05,
+   "r": 0.7
+  },
+  "check": {
+   "x": 9.2,
+   "z": -3.05,
+   "r": 0.6
+  },
+  "door": {
+   "x": 9.2,
+   "z": -3.75,
+   "r": 0.55
+  },
+  "line": {
+   "x0": -3.7,
+   "z0": -1.25,
+   "x1": -2.5,
+   "z1": 1.95
+  },
+  "box": {
+   "x0": 8.2,
+   "z0": -0.55,
+   "x1": 11.0,
+   "z1": 1.25
+  },
+  "box2": {
+   "x0": -9.9,
+   "z0": -0.55,
+   "x1": -7.1,
+   "z1": 1.25
+  }
+ },
+ "items": {
+  "milk": {
+   "name": "the milk",
+   "kind": "milk",
+   "home": [
+    -8.05,
+    1.14,
+    2.75
+   ]
+  },
+  "cash": {
+   "name": "the cash",
+   "kind": "cash",
+   "home": [
+    0.8,
+    1.13,
+    8.45
+   ]
+  },
+  "popcorn": {
+   "name": "the popcorn",
+   "kind": "popcorn",
+   "home": [
+    2.0,
+    1.16,
+    -3.75
+   ]
+  },
+  "drink": {
+   "name": "the drink",
+   "kind": "drink",
+   "home": [
+    2.75,
+    1.16,
+    -3.75
+   ]
+  }
+ },
+ "errands": {
+  "shop": {
+   "name": "Corner shop",
+   "intro": "Mum needs milk. Buy one bottle at Mabel's stall and bring it back to the alley.",
+   "target": [
+    120,
+    180
+   ],
+   "clock": 360,
+   "notice": 0.7,
+   "hints": true,
+   "people": [
+    "mabel",
+    "gus"
+   ],
+   "items": [
+    "milk"
+   ],
+   "mods": [],
+   "steps": [
+    {
+     "type": "goto",
+     "zone": "shopFront",
+     "text": "Walk out of the alley and across the road to Mabel's stall.",
+     "hint": {
+      "legs": "Hold W to walk, A and D to turn.",
+      "arms": "Nothing to grab yet. Keep the hands still: flapping hands look odd.",
+      "head": "Look around with the mouse. Nod (N) if someone says hello.",
+      "all": "Hold W to walk, A and D to turn. Out of the alley to the right, then across to Mabel's stall."
+     }
+    },
+    {
+     "type": "still",
+     "zone": "shopFront",
+     "secs": 2.5,
+     "who": "mabel",
+     "say": 22,
+     "text": "Stand still and wait for Mabel.",
+     "hint": {
+      "legs": "Stop and stand still on the spot.",
+      "arms": "Wait. Still hands.",
+      "head": "Look at Mabel. A nod is polite.",
+      "all": "Let go of W and stand still. If Mabel says hello, press N to nod."
+     }
+    },
+    {
+     "type": "grab",
+     "items": [
+      "milk"
+     ],
+     "text": "Take the milk from the counter.",
+     "hint": {
+      "legs": "Stay put. Step closer only if the arms say 'too far'.",
+      "arms": "Move a hand to the glowing ring, then G to grab.",
+      "head": "Keep Mabel happy: nod if she looks at you.",
+      "all": "Hold G: the hand reaches for the milk and grabs it."
+     }
+    },
+    {
+     "type": "talk",
+     "who": "mabel",
+     "secs": 1.0,
+     "pay": 2,
+     "say": 23,
+     "text": "Say thank you to Mabel.",
+     "hint": {
+      "legs": "Stand still.",
+      "arms": "Hold on to the milk.",
+      "head": "Press T and say thank you out loud (or Enter to type it, or hold Space to mumble).",
+      "all": "Press T and say thank you out loud (or Enter to type it)."
+     }
+    },
+    {
+     "type": "carry",
+     "items": [
+      "milk"
+     ],
+     "zone": "alley",
+     "text": "Carry the milk back to the alley.",
+     "hint": {
+      "legs": "Walk back. Heavy hands wobble: no sharp turns.",
+      "arms": "Don't let go of the milk.",
+      "head": "Watch for Gus. Nod back if he says hello.",
+      "all": "Walk the milk back to the alley. Go slowly: a heavy hand leans the coat."
+     }
+    }
+   ]
+  },
+  "bank": {
+   "name": "Bank",
+   "intro": "Dad's birthday money is waiting at the bank. Queue, sign for it, take the cash out to the corner.",
+   "target": [
+    180,
+    240
+   ],
+   "clock": 420,
+   "notice": 1.25,
+   "people": [
+    "ruth",
+    "gus",
+    "hale"
+   ],
+   "items": [
+    "cash"
+   ],
+   "mods": [
+    "heavy"
+   ],
+   "steps": [
+    {
+     "type": "goto",
+     "zone": "bank",
+     "text": "Walk into the bank."
+    },
+    {
+     "type": "still",
+     "zone": "queue",
+     "secs": 4,
+     "who": "ruth",
+     "say": 20,
+     "text": "Stand still in the queue."
+    },
+    {
+     "type": "sign",
+     "text": "Hold the form flat with one hand and sign with the other."
+    },
+    {
+     "type": "grab",
+     "items": [
+      "cash"
+     ],
+     "text": "Take the cash."
+    },
+    {
+     "type": "carry",
+     "items": [
+      "cash"
+     ],
+     "zone": "corner",
+     "text": "Carry the cash out to the corner."
+    }
+   ]
+  },
+  "cinema": {
+   "name": "Cinema",
+   "intro": "A grown-up film. Get snacks from the cart, pass Pip's height check at the door, and get in.",
+   "target": [
+    240,
+    300
+   ],
+   "clock": 480,
+   "notice": 1.15,
+   "people": [
+    "pip",
+    "gus",
+    "dot",
+    "hale"
+   ],
+   "items": [
+    "popcorn",
+    "drink"
+   ],
+   "mods": [],
+   "steps": [
+    {
+     "type": "goto",
+     "zone": "cartFront",
+     "text": "Walk to the snack cart."
+    },
+    {
+     "type": "grab",
+     "items": [
+      "popcorn",
+      "drink"
+     ],
+     "text": "Take the popcorn and the drink, one in each hand."
+    },
+    {
+     "type": "carry",
+     "items": [
+      "popcorn",
+      "drink"
+     ],
+     "zone": "check",
+     "text": "Carry both snacks to the cinema door."
+    },
+    {
+     "type": "tall",
+     "zone": "check",
+     "secs": 2.5,
+     "who": "pip",
+     "text": "Height check! Stand still and stand tall (Legs: hold Shift to go on tiptoe)."
+    },
+    {
+     "type": "talk",
+     "who": "pip",
+     "secs": 1.0,
+     "say": 25,
+     "text": "Ask Pip for one ticket (Head: press T and ask him, or hold Space to mumble)."
+    },
+    {
+     "type": "carry",
+     "items": [
+      "popcorn",
+      "drink"
+     ],
+     "zone": "door",
+     "text": "Walk in through the door with both snacks."
+    }
+   ]
+  },
+  "drive": {
+   "name": "Driving test",
+   "intro": "The finale. Pass Mr Price's driving test before his \"?\" fills up. Legs: pedals. Arms: the wheel. Head: mirrors and nodding.",
+   "target": [
+    240,
+    360
+   ],
+   "clock": 600,
+   "notice": 1.2,
+   "drive": true,
+   "people": [
+    "price"
+   ],
+   "items": [],
+   "mods": [],
+   "slip": {
+    "every": [
+     30,
+     45
+    ],
+    "lasts": [
+     3,
+     5
+    ]
+   },
+   "steps": [
+    {
+     "type": "mirrors",
+     "text": "Check your mirrors: Head looks left, then right."
+    },
+    {
+     "type": "stopline",
+     "zone": "line",
+     "text": "Drive to the stop line and stop on it (only the Legs can see it)."
+    },
+    {
+     "type": "cones",
+     "x": 7.6,
+     "text": "Weave through the cones without knocking any over."
+    },
+    {
+     "type": "turn",
+     "yaw": -1.5708,
+     "text": "Turn the car around in the road (forward, back, forward is fine)."
+    },
+    {
+     "type": "estop",
+     "x0": 4.0,
+     "x1": -1.0,
+     "secs": 1.4,
+     "text": "Drive back down the street. When Mr Price shouts STOP, stop!"
+    },
+    {
+     "type": "mirrors",
+     "text": "Check your mirrors again before you pull away."
+    },
+    {
+     "type": "park",
+     "zone": "box2",
+     "secs": 1.5,
+     "text": "Park in the box by the corner shop (only the Legs can see it)."
+    }
+   ],
+   "car": {
+    "x": -10.2,
+    "z": 0.35,
+    "yaw": 1.5708
+   },
+   "cones": [
+    [
+     0.0,
+     1.05
+    ],
+    [
+     2.6,
+     -0.35
+    ],
+    [
+     5.2,
+     1.05
+    ]
+   ],
+   "ask": [
+    9,
+    13
+   ]
+  }
+ }
+}

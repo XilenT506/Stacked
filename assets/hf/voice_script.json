@@ -1,0 +1,802 @@
+{
+ "ruth": [
+  {
+   "i": 0,
+   "t": "Afternoon!"
+  },
+  {
+   "i": 1,
+   "t": "Are you lost, sir?"
+  },
+  {
+   "i": 2,
+   "t": "Lovely day!"
+  },
+  {
+   "i": 3,
+   "t": "Hmph. Rude."
+  },
+  {
+   "i": 9,
+   "t": "THOSE ARE CHILDREN!"
+  },
+  {
+   "i": 15,
+   "t": "Hm?"
+  },
+  {
+   "i": 16,
+   "t": "Lost? You said you were lost?"
+  },
+  {
+   "i": 10,
+   "t": "Got you!"
+  },
+  {
+   "i": 4,
+   "t": "Next, please!"
+  },
+  {
+   "i": 5,
+   "t": "Sign on the line, please."
+  },
+  {
+   "i": 6,
+   "t": "...Is that a signature?"
+  },
+  {
+   "i": 7,
+   "t": "Thank you, sir."
+  },
+  {
+   "i": 8,
+   "t": "Have a nice day!"
+  },
+  {
+   "i": 20,
+   "t": "Won't be a moment, sir."
+  },
+  {
+   "i": 21,
+   "t": "Hold it flat, please, sir."
+  },
+  {
+   "ask": 0,
+   "t": "And what do you do for a living, sir?"
+  },
+  {
+   "ask": 1,
+   "t": "Is this account for you, sir? Date of birth?"
+  },
+  {
+   "ask": 2,
+   "t": "You seem... shorter than your signature. Explain?"
+  }
+ ],
+ "gus": [
+  {
+   "i": 0,
+   "t": "Afternoon!"
+  },
+  {
+   "i": 1,
+   "t": "Are you lost, sir?"
+  },
+  {
+   "i": 2,
+   "t": "Lovely day!"
+  },
+  {
+   "i": 3,
+   "t": "Hmph. Rude."
+  },
+  {
+   "i": 9,
+   "t": "THOSE ARE CHILDREN!"
+  },
+  {
+   "i": 15,
+   "t": "Hm?"
+  },
+  {
+   "i": 16,
+   "t": "Lost? You said you were lost?"
+  },
+  {
+   "i": 10,
+   "t": "Got you!"
+  },
+  {
+   "ask": 0,
+   "t": "Haven't seen you round here. New in town?"
+  },
+  {
+   "ask": 1,
+   "t": "Off anywhere nice, then?"
+  },
+  {
+   "ask": 2,
+   "t": "Your coat just giggled. Did your coat giggle?"
+  }
+ ],
+ "hale": [
+  {
+   "i": 0,
+   "t": "Afternoon!"
+  },
+  {
+   "i": 1,
+   "t": "Are you lost, sir?"
+  },
+  {
+   "i": 2,
+   "t": "Lovely day!"
+  },
+  {
+   "i": 3,
+   "t": "Hmph. Rude."
+  },
+  {
+   "i": 9,
+   "t": "THOSE ARE CHILDREN!"
+  },
+  {
+   "i": 15,
+   "t": "Hm?"
+  },
+  {
+   "i": 16,
+   "t": "Lost? You said you were lost?"
+  },
+  {
+   "i": 10,
+   "t": "Got you!"
+  },
+  {
+   "ask": 0,
+   "t": "Name and age, sir?"
+  },
+  {
+   "ask": 1,
+   "t": "Where are you headed in such a hurry?"
+  },
+  {
+   "ask": 2,
+   "t": "Why is your middle wobbling, sir?"
+  }
+ ],
+ "mabel": [
+  {
+   "i": 0,
+   "t": "Afternoon!"
+  },
+  {
+   "i": 1,
+   "t": "Are you lost, sir?"
+  },
+  {
+   "i": 2,
+   "t": "Lovely day!"
+  },
+  {
+   "i": 3,
+   "t": "Hmph. Rude."
+  },
+  {
+   "i": 9,
+   "t": "THOSE ARE CHILDREN!"
+  },
+  {
+   "i": 15,
+   "t": "Hm?"
+  },
+  {
+   "i": 16,
+   "t": "Lost? You said you were lost?"
+  },
+  {
+   "i": 10,
+   "t": "Got you!"
+  },
+  {
+   "i": 22,
+   "t": "What can I get you, dear?"
+  },
+  {
+   "i": 23,
+   "t": "Two coins. Ta, love!"
+  },
+  {
+   "ask": 0,
+   "t": "Sure you're old enough for this, dear?"
+  },
+  {
+   "ask": 1,
+   "t": "What's the milk for, love?"
+  },
+  {
+   "ask": 2,
+   "t": "Your tummy keeps talking. You alright?"
+  }
+ ],
+ "pip": [
+  {
+   "i": 0,
+   "t": "Afternoon!"
+  },
+  {
+   "i": 1,
+   "t": "Are you lost, sir?"
+  },
+  {
+   "i": 2,
+   "t": "Lovely day!"
+  },
+  {
+   "i": 3,
+   "t": "Hmph. Rude."
+  },
+  {
+   "i": 9,
+   "t": "THOSE ARE CHILDREN!"
+  },
+  {
+   "i": 15,
+   "t": "Hm?"
+  },
+  {
+   "i": 16,
+   "t": "Lost? You said you were lost?"
+  },
+  {
+   "i": 10,
+   "t": "Got you!"
+  },
+  {
+   "i": 24,
+   "t": "Bit short for this film, sir?"
+  },
+  {
+   "i": 25,
+   "t": "Enjoy the film, sir."
+  },
+  {
+   "ask": 0,
+   "t": "How old are you, exactly, sir?"
+  },
+  {
+   "ask": 1,
+   "t": "Is that one ticket or three, sir?"
+  },
+  {
+   "ask": 2,
+   "t": "Why have you got six shoes, sir?"
+  }
+ ],
+ "dot": [
+  {
+   "i": 0,
+   "t": "Afternoon!"
+  },
+  {
+   "i": 1,
+   "t": "Are you lost, sir?"
+  },
+  {
+   "i": 2,
+   "t": "Lovely day!"
+  },
+  {
+   "i": 3,
+   "t": "Hmph. Rude."
+  },
+  {
+   "i": 9,
+   "t": "THOSE ARE CHILDREN!"
+  },
+  {
+   "i": 15,
+   "t": "Hm?"
+  },
+  {
+   "i": 16,
+   "t": "Lost? You said you were lost?"
+  },
+  {
+   "i": 10,
+   "t": "Got you!"
+  },
+  {
+   "ask": 0,
+   "t": "And who might YOU be?"
+  },
+  {
+   "ask": 1,
+   "t": "Does your mother know you're out?"
+  },
+  {
+   "ask": 2,
+   "t": "I know every grown-up on this street. Which one are you?"
+  }
+ ],
+ "kev": [
+  {
+   "i": 0,
+   "t": "Afternoon!"
+  },
+  {
+   "i": 1,
+   "t": "Are you lost, sir?"
+  },
+  {
+   "i": 2,
+   "t": "Lovely day!"
+  },
+  {
+   "i": 3,
+   "t": "Hmph. Rude."
+  },
+  {
+   "i": 9,
+   "t": "THOSE ARE CHILDREN!"
+  },
+  {
+   "i": 15,
+   "t": "Hm?"
+  },
+  {
+   "i": 16,
+   "t": "Lost? You said you were lost?"
+  },
+  {
+   "i": 10,
+   "t": "Got you!"
+  },
+  {
+   "ask": 0,
+   "t": "Oi mister, you look well young. How old are ya?"
+  },
+  {
+   "ask": 1,
+   "t": "What's your favourite football team then?"
+  },
+  {
+   "ask": 2,
+   "t": "Is that a kid in your coat?"
+  }
+ ],
+ "nan": [
+  {
+   "i": 0,
+   "t": "Afternoon!"
+  },
+  {
+   "i": 1,
+   "t": "Are you lost, sir?"
+  },
+  {
+   "i": 2,
+   "t": "Lovely day!"
+  },
+  {
+   "i": 3,
+   "t": "Hmph. Rude."
+  },
+  {
+   "i": 9,
+   "t": "THOSE ARE CHILDREN!"
+  },
+  {
+   "i": 15,
+   "t": "Hm?"
+  },
+  {
+   "i": 16,
+   "t": "Lost? You said you were lost?"
+  },
+  {
+   "i": 10,
+   "t": "Got you!"
+  },
+  {
+   "ask": 0,
+   "t": "Ooh, aren't you a tall boy. How old are you, dear?"
+  },
+  {
+   "ask": 1,
+   "t": "Have you eaten your greens today?"
+  },
+  {
+   "ask": 2,
+   "t": "Are you courting, young man?"
+  }
+ ],
+ "bert": [
+  {
+   "i": 0,
+   "t": "Afternoon!"
+  },
+  {
+   "i": 1,
+   "t": "Are you lost, sir?"
+  },
+  {
+   "i": 2,
+   "t": "Lovely day!"
+  },
+  {
+   "i": 3,
+   "t": "Hmph. Rude."
+  },
+  {
+   "i": 9,
+   "t": "THOSE ARE CHILDREN!"
+  },
+  {
+   "i": 15,
+   "t": "Hm?"
+  },
+  {
+   "i": 16,
+   "t": "Lost? You said you were lost?"
+  },
+  {
+   "i": 10,
+   "t": "Got you!"
+  },
+  {
+   "ask": 0,
+   "t": "Lovely day for it, eh? What line of work you in?"
+  },
+  {
+   "ask": 1,
+   "t": "You want your windows done, mate?"
+  },
+  {
+   "ask": 2,
+   "t": "Is your coat... breathing?"
+  }
+ ],
+ "price": [
+  {
+   "i": 26,
+   "t": "Check your mirrors, please."
+  },
+  {
+   "i": 27,
+   "t": "Lovely weather, isn't it?"
+  },
+  {
+   "i": 28,
+   "t": "Achoo!"
+  },
+  {
+   "i": 29,
+   "t": "*phone rings* Hello?"
+  },
+  {
+   "i": 30,
+   "t": "Where is my pen..."
+  },
+  {
+   "i": 31,
+   "t": "Mind the cones!"
+  },
+  {
+   "i": 32,
+   "t": "Stop at the line, please."
+  },
+  {
+   "i": 33,
+   "t": "Now park in the box, please."
+  },
+  {
+   "i": 34,
+   "t": "You ran the line!"
+  },
+  {
+   "i": 35,
+   "t": "Very good. A pass!"
+  },
+  {
+   "i": 36,
+   "t": "Ready when you are."
+  },
+  {
+   "i": 37,
+   "t": "Mind the kerb!"
+  },
+  {
+   "i": 38,
+   "t": "STOP!"
+  },
+  {
+   "i": 39,
+   "t": "Good reactions."
+  },
+  {
+   "i": 40,
+   "t": "Too slow!"
+  },
+  {
+   "i": 41,
+   "t": "Turn her round, please."
+  },
+  {
+   "i": 42,
+   "t": "Do keep up, sir."
+  },
+  {
+   "i": 13,
+   "t": "Very good, sir."
+  },
+  {
+   "i": 15,
+   "t": "Hm?"
+  },
+  {
+   "ask": 0,
+   "t": "So. How long have you been driving?"
+  },
+  {
+   "ask": 1,
+   "t": "What's the speed limit on this street?"
+  },
+  {
+   "ask": 2,
+   "t": "Any pets at home, sir?"
+  }
+ ],
+ "kid_top": [
+  {
+   "x": 0,
+   "t": "Act normal!"
+  },
+  {
+   "x": 1,
+   "t": "Nod! Nod!"
+  },
+  {
+   "x": 2,
+   "t": "Good afternoon, madam."
+  },
+  {
+   "x": 3,
+   "t": "I can see everything from up here!"
+  },
+  {
+   "x": 4,
+   "t": "Who's wobbling?"
+  },
+  {
+   "x": 5,
+   "t": "Stop tickling me!"
+  },
+  {
+   "x": 6,
+   "t": "Left! Your other left!"
+  },
+  {
+   "x": 7,
+   "t": "We are so grounded."
+  },
+  {
+   "x": 8,
+   "t": "Ow, my hat!"
+  },
+  {
+   "x": 9,
+   "t": "Run!"
+  },
+  {
+   "x": 10,
+   "t": "Back to the alley!"
+  },
+  {
+   "x": 11,
+   "t": "Hehehe!"
+  },
+  {
+   "x": 12,
+   "t": "Shh!"
+  },
+  {
+   "x": 13,
+   "t": "Totally one adult."
+  },
+  {
+   "x": 14,
+   "t": "I'm doing the voice!"
+  },
+  {
+   "x": 15,
+   "t": "Ahem. Lovely weather."
+  }
+ ],
+ "kid_middle": [
+  {
+   "x": 0,
+   "t": "Got it!"
+  },
+  {
+   "x": 1,
+   "t": "My arms are so tired."
+  },
+  {
+   "x": 2,
+   "t": "Which hand?"
+  },
+  {
+   "x": 3,
+   "t": "Don't drop it!"
+  },
+  {
+   "x": 4,
+   "t": "I'm signing, I'm signing!"
+  },
+  {
+   "x": 5,
+   "t": "Ew, sticky."
+  },
+  {
+   "x": 6,
+   "t": "Hold still!"
+  },
+  {
+   "x": 7,
+   "t": "Run!"
+  },
+  {
+   "x": 8,
+   "t": "Hehehe!"
+  },
+  {
+   "x": 9,
+   "t": "Shh!"
+  },
+  {
+   "x": 10,
+   "t": "This form is so boring."
+  },
+  {
+   "x": 11,
+   "t": "I've got the popcorn!"
+  },
+  {
+   "x": 12,
+   "t": "Wave! Everybody wave!"
+  },
+  {
+   "x": 13,
+   "t": "Who's got the money?"
+  },
+  {
+   "x": 14,
+   "t": "Careful, it's heavy!"
+  }
+ ],
+ "kid_bottom": [
+  {
+   "x": 0,
+   "t": "Which way?!"
+  },
+  {
+   "x": 1,
+   "t": "I can't see anything!"
+  },
+  {
+   "x": 2,
+   "t": "Is it a step? Is it a step?"
+  },
+  {
+   "x": 3,
+   "t": "Walking! I'm walking!"
+  },
+  {
+   "x": 4,
+   "t": "Tiptoe, tiptoe."
+  },
+  {
+   "x": 5,
+   "t": "My legs are wobbly!"
+  },
+  {
+   "x": 6,
+   "t": "Who stepped on my foot?"
+  },
+  {
+   "x": 7,
+   "t": "Brake! Brake!"
+  },
+  {
+   "x": 8,
+   "t": "Which one's the gas?"
+  },
+  {
+   "x": 9,
+   "t": "Run!"
+  },
+  {
+   "x": 10,
+   "t": "Hehehe!"
+  },
+  {
+   "x": 11,
+   "t": "Shh!"
+  },
+  {
+   "x": 12,
+   "t": "Are we there yet?"
+  },
+  {
+   "x": 13,
+   "t": "Wet floor! Wet floor!"
+  },
+  {
+   "x": 14,
+   "t": "I need a wee."
+  }
+ ],
+ "narrator": [
+  {
+   "x": 0,
+   "t": "Three kids. One trench coat. Act normal."
+  },
+  {
+   "x": 1,
+   "t": "Mum needs milk. One bottle from Mabel's stall. How hard can it be?"
+  },
+  {
+   "x": 2,
+   "t": "Dad's birthday money is waiting at the bank. Queue, sign, and get out."
+  },
+  {
+   "x": 3,
+   "t": "A grown-up film. Snacks, a height check, and absolutely no giggling."
+  },
+  {
+   "x": 4,
+   "t": "The finale. Mister Price's driving test. Mirrors, signals, and three pairs of feet."
+  },
+  {
+   "x": 5,
+   "t": "Today's town. How many errands before dinner?"
+  },
+  {
+   "x": 6,
+   "t": "Timber!"
+  },
+  {
+   "x": 7,
+   "t": "Busted! Everybody back to the alley!"
+  },
+  {
+   "x": 8,
+   "t": "Fooled them!"
+  },
+  {
+   "x": 9,
+   "t": "S rank. Totally one adult."
+  },
+  {
+   "x": 10,
+   "t": "A rank. Very nearly a grown-up."
+  },
+  {
+   "x": 11,
+   "t": "B rank. Mostly convincing."
+  },
+  {
+   "x": 12,
+   "t": "C rank. Suspiciously short."
+  },
+  {
+   "x": 13,
+   "t": "D rank. Busted."
+  },
+  {
+   "x": 14,
+   "t": "The whole afternoon. Done."
+  }
+ ]
+}

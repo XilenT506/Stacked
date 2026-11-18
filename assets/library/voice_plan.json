@@ -1,0 +1,514 @@
+[
+ {
+  "key": "voices/takes/price",
+  "voice": "d9d5c263-f84e-4752-97b5-3750fcc6fd2f",
+  "pitch": 0,
+  "lines": [
+   "Check your mirrors, please.",
+   "Lovely weather, isn't it?",
+   "Achoo!",
+   "Oh! My phone. Hello?",
+   "Where is my pen...",
+   "Mind the cones!",
+   "Stop at the line, please.",
+   "Now park in the box, please.",
+   "You ran the line!",
+   "Very good. A pass!",
+   "Ready when you are.",
+   "Mind the kerb!",
+   "STOP!",
+   "Good reactions.",
+   "Too slow!",
+   "Turn her round, please.",
+   "Do keep up, sir.",
+   "Very good, sir.",
+   "Hm?",
+   "So. How long have you been driving?",
+   "What's the speed limit on this street?",
+   "Any pets at home, sir?"
+  ],
+  "prompt": "Check your mirrors, please. ... \n\nLovely weather, isn't it? ... \n\nAchoo! ... \n\nOh! My phone. Hello? ... \n\nWhere is my pen... ... \n\nMind the cones! ... \n\nStop at the line, please. ... \n\nNow park in the box, please. ... \n\nYou ran the line! ... \n\nVery good. A pass! ... \n\nReady when you are. ... \n\nMind the kerb! ... \n\nSTOP! ... \n\nGood reactions. ... \n\nToo slow! ... \n\nTurn her round, please. ... \n\nDo keep up, sir. ... \n\nVery good, sir. ... \n\nHm? ... \n\nSo. How long have you been driving? ... \n\nWhat's the speed limit on this street? ... \n\nAny pets at home, sir?"
+ },
+ {
+  "key": "voices/takes/dot",
+  "voice": "66f35c82-2088-55eb-a0aa-7bf715dc03b7",
+  "pitch": 0,
+  "lines": [
+   "Afternoon!",
+   "Are you lost, sir?",
+   "Lovely day!",
+   "Hmph. Rude.",
+   "THOSE ARE CHILDREN!",
+   "Hm?",
+   "Lost? You said you were lost?",
+   "Got you!",
+   "And who might YOU be?",
+   "Does your mother know you're out?",
+   "I know every grown-up on this street. Which one are you?"
+  ],
+  "prompt": "Afternoon! ... \n\nAre you lost, sir? ... \n\nLovely day! ... \n\nHmph. Rude. ... \n\nTHOSE ARE CHILDREN! ... \n\nHm? ... \n\nLost? You said you were lost? ... \n\nGot you! ... \n\nAnd who might YOU be? ... \n\nDoes your mother know you're out? ... \n\nI know every grown-up on this street. Which one are you?"
+ },
+ {
+  "key": "voices/takes/kev",
+  "voice": "1ffcdbb3-078b-5491-959d-359e3021e917",
+  "pitch": 0,
+  "lines": [
+   "Afternoon!",
+   "Are you lost, sir?",
+   "Lovely day!",
+   "Hmph. Rude.",
+   "THOSE ARE CHILDREN!",
+   "Hm?",
+   "Lost? You said you were lost?",
+   "Got you!",
+   "Oi mister, you look well young. How old are ya?",
+   "What's your favourite football team then?",
+   "Is that a kid in your coat?"
+  ],
+  "prompt": "Afternoon! ... \n\nAre you lost, sir? ... \n\nLovely day! ... \n\nHmph. Rude. ... \n\nTHOSE ARE CHILDREN! ... \n\nHm? ... \n\nLost? You said you were lost? ... \n\nGot you! ... \n\nOi mister, you look well young. How old are ya? ... \n\nWhat's your favourite football team then? ... \n\nIs that a kid in your coat?"
+ },
+ {
+  "key": "voices/takes/nan",
+  "voice": "0c51919f-0756-5f8d-8169-026a339d8fd7",
+  "pitch": 0,
+  "lines": [
+   "Afternoon!",
+   "Are you lost, sir?",
+   "Lovely day!",
+   "Hmph. Rude.",
+   "THOSE ARE CHILDREN!",
+   "Hm?",
+   "Lost? You said you were lost?",
+   "Got you!",
+   "Ooh, aren't you a tall boy. How old are you, dear?",
+   "Have you eaten your greens today?",
+   "Are you courting, young man?"
+  ],
+  "prompt": "Afternoon! ... \n\nAre you lost, sir? ... \n\nLovely day! ... \n\nHmph. Rude. ... \n\nTHOSE ARE CHILDREN! ... \n\nHm? ... \n\nLost? You said you were lost? ... \n\nGot you! ... \n\nOoh, aren't you a tall boy. How old are you, dear? ... \n\nHave you eaten your greens today? ... \n\nAre you courting, young man?"
+ },
+ {
+  "key": "voices/takes/bert",
+  "voice": "bd072316-f77c-588b-b6e5-e46b9b03d008",
+  "pitch": 0,
+  "lines": [
+   "Afternoon!",
+   "Are you lost, sir?",
+   "Lovely day!",
+   "Hmph. Rude.",
+   "THOSE ARE CHILDREN!",
+   "Hm?",
+   "Lost? You said you were lost?",
+   "Got you!",
+   "Lovely day for it, eh? What line of work you in?",
+   "You want your windows done, mate?",
+   "Is your coat... breathing?"
+  ],
+  "prompt": "Afternoon! ... \n\nAre you lost, sir? ... \n\nLovely day! ... \n\nHmph. Rude. ... \n\nTHOSE ARE CHILDREN! ... \n\nHm? ... \n\nLost? You said you were lost? ... \n\nGot you! ... \n\nLovely day for it, eh? What line of work you in? ... \n\nYou want your windows done, mate? ... \n\nIs your coat... breathing?"
+ },
+ {
+  "key": "voices/takes/kid_top",
+  "voice": "e6f9b893-51b1-51d3-afe9-9e0482cb7ac1",
+  "pitch": 5,
+  "lines": [
+   "Hee hee hee!",
+   "Run!",
+   "Scatter!",
+   "Restack, restack!",
+   "Shhh! Act natural!",
+   "Ow! My nose!",
+   "Who has got the milk?",
+   "We did it!",
+   "Hold still down there!",
+   "I can see everything from up here!",
+   "Left! No, your other left!",
+   "Sorry, sorry!",
+   "Ahem. Good afternoon, madam.",
+   "Indeed. Quite so.",
+   "I am a very tall grown-up man.",
+   "Mum is going to be so proud!"
+  ],
+  "prompt": "Hee hee hee! ... \n\nRun! ... \n\nScatter! ... \n\nRestack, restack! ... \n\nShhh! Act natural! ... \n\nOw! My nose! ... \n\nWho has got the milk? ... \n\nWe did it! ... \n\nHold still down there! ... \n\nI can see everything from up here! ... \n\nLeft! No, your other left! ... \n\nSorry, sorry! ... \n\nAhem. Good afternoon, madam. ... \n\nIndeed. Quite so. ... \n\nI am a very tall grown-up man. ... \n\nMum is going to be so proud!"
+ },
+ {
+  "key": "voices/takes/kid_middle",
+  "voice": "0178ef57-ada4-43d9-992b-8d9221045bb4",
+  "pitch": 4,
+  "lines": [
+   "Hee hee!",
+   "Got it!",
+   "My arms are tired!",
+   "Stop wobbling!",
+   "Who is pinching me?",
+   "Grab it, grab it!",
+   "Oops! Dropped it.",
+   "Run for the alley!",
+   "Stack up, quick!",
+   "That was so close!",
+   "Wave, wave, wave!",
+   "It is so hot in here!",
+   "Teamwork!",
+   "We are so good at this.",
+   "Ahem. Thank you very much.",
+   "Don't make me laugh!"
+  ],
+  "prompt": "Hee hee! ... \n\nGot it! ... \n\nMy arms are tired! ... \n\nStop wobbling! ... \n\nWho is pinching me? ... \n\nGrab it, grab it! ... \n\nOops! Dropped it. ... \n\nRun for the alley! ... \n\nStack up, quick! ... \n\nThat was so close! ... \n\nWave, wave, wave! ... \n\nIt is so hot in here! ... \n\nTeamwork! ... \n\nWe are so good at this. ... \n\nAhem. Thank you very much. ... \n\nDon't make me laugh!"
+ },
+ {
+  "key": "voices/takes/kid_bottom",
+  "voice": "f2801b0f-e345-598e-86f5-8364d886d96b",
+  "pitch": 6,
+  "lines": [
+   "Hee hee hee!",
+   "Walking, walking!",
+   "You are heavy!",
+   "I can't see where I'm going!",
+   "Which way?",
+   "Stairs! Nobody said stairs!",
+   "Ow, my toes!",
+   "Tiptoe, tiptoe.",
+   "Slippy!",
+   "Wait for me!",
+   "Faster? Okay!",
+   "Brake! Brake!",
+   "I'm on the pedals!",
+   "Are we there yet?",
+   "Shh!",
+   "Ha! We made it!"
+  ],
+  "prompt": "Hee hee hee! ... \n\nWalking, walking! ... \n\nYou are heavy! ... \n\nI can't see where I'm going! ... \n\nWhich way? ... \n\nStairs! Nobody said stairs! ... \n\nOw, my toes! ... \n\nTiptoe, tiptoe. ... \n\nSlippy! ... \n\nWait for me! ... \n\nFaster? Okay! ... \n\nBrake! Brake! ... \n\nI'm on the pedals! ... \n\nAre we there yet? ... \n\nShh! ... \n\nHa! We made it!"
+ },
+ {
+  "key": "voices/takes/narrator",
+  "voice": "30fc8796-ceb6-4a66-b3a7-4a145ef7f346",
+  "pitch": 0,
+  "lines": [
+   "Stacked!",
+   "Three kids. One trench coat.",
+   "The corner shop.",
+   "Mum needs milk.",
+   "The bank.",
+   "Dad's birthday money is waiting.",
+   "The cinema.",
+   "A grown-up film. Very grown-up.",
+   "The driving test.",
+   "The finale.",
+   "Timber!",
+   "Busted!",
+   "Phew.",
+   "Scatter!",
+   "Restack!",
+   "Errand complete!",
+   "Rank S. Simply splendid.",
+   "Rank A. Awfully good.",
+   "Rank B. Barely suspicious.",
+   "Rank C. Close call.",
+   "Rank D. Dinner without dessert.",
+   "Today's town.",
+   "Survival. How long can you keep it up?",
+   "Dinner time!",
+   "The afternoon is over.",
+   "Ready? Stack up!"
+  ],
+  "prompt": "Stacked! ... \n\nThree kids. One trench coat. ... \n\nThe corner shop. ... \n\nMum needs milk. ... \n\nThe bank. ... \n\nDad's birthday money is waiting. ... \n\nThe cinema. ... \n\nA grown-up film. Very grown-up. ... \n\nThe driving test. ... \n\nThe finale. ... \n\nTimber! ... \n\nBusted! ... \n\nPhew. ... \n\nScatter! ... \n\nRestack! ... \n\nErrand complete! ... \n\nRank S. Simply splendid. ... \n\nRank A. Awfully good. ... \n\nRank B. Barely suspicious. ... \n\nRank C. Close call. ... \n\nRank D. Dinner without dessert. ... \n\nToday's town. ... \n\nSurvival. How long can you keep it up? ... \n\nDinner time! ... \n\nThe afternoon is over. ... \n\nReady? Stack up!"
+ },
+ {
+  "key": "voices/takes/teacher",
+  "voice": "64cf4f1a-61c8-5938-9aea-83d12b2e1d13",
+  "pitch": 0,
+  "lines": [
+   "Good evening. You must be the father.",
+   "Please, take a seat. The small chair is fine.",
+   "Your son has been talking in class.",
+   "He says his father is very tall.",
+   "Remarkably tall. Hm.",
+   "Is something moving in your coat?",
+   "Sign the report here, please.",
+   "Do you help with his homework?",
+   "That will be all. Thank you.",
+   "Speak up, please, I can't hear you."
+  ],
+  "prompt": "Good evening. You must be the father. ... \n\nPlease, take a seat. The small chair is fine. ... \n\nYour son has been talking in class. ... \n\nHe says his father is very tall. ... \n\nRemarkably tall. Hm. ... \n\nIs something moving in your coat? ... \n\nSign the report here, please. ... \n\nDo you help with his homework? ... \n\nThat will be all. Thank you. ... \n\nSpeak up, please, I can't hear you."
+ },
+ {
+  "key": "voices/takes/barber",
+  "voice": "66469f5a-10db-586a-bab1-72f6ee66ba69",
+  "pitch": 0,
+  "lines": [
+   "Next! Hop in the chair, sir.",
+   "Just a trim, is it?",
+   "Ooh, lovely thick hair. Very thick.",
+   "Hold still, sir. Very still.",
+   "Did your head just move on its own?",
+   "Something for the moustache, sir?",
+   "Shall I take the hat?",
+   "There we are. Handsome!",
+   "That's a funny place for a giggle.",
+   "Same time next month?"
+  ],
+  "prompt": "Next! Hop in the chair, sir. ... \n\nJust a trim, is it? ... \n\nOoh, lovely thick hair. Very thick. ... \n\nHold still, sir. Very still. ... \n\nDid your head just move on its own? ... \n\nSomething for the moustache, sir? ... \n\nShall I take the hat? ... \n\nThere we are. Handsome! ... \n\nThat's a funny place for a giggle. ... \n\nSame time next month?"
+ },
+ {
+  "key": "voices/takes/doctor",
+  "voice": "472a562a-4c33-5114-8210-d6ffa1e4e2c5",
+  "pitch": 0,
+  "lines": [
+   "Come in, come in. What seems to be the trouble?",
+   "Let's check your height first.",
+   "Stand against the wall, please.",
+   "Breathe in. And out. And... three heartbeats?",
+   "Say aah.",
+   "You're very warm. Very warm indeed.",
+   "Any aches or pains?",
+   "Your knees are in a very odd place.",
+   "Take two of these and rest.",
+   "Next patient, please."
+  ],
+  "prompt": "Come in, come in. What seems to be the trouble? ... \n\nLet's check your height first. ... \n\nStand against the wall, please. ... \n\nBreathe in. And out. And... three heartbeats? ... \n\nSay aah. ... \n\nYou're very warm. Very warm indeed. ... \n\nAny aches or pains? ... \n\nYour knees are in a very odd place. ... \n\nTake two of these and rest. ... \n\nNext patient, please."
+ },
+ {
+  "key": "voices/takes/postmaster",
+  "voice": "dc382508-c8bd-443c-8cb2-46e57b8d2e6f",
+  "pitch": 0,
+  "lines": [
+   "Next in line, please.",
+   "First class or second class?",
+   "Pop it on the scales.",
+   "That parcel is wobbling, sir.",
+   "Sign here for the recorded delivery.",
+   "Name and address on the back, please.",
+   "Any liquids or batteries?",
+   "That will be three pounds twenty.",
+   "Mind the queue, sir.",
+   "Have a pleasant afternoon."
+  ],
+  "prompt": "Next in line, please. ... \n\nFirst class or second class? ... \n\nPop it on the scales. ... \n\nThat parcel is wobbling, sir. ... \n\nSign here for the recorded delivery. ... \n\nName and address on the back, please. ... \n\nAny liquids or batteries? ... \n\nThat will be three pounds twenty. ... \n\nMind the queue, sir. ... \n\nHave a pleasant afternoon."
+ },
+ {
+  "key": "voices/takes/vicar",
+  "voice": "563f728c-e249-5a85-97ab-8461e8c09da6",
+  "pitch": 0,
+  "lines": [
+   "Welcome, welcome! Friend of the bride or the groom?",
+   "Do take a seat, the service is about to start.",
+   "Will you be singing with us?",
+   "Please stand.",
+   "Please be seated.",
+   "Is your hat... giggling?",
+   "What a tall, distinguished gentleman.",
+   "Would you like to say a few words?",
+   "Lovely! Very moving.",
+   "Cake is in the hall!"
+  ],
+  "prompt": "Welcome, welcome! Friend of the bride or the groom? ... \n\nDo take a seat, the service is about to start. ... \n\nWill you be singing with us? ... \n\nPlease stand. ... \n\nPlease be seated. ... \n\nIs your hat... giggling? ... \n\nWhat a tall, distinguished gentleman. ... \n\nWould you like to say a few words? ... \n\nLovely! Very moving. ... \n\nCake is in the hall!"
+ },
+ {
+  "key": "voices/takes/bark_ruth",
+  "voice": "3c2b83c0-2e0a-5ae8-998a-a5fe71b7eccd",
+  "pitch": 0,
+  "lines": [
+   "Hm?",
+   "Oh!",
+   "Pardon?",
+   "Well, I never!",
+   "Ha ha ha!",
+   "Ooh!",
+   "Hmm. Right.",
+   "Oh, how lovely.",
+   "Excuse me?",
+   "Goodness me!"
+  ],
+  "prompt": "Hm? ... \n\nOh! ... \n\nPardon? ... \n\nWell, I never! ... \n\nHa ha ha! ... \n\nOoh! ... \n\nHmm. Right. ... \n\nOh, how lovely. ... \n\nExcuse me? ... \n\nGoodness me!"
+ },
+ {
+  "key": "voices/takes/bark_gus",
+  "voice": "ca12fd00-218c-5198-b10c-7d36e768c12c",
+  "pitch": 0,
+  "lines": [
+   "Hm?",
+   "Oh!",
+   "Pardon?",
+   "Well, I never!",
+   "Ha ha ha!",
+   "Ooh!",
+   "Hmm. Right.",
+   "Oh, how lovely.",
+   "Excuse me?",
+   "Goodness me!"
+  ],
+  "prompt": "Hm? ... \n\nOh! ... \n\nPardon? ... \n\nWell, I never! ... \n\nHa ha ha! ... \n\nOoh! ... \n\nHmm. Right. ... \n\nOh, how lovely. ... \n\nExcuse me? ... \n\nGoodness me!"
+ },
+ {
+  "key": "voices/takes/bark_hale",
+  "voice": "573e5163-59b3-4926-aab1-951ef2985f81",
+  "pitch": 0,
+  "lines": [
+   "Hm?",
+   "Oh!",
+   "Pardon?",
+   "Well, I never!",
+   "Ha ha ha!",
+   "Ooh!",
+   "Hmm. Right.",
+   "Oh, how lovely.",
+   "Excuse me?",
+   "Goodness me!"
+  ],
+  "prompt": "Hm? ... \n\nOh! ... \n\nPardon? ... \n\nWell, I never! ... \n\nHa ha ha! ... \n\nOoh! ... \n\nHmm. Right. ... \n\nOh, how lovely. ... \n\nExcuse me? ... \n\nGoodness me!"
+ },
+ {
+  "key": "voices/takes/bark_pip",
+  "voice": "e6f9b893-51b1-51d3-afe9-9e0482cb7ac1",
+  "pitch": 0,
+  "lines": [
+   "Hm?",
+   "Oh!",
+   "Pardon?",
+   "Well, I never!",
+   "Ha ha ha!",
+   "Ooh!",
+   "Hmm. Right.",
+   "Oh, how lovely.",
+   "Excuse me?",
+   "Goodness me!"
+  ],
+  "prompt": "Hm? ... \n\nOh! ... \n\nPardon? ... \n\nWell, I never! ... \n\nHa ha ha! ... \n\nOoh! ... \n\nHmm. Right. ... \n\nOh, how lovely. ... \n\nExcuse me? ... \n\nGoodness me!"
+ },
+ {
+  "key": "voices/takes/bark_price",
+  "voice": "d9d5c263-f84e-4752-97b5-3750fcc6fd2f",
+  "pitch": 0,
+  "lines": [
+   "Hm?",
+   "Oh!",
+   "Pardon?",
+   "Well, I never!",
+   "Ha ha ha!",
+   "Ooh!",
+   "Hmm. Right.",
+   "Oh, how lovely.",
+   "Excuse me?",
+   "Goodness me!"
+  ],
+  "prompt": "Hm? ... \n\nOh! ... \n\nPardon? ... \n\nWell, I never! ... \n\nHa ha ha! ... \n\nOoh! ... \n\nHmm. Right. ... \n\nOh, how lovely. ... \n\nExcuse me? ... \n\nGoodness me!"
+ },
+ {
+  "key": "voices/takes/bark_dot",
+  "voice": "66f35c82-2088-55eb-a0aa-7bf715dc03b7",
+  "pitch": 0,
+  "lines": [
+   "Hm?",
+   "Oh!",
+   "Pardon?",
+   "Well, I never!",
+   "Ha ha ha!",
+   "Ooh!",
+   "Hmm. Right.",
+   "Oh, how lovely.",
+   "Excuse me?",
+   "Goodness me!"
+  ],
+  "prompt": "Hm? ... \n\nOh! ... \n\nPardon? ... \n\nWell, I never! ... \n\nHa ha ha! ... \n\nOoh! ... \n\nHmm. Right. ... \n\nOh, how lovely. ... \n\nExcuse me? ... \n\nGoodness me!"
+ },
+ {
+  "key": "voices/takes/bark_kev",
+  "voice": "1ffcdbb3-078b-5491-959d-359e3021e917",
+  "pitch": 0,
+  "lines": [
+   "Hm?",
+   "Oh!",
+   "Pardon?",
+   "Well, I never!",
+   "Ha ha ha!",
+   "Ooh!",
+   "Hmm. Right.",
+   "Oh, how lovely.",
+   "Excuse me?",
+   "Goodness me!"
+  ],
+  "prompt": "Hm? ... \n\nOh! ... \n\nPardon? ... \n\nWell, I never! ... \n\nHa ha ha! ... \n\nOoh! ... \n\nHmm. Right. ... \n\nOh, how lovely. ... \n\nExcuse me? ... \n\nGoodness me!"
+ },
+ {
+  "key": "voices/takes/bark_nan",
+  "voice": "0c51919f-0756-5f8d-8169-026a339d8fd7",
+  "pitch": 0,
+  "lines": [
+   "Hm?",
+   "Oh!",
+   "Pardon?",
+   "Well, I never!",
+   "Ha ha ha!",
+   "Ooh!",
+   "Hmm. Right.",
+   "Oh, how lovely.",
+   "Excuse me?",
+   "Goodness me!"
+  ],
+  "prompt": "Hm? ... \n\nOh! ... \n\nPardon? ... \n\nWell, I never! ... \n\nHa ha ha! ... \n\nOoh! ... \n\nHmm. Right. ... \n\nOh, how lovely. ... \n\nExcuse me? ... \n\nGoodness me!"
+ },
+ {
+  "key": "voices/takes/bark_bert",
+  "voice": "bd072316-f77c-588b-b6e5-e46b9b03d008",
+  "pitch": 0,
+  "lines": [
+   "Hm?",
+   "Oh!",
+   "Pardon?",
+   "Well, I never!",
+   "Ha ha ha!",
+   "Ooh!",
+   "Hmm. Right.",
+   "Oh, how lovely.",
+   "Excuse me?",
+   "Goodness me!"
+  ],
+  "prompt": "Hm? ... \n\nOh! ... \n\nPardon? ... \n\nWell, I never! ... \n\nHa ha ha! ... \n\nOoh! ... \n\nHmm. Right. ... \n\nOh, how lovely. ... \n\nExcuse me? ... \n\nGoodness me!"
+ },
+ {
+  "key": "voices/takes/kid_top_car",
+  "voice": "e6f9b893-51b1-51d3-afe9-9e0482cb7ac1",
+  "pitch": 5,
+  "lines": [
+   "Mirror, signal, manoeuvre!",
+   "Car behind us!",
+   "I can see the road!",
+   "Left! Turn left!",
+   "Pedestrian!",
+   "Wave at the examiner!",
+   "Look natural!",
+   "Indicate, indicate!"
+  ],
+  "prompt": "Mirror, signal, manoeuvre! ... \n\nCar behind us! ... \n\nI can see the road! ... \n\nLeft! Turn left! ... \n\nPedestrian! ... \n\nWave at the examiner! ... \n\nLook natural! ... \n\nIndicate, indicate!"
+ },
+ {
+  "key": "voices/takes/kid_middle_car",
+  "voice": "0178ef57-ada4-43d9-992b-8d9221045bb4",
+  "pitch": 4,
+  "lines": [
+   "I have got the wheel!",
+   "Which way is left?",
+   "Hold on tight!",
+   "Changing gear!",
+   "Second gear! No, third!",
+   "The stick is stuck!",
+   "Crunch! Sorry!",
+   "Steady, steady."
+  ],
+  "prompt": "I have got the wheel! ... \n\nWhich way is left? ... \n\nHold on tight! ... \n\nChanging gear! ... \n\nSecond gear! No, third! ... \n\nThe stick is stuck! ... \n\nCrunch! Sorry! ... \n\nSteady, steady."
+ },
+ {
+  "key": "voices/takes/kid_bottom_car",
+  "voice": "f2801b0f-e345-598e-86f5-8364d886d96b",
+  "pitch": 6,
+  "lines": [
+   "Gas!",
+   "Brake!",
+   "Which pedal is which?",
+   "My feet don’t reach!",
+   "Clutch! What is a clutch?",
+   "Too fast!",
+   "Stalled it. Oops.",
+   "Vroom vroom!"
+  ],
+  "prompt": "Gas! ... \n\nBrake! ... \n\nWhich pedal is which? ... \n\nMy feet don’t reach! ... \n\nClutch! What is a clutch? ... \n\nToo fast! ... \n\nStalled it. Oops. ... \n\nVroom vroom!"
+ }
+]

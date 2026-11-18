@@ -1,0 +1,15 @@
+seats {"legs":0,"armL":1,"armR":1,"head":1} friend part arms
+0.3 friend sees body -7.6 -5.0 step 0 host down 0 [[0,-1,0],[0,-1,0],[0,-1,0]]
+4.8 friend sees body -7.9 -3.7 step 0 host down 0 [[0,-1,0],[0,-1,0],[0,-1,0]]
+9.3 friend sees body -7.4 -4.0 step 0 host down 0 [[0,-1,0],[0,-1,0],[0,-1,0]]
+node:internal/modules/run_main:123
+    triggerUncaughtException(
+    ^
+
+page.evaluate: Target page, context or browser has been closed
+    at /home/claude/stacked-web/test/critics/pacing/online.mjs:21:26 {
+  log: []
+}
+
+Node.js v22.23.4
+exit 124

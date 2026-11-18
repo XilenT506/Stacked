@@ -1,0 +1,10 @@
+import { setup } from './h.mjs';
+const { k, page, T, S } = await setup();
+await T.tap('#solo'); await page.waitForTimeout(500);
+const B = () => S(() => { const b = __stacked.W.body; return { x: +b.x.toFixed(2), z: +b.z.toFixed(2), yaw: +b.yaw.toFixed(2), v: +b.v.toFixed(2), f: __stacked.input.legs.f, t: __stacked.input.legs.t }; });
+console.log(await B());
+await T.stick(0, -1, 1500, true); console.log('fwd held', await B()); await T.up(1); await page.waitForTimeout(500); console.log('released', await B());
+await T.stick(1, 0, 800, true); console.log('right held', await B()); await T.up(1); await page.waitForTimeout(300); console.log(await B());
+await T.stick(0.7, -0.7, 800, true); console.log('diag held', await B()); await T.up(1);
+console.log(await S(() => ({ e: __stacked.W.errand, obj: document.getElementById('objective').textContent })));
+await k.stop();

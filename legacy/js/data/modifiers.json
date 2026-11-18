@@ -1,0 +1,10 @@
+{
+  "survivalOrder": ["person:dot", "mod:windy", "person:kev", "mod:slippery", "person:nan", "mod:hiccups", "person:bert", "mod:short", "mod:heavy"],
+  "mods": {
+    "heavy": { "name": "Heavy pockets", "text": "Pockets full of coins: every reach leans more.", "handLean": 1.25 },
+    "windy": { "name": "Windy day", "text": "Gusts push the coat about.", "gust": [5, 9], "gustPower": 0.75 },
+    "slippery": { "name": "Slippery shoes", "text": "New shoes: slow to stop, slow to start.", "accel": 0.45 },
+    "hiccups": { "name": "Hiccups", "text": "Somebody in the coat has the hiccups.", "hiccup": [6, 10], "hicPower": 0.55, "hicTell": 0.06 },
+    "short": { "name": "Coat too short", "text": "The coat shrank in the wash: grown-ups notice faster.", "notice": 1.25 }
+  }
+}

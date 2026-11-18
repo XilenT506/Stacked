@@ -1,0 +1,47 @@
+ONLINE opts='?q=low' 320x180 link=webrtc seats={"legs":0,"armL":1,"armR":1,"head":1} host fps 53.2 friend fps 52.5
+
+== LOCAL RESPONSE: FRIEND (client) owning head+arms  fps(game)=45.5 pixelRatio=0.75 shadows=false
+frame time ms: med 21.3 worst 59.5 min 11.9 n=1389 | sampler after render() by ms: med 0.0 worst 1.7 min 0.0 n=1473
+columns: A = handler->end of frame ms | B = browser event timestamp->end of frame ms | frames
+arms A/D hand / input.hand.x                     A med 2.2 worst 5.6 | B med 14.8 worst 21.6 | frames med 1.0 worst 1.0 | missed 0/14
+arms A/D hand / W.ord.hand.x                     A med 68.8 worst 145.0 | B med 83.3 worst 151.6 | frames med 4.0 worst 7.0 | missed 0/14
+arms A/D hand / W.hands (host sim)               A med 66.7 worst 100.9 | B med 78.2 worst 119.1 | frames med 4.0 worst 6.0 | missed 0/14
+arms A/D hand / hand mesh (drawn)                A med 2.2 worst 5.6 | B med 14.8 worst 21.6 | frames med 1.0 worst 1.0 | missed 0/14
+arms G grab / input.n counter                    A med 2.0 worst 6.2 | B med 14.9 worst 19.2 | frames med 1.0 worst 1.0 | missed 0/14
+arms C wave / input act                          A med 1.4 worst 2.4 | B med 12.4 worst 22.3 | frames med 1.0 worst 1.0 | missed 0/14
+arms C wave / W.ord act                          A med 83.0 worst 178.2 | B med 96.6 worst 185.6 | frames med 5.0 worst 10.0 | missed 0/14
+arms C wave / hand mesh y first twitch (drawn)   A med 32.0 worst 44.0 | B med 43.9 worst 52.3 | frames med 2.0 worst 3.0 | missed 0/14
+arms C wave / hand mesh y risen 5 cm (drawn)     A med 83.0 worst 178.2 | B med 96.6 worst 185.6 | frames med 5.0 worst 10.0 | missed 0/14
+head N nod / input.head.nod                      A med 2.7 worst 5.4 | B med 14.8 worst 22.8 | frames med 1.0 worst 1.0 | missed 0/14
+head N nod / W.ord.nod                           A med 69.6 worst 120.4 | B med 89.1 worst 126.7 | frames med 4.0 worst 6.0 | missed 0/14
+head N nod / camera pitch (drawn)                A med 2.7 worst 5.4 | B med 14.8 worst 22.8 | frames med 1.0 worst 1.0 | missed 0/14
+head E brow / input.head.brow                    A med 1.9 worst 5.2 | B med 16.4 worst 26.8 | frames med 1.0 worst 1.0 | missed 0/14
+head E brow / W.ord.brow                         A med 90.3 worst 158.9 | B med 105.6 worst 159.9 | frames med 5.0 worst 8.0 | missed 0/14
+head E brow / brow mesh (drawn, hidden from own head view) A med 90.3 worst 158.9 | B med 105.6 worst 159.9 | frames med 5.0 worst 8.0 | missed 0/14
+head A/D look / input.head.y                     A med 3.0 worst 5.1 | B med 20.0 worst 27.8 | frames med 1.0 worst 1.0 | missed 0/14
+head A/D look / W.ord.hy                         A med 79.6 worst 115.3 | B med 97.8 worst 138.9 | frames med 4.0 worst 6.0 | missed 0/14
+head A/D look / camera yaw (drawn)               A med 3.0 worst 5.1 | B med 20.0 worst 27.8 | frames med 1.0 worst 1.0 | missed 0/14
+stats.localMs (game own): med 23.5 worst 85.3 min 3.4 n=86
+
+== REMOTE host -> friend
+   rest lean spread host 0.02915534430037178
+host frame ms: med 21.8 worst 37.7 min 14.4 n=600 | friend frame ms: med 21.9 worst 38.0 min 13.2 n=601
+(a) lean value shown on host -> same value shown on friend ms: med 13.0 worst 24.0 min 7.0 n=172
+(a) lean onset (>0.02): host screen -> friend screen ms:       med 34.0 worst 324.0 min -205.0 n=14
+(a) lean: host key press -> friend screen ms:    med 153.0 worst 555.0 min 45.0 n=14
+(a) body position: host key -> friend screen ms: med 60.0 worst 126.0 min 18.0 n=14
+(b) fall W.body.down: host frame -> friend frame ms: med 63.0 worst 73.0 min 18.0 n=8
+(b) fall event kind 1 evSeen friend - host ms:       med 62.0 worst 74.0 min 17.0 n=8
+(b) fall: staged at -> friend frame ms:               med 68.0 worst 77.0 min 19.0 n=8
+node:internal/modules/run_main:123
+    triggerUncaughtException(
+    ^
+
+page.evaluate: Target page, context or browser has been closed
+    at clear (/home/claude/stacked-web/test/critics/controls/probe.mjs:41:37)
+    at clr (/home/claude/stacked-web/test/critics/controls/online.mjs:22:32)
+    at /home/claude/stacked-web/test/critics/controls/online.mjs:75:29 {
+  log: []
+}
+
+Node.js v22.23.4

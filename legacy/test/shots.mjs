@@ -1,0 +1,21 @@
+import { chromium } from './pw.mjs';
+import { spawn } from 'node:child_process';
+import { readFile } from 'node:fs/promises';
+const PORT = 8125; const server = spawn('node', ['server/signal.mjs'], { env: { ...process.env, PORT, PAGE: process.env.PAGE || 'dist/stacked.html' }, stdio: 'ignore' });
+await new Promise((r) => setTimeout(r, 500));
+const three = await readFile('node_modules/three/build/three.min.js');
+const browser = await chromium.launch({ args: ['--enable-unsafe-swiftshader', '--use-gl=angle', '--use-angle=swiftshader', '--ignore-gpu-blocklist'] });
+const page = await browser.newPage({ viewport: { width: 1280, height: 720 } });
+page.on('pageerror', (e) => console.log('PAGEERROR', e.message));
+await page.route(/cdnjs\.cloudflare\.com.*three/, (r) => r.fulfill({ body: three, contentType: 'text/javascript' }));
+await page.goto(`http://localhost:${PORT}/?pts=12`);
+await page.waitForTimeout(2500);
+await page.screenshot({ path: 'test/v-menu.png' });
+await page.click('#solo'); await page.waitForTimeout(500);
+const put = (x, z, yaw) => page.evaluate(([x, z, yaw]) => { const b = globalThis.__stacked.W.body; b.x = x; b.z = z; b.yaw = yaw; }, [x, z, yaw]);
+await put(-1.5, 0.2, 0.5); await page.waitForTimeout(1200);
+for (const [k, n] of [['Digit1', 'legs'], ['Digit2', 'arms'], ['Digit3', 'head']]) { await page.keyboard.press(k); await page.waitForTimeout(700); await page.screenshot({ path: `test/v-${n}.png` }); }
+await put(0.3, 7.7, 0); await page.keyboard.press('Digit2'); await page.keyboard.down('KeyW'); await page.keyboard.down('KeyE'); await page.waitForTimeout(500); await page.keyboard.up('KeyW'); await page.keyboard.up('KeyE'); await page.waitForTimeout(500);
+await page.screenshot({ path: 'test/v-counter-arms.png' });
+await page.keyboard.press('Digit3'); await page.waitForTimeout(600); await page.screenshot({ path: 'test/v-counter-head.png' });
+await browser.close(); server.kill();

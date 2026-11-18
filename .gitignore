@@ -1,0 +1,13 @@
+node_modules/
+dist/
+legacy/dist/
+test/shots/
+legacy/test/**/*.png
+*.png.tmp
+# the Higgsfield library's big files live in Nick's backup zips; the catalogue and plans stay in git
+assets/library/**/*.png
+assets/library/**/*.jpg
+assets/library/**/*.mp3
+assets/library/**/*.mp4
+assets/library/**/*.glb
+.DS_Store

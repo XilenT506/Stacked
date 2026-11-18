@@ -1,0 +1,11 @@
+import { start } from '../../lib.mjs';
+import { install, sleep } from './probe.mjs';
+import { localTests } from './localtests.mjs';
+const opts = process.argv[2] || '', vw = +process.argv[3] || 1280, vh = +process.argv[4] || 720;
+const k = await start(8301);
+const { page, errors } = await k.open(opts, { viewport: { width: vw, height: vh } });
+await page.click('#solo'); await page.waitForFunction(() => __stacked.mode === 'play');
+await install(page); await sleep(4000);
+await localTests(page, `SOLO opts='${opts}' ${vw}x${vh}`, ['legs', 'arms', 'head']);
+console.log('errors', errors());
+await k.stop();

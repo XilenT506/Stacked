@@ -1,0 +1,13 @@
+import { start } from '../../lib.mjs';
+const k = await start(8302);
+const { page, errors } = await k.open('');
+await page.waitForTimeout(1500);
+await page.screenshot({path:'menu.png'});
+const btns = await page.evaluate(()=>[...document.querySelectorAll('button')].map(b=>b.id+':'+b.textContent));
+console.log(btns);
+await page.click('#solo'); await page.waitForTimeout(2500);
+const info = await page.evaluate(()=>{const s=globalThis.__stacked; return {keys:Object.keys(s), W:Object.keys(s.W), body:s.W.body, cfg:Object.keys(s.CFG||{}).join(','), bag:s.W.bag, mode:s.mode, part:s.input.part};});
+console.log(JSON.stringify(info,null,1));
+await page.screenshot({path:'start.png'});
+console.log(errors());
+await k.stop();
