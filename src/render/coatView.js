@@ -2,6 +2,7 @@
 // too big hat for 1, the loose kids running around, and the coat lying on the floor like laundry after R.
 import * as T from 'three';
 import { bubble } from './peopleView.js';
+import { makeMapSheet, updateMapSheet } from './mapSheet.js';
 import { loadHero, bendUniforms, bendMaterial, bendPoint, HERO_S, HEAD_Y } from './heroModel.js';
 
 export const KID_COLORS = { sid: 0xe2694f, mo: 0x4f9fc9, tank: 0x7fbf5f, pip: 0xe0a83a, kit: 0xd94f8a, bo: 0x4fc9b8, ziggy: 0xf4c542, nell: 0x8a6fd1, ash: 0x9aa7b0, dot: 0xe07a3a, rex: 0x3f8a3a, flo: 0xff8fb0, spare1: 0xc9a8d8, spare2: 0x8e5bc4 };
@@ -45,6 +46,7 @@ export class CoatView {
     this.pileG = new T.Group(); scene.add(this.pileG); this.pileG.visible = false;
     this.sway = 0; this.pop = 0; this.lean = new T.Vector2(); this.scale = new T.Vector3(1, 1, 1); this.t = 0;
     this.lastCount = coat.count;
+    this.sheet = makeMapSheet(); this.root.add(this.sheet);              // the crayon map, held up while it is open
     // a plain stand-in until the model is ready
     this.stand = new T.Mesh(new T.CapsuleGeometry(0.4, 1.4, 4, 12), lam(COAT)); this.stand.position.y = 1.1; this.stand.castShadow = true; this.coatG.add(this.stand);
     loadHero().then((p) => this.useHero(p), (e) => console.warn('coat model did not load', e));
@@ -108,6 +110,7 @@ export class CoatView {
     this.root.visible = c.hidden?.mode !== 'inside' && !c.grabbedBy;     // in a box, or held up by a grown-up (drawn in their arms)                    // climbed into a box: only the box shows
     this.root.rotation.y = w.yaw;
     const n = c.count;
+    updateMapSheet(this.sheet, dt, !!c.mapOpen && n >= 1, n === 1 ? 1.1 : c.state.height);
     // 3 kids: the full coat; 2 kids: the same coat, squashed shorter; 1 kid: just a kid
     this.coatG.visible = n >= 2; this.kid.visible = n === 1;
     if (n === 1) {

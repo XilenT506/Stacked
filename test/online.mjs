@@ -47,6 +47,33 @@ ok('and the same toppled tins', tinOff < 0.5, `worst ${tinOff.toFixed(2)} m`);
 // friend A looks at the aisle; take pictures from all three screens
 await a.evaluate(() => { const S = __stacked2; S.camRig.focus.set(-3.5, 0.8, 0); });
 await host.screenshot({ path: 'test/shots/online_host.png' }); await a.screenshot({ path: 'test/shots/online_friend_a.png' }); await b.screenshot({ path: 'test/shots/online_friend_b.png' });
+
+// the crayon map: friend A opens it (Tab), draws an arrow and puts a sticker down; friend B draws a circle.
+// Everyone must see both, on the map and in chalk on the floor; while A has it open, A's coat holds up the paper.
+const holdTab = async (p) => { await p.keyboard.down('Tab'); await p.waitForTimeout(150); await p.keyboard.up('Tab'); await p.waitForTimeout(200); };
+const scribble = async (p, tool, pts) => {
+  const btn = await p.evaluate((t) => { const M = __stacked2.crayonMap, b = M.buttons[t]; return [b.x + b.w / 2, b.y + b.h / 2]; }, tool);
+  await p.mouse.click(...btn);
+  const px = await p.evaluate((pts) => pts.map(([x, z]) => __stacked2.crayonMap.V.px(x, z)), pts);
+  await p.mouse.move(...px[0]); await p.mouse.down(); for (const q of px.slice(1)) await p.mouse.move(...q, { steps: 5 }); await p.mouse.up();
+};
+await holdTab(a);
+ok('friend A opened the map', await until(host, (id) => __stacked2.game.player(id).coat.mapOpen, ids.a, 10000));
+await scribble(a, 1, [[-14, 14], [-14, 10], [-10, 6], [-6, 2]]);
+await scribble(a, 6, [[-4, -6]]);
+await holdTab(b);
+await scribble(b, 2, [[16, 18.5], [18, 18.5]]);
+const kinds = (p) => p.evaluate(() => __stacked2.model.map.scribbles.map((s) => s.kind + (s.text ? ':' + s.text : '')).sort().join(','));
+ok('the host has both friends\' scribbles', await until(host, () => __stacked2.game.map.scribbles.length === 3, null, 15000), await kinds(host));
+ok('friend B sees friend A\'s arrow and sticker', await until(b, () => { const s = __stacked2.mirror.map.scribbles; return s.some((x) => x.kind === 'arrow') && s.some((x) => x.text === 'DANGER: GRANNY'); }, null, 15000), await kinds(b));
+ok('friend A sees friend B\'s circle', await until(a, () => __stacked2.mirror.map.scribbles.some((x) => x.kind === 'circle'), null, 15000), await kinds(a));
+await a.waitForTimeout(600);
+await a.screenshot({ path: 'test/shots/online_map_a.png' }); await b.screenshot({ path: 'test/shots/online_map_b.png' });
+await host.evaluate(() => { __stacked2.camRig.offset.multiplyScalar(1.6); }); await hostWait(1);
+await host.screenshot({ path: 'test/shots/online_map_chalk_host.png' });
+await holdTab(a); await holdTab(b);
+ok('the map closes again', await until(host, (id) => !__stacked2.game.player(id).coat.mapOpen, ids.a, 10000));
+
 // friend B gets away: the host puts B by the gate, B presses E
 await host.evaluate((id) => { const c = __stacked2.game.player(id).coat; c.walker.body.setTranslation({ x: 16, y: 1.2, z: 18.4 }, true); }, ids.b);
 await hostWait(0.6); await b.keyboard.down('KeyE'); await hostWait(0.3); await b.keyboard.up('KeyE');

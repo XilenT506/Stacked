@@ -12,6 +12,7 @@ import { GadgetView } from './gadgetView.js';
 import { LootView } from './lootView.js';
 import { CageView } from './cageView.js';
 import { WallFade } from './wallFade.js';
+import { ChalkView } from './chalkView.js';
 
 export class Stage {
   constructor({ place, data, hud, sfx, voices }) {
@@ -33,6 +34,7 @@ export class Stage {
     this.gadgetView = new GadgetView(scene, model.gadgets);
     this.lootView = new LootView(scene, model.loot);
     this.cageView = new CageView(scene, model.rescue);
+    this.chalkView = new ChalkView(scene, this.data.crayonmap.playerColors);
     this.coatViews = new Map();
     this.aimMarks = [];
     this.hud.results(null);
@@ -53,7 +55,7 @@ export class Stage {
     this.syncCoats();
     this.peopleView.watch = watch;
     this.present(events);
-    this.thingsView.update(dt); this.peopleView.update(dt); this.shutterView.update(dt); this.gadgetView.update(); this.lootView.update(dt); this.cageView.update(dt);
+    this.thingsView.update(dt); this.peopleView.update(dt); this.shutterView.update(dt); this.gadgetView.update(); this.lootView.update(dt); this.cageView.update(dt); this.chalkView.update(this.model.map);
     for (const [c, v] of this.coatViews) v.update(dt, this.pops?.get(c) ?? []);
     this.pops = new Map();
     // aim rings for local players

@@ -5,8 +5,9 @@
 //   ClientSession: sends what this player presses (about 30 times a second) and feeds snapshots to a Mirror.
 import { snapshot } from './snapshot.js';
 
-export const packInput = (I) => ({ m: [+I.move.x.toFixed(3), +I.move.z.toFixed(3)], a: I.aim ? [+I.aim.x.toFixed(3), +I.aim.z.toFixed(3)] : null, r: I.run ? 1 : 0, u: I.use ? 1 : 0, n: I.natural ? 1 : 0, p: I.presses });
-export const unpackInput = (P) => ({ move: { x: P.m?.[0] ?? 0, z: P.m?.[1] ?? 0 }, aim: P.a ? { x: P.a[0], z: P.a[1] } : null, run: !!P.r, use: !!P.u, natural: !!P.n, presses: P.p || {} });
+// sc = crayon scribbles the host has not acknowledged yet (they repeat until it has, so none get lost)
+export const packInput = (I) => ({ m: [+I.move.x.toFixed(3), +I.move.z.toFixed(3)], a: I.aim ? [+I.aim.x.toFixed(3), +I.aim.z.toFixed(3)] : null, r: I.run ? 1 : 0, u: I.use ? 1 : 0, n: I.natural ? 1 : 0, p: I.presses, mp: I.map ? 1 : 0, ...(I.sc?.length ? { sc: I.sc } : {}) });
+export const unpackInput = (P) => ({ move: { x: P.m?.[0] ?? 0, z: P.m?.[1] ?? 0 }, aim: P.a ? { x: P.a[0], z: P.a[1] } : null, run: !!P.r, use: !!P.u, natural: !!P.n, presses: P.p || {}, map: !!P.mp, sc: Array.isArray(P.sc) ? P.sc.slice(0, 8) : [] });
 
 export class HostSession {
   constructor(game, link, { rate = 20 } = {}) {
@@ -27,7 +28,11 @@ export class HostSession {
     this.t += dt;
     if (this.t - this.lastSent < this.every) return false;
     this.lastSent = this.t;
-    this.link.publish(snapshot(this.game, this.buffer)); this.buffer = []; this.sent++;
+    // the scribbles only travel when they change (a few times, in case one is dropped) and every second
+    const key = `${this.game.jobNo}:${this.game.map.sv}`;
+    if (key !== this.scKey) { this.scKey = key; this.scAt = this.sent; }
+    const withScribbles = this.sent - this.scAt < 4 || this.sent % 20 === 0;
+    this.link.publish(snapshot(this.game, this.buffer, { withScribbles })); this.buffer = []; this.sent++;
     // a friend who has gone quiet for 10 seconds has left
     for (const [id, at] of this.lastSeen) if (this.t - at > 10) { this.game.removePlayer(id); this.lastSeen.delete(id); }
     return true;

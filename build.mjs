@@ -5,7 +5,7 @@ import { readFile, writeFile, mkdir } from 'node:fs/promises';
 
 const out = await build({
   entryPoints: ['src/main.js'], bundle: true, format: 'esm', write: false, target: 'es2022',
-  loader: { '.glb': 'binary', '.jpg': 'dataurl', '.png': 'dataurl', '.mp3': 'dataurl' }, legalComments: 'none',
+  loader: { '.glb': 'binary', '.jpg': 'dataurl', '.png': 'dataurl', '.mp3': 'dataurl', '.woff2': 'dataurl' }, legalComments: 'none',
 });
 const js = out.outputFiles[0].text.replace(/<\/script/g, '<\\/script');
 const page = await readFile('src/index.html', 'utf8');

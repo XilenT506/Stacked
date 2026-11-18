@@ -8,13 +8,13 @@ const r2 = (v) => Math.round(v * 100) / 100, r3 = (v) => Math.round(v * 1000) / 
 const STATES = ['idle', 'wander', 'routine', 'investigate', 'crowd', 'flee', 'inspect', 'shout', 'chase', 'search', 'carry', 'grab', 'slipped', 'stunned', 'blinded', 'embarrassed'];
 const LOOT = ['lying', 'pocket', 'carried', 'banked'];
 
-export function snapshot(game, events = []) {
+export function snapshot(game, events = [], { withScribbles = true } = {}) {
   const ids = (cs) => cs.map((c) => c.pid);
   const coats = game.players.map((p) => {
     const c = p.coat, f = c.walker.feet, G = c.gadgets;
     return {
       id: p.id, s: c.slot, x: r2(f.x), y: r2(f.y), z: r2(f.z), yaw: r2(c.walker.yaw), vx: r2(c.walker.vel.x), vz: r2(c.walker.vel.z),
-      st: c.stack, wb: r2(c.wobble), an: c.actingNatural ? 1 : 0, hd: c.hidden?.mode ?? null, gr: c.grabbedBy ? 1 : 0, cg: c.inCage ? 1 : 0, gate: c.atGate ? 1 : 0,
+      st: c.stack, wb: r2(c.wobble), an: c.actingNatural ? 1 : 0, mo: c.mapOpen ? 1 : 0, hd: c.hidden?.mode ?? null, gr: c.grabbedBy ? 1 : 0, cg: c.inCage ? 1 : 0, gate: c.atGate ? 1 : 0,
       pile: c.pile ? [r2(c.pile.x), r2(c.pile.z), r2(c.pile.yaw), c.pile.kids] : null,
       loose: c.loose.map((k) => [k.id, r2(k.x), r2(k.z), r2(k.vx), r2(k.vz), (k.waiting ? 1 : 0) | (k.caged ? 2 : 0) | (k.carriedBy ? 4 : 0)]),
       eff: { blinded: r2(c.effects?.blinded ?? 0), soaked: r2(c.effects?.soaked ?? 0) },
@@ -42,8 +42,31 @@ export function snapshot(game, events = []) {
     heat: [game.sus.level], close: [r2(game.closing.time), game.closing.started ? 1 : 0, game.closing.next, r2(game.closing.warnT), game.closing.shut.map((s) => { const si = game.closing.sections.findIndex((x) => x.id === s.section); return [si, game.closing.sections[si].shutters.indexOf(s.seg), r2(s.k)]; })],
     cage: [game.rescue.open ? 1 : 0, game.rescue.spares, game.rescue.solo ? 1 : 0],
     jobState: [r2(game.job.time), game.job.over ? 1 : 0], result: game.job.result, banked: game.loot.bankedValue, inHand: game.loot.inHand(),
-    lights: game.lightsOff ? 1 : 0, ev: events,
+    lights: game.lightsOff ? 1 : 0, map: mapState(game.map, withScribbles), ev: events,
   };
+}
+
+// the crayon map: seen areas, grown-ups as last seen, events, the Caretaker's route, acks, and (when asked) the scribbles
+function mapState(M, withScribbles) {
+  const o = {
+    a: [...M.seenAreas], ack: Object.fromEntries(M.acks), r: M.route, sv: M.sv,
+    p: [...M.seenPeople.values()].map((v) => [v.id, v.type, r2(v.x), r2(v.z), STATES.indexOf(v.state), r2(v.sus), (v.hostile ? 1 : 0) | (v.soaked ? 2 : 0) | (v.blinded ? 4 : 0), r2(M.time - v.t)]),
+    e: M.events.map((e) => [e.text, r2(e.x), r2(e.z), r2(M.time - e.t)]),
+  };
+  if (withScribbles) o.sc = M.scribbles.map((s) => [s.id, s.by, s.slot, s.kind, s.text, s.pts.flat()]);
+  return o;
+}
+
+// the client's copy of the crayon map, shaped like TeamMap so the map screen draws either
+export class MirrorMap {
+  constructor() { this.seenAreas = new Set(); this.seenPeople = new Map(); this.scribbles = []; this.acks = new Map(); this.events = []; this.route = null; this.time = 0; this.sv = 0; }
+  apply(o) {
+    if (!o) return;
+    this.seenAreas = new Set(o.a); this.acks = new Map(Object.entries(o.ack)); this.route = o.r; this.sv = o.sv;
+    this.seenPeople = new Map(o.p.map(([id, type, x, z, st, sus, f, ago]) => [id, { id, type, x, z, state: STATES[st], sus, hostile: !!(f & 1), soaked: !!(f & 2), blinded: !!(f & 4), t: this.time - ago }]));
+    this.events = o.e.map(([text, x, z, ago]) => ({ text, x, z, t: this.time - ago }));
+    if (o.sc) this.scribbles = o.sc.map(([id, by, slot, kind, text, flat]) => ({ id, by, slot, kind, text, pts: Array.from({ length: flat.length / 2 }, (_, i) => [flat[2 * i], flat[2 * i + 1]]) }));
+  }
 }
 
 // ---------- the client's mirror ----------
@@ -67,7 +90,7 @@ export class MCoat {
     w.to = { x: s.x, y: s.y, z: s.z }; w.toYaw = s.yaw; w.vel = { x: s.vx, z: s.vz };
     if (this.first) { Object.assign(w, w.to); w.yaw = s.yaw; this.first = false; }
     this.stack = s.st; w.height = this.state.height; this.wobble = s.wb; this.actingNatural = !!s.an;
-    this.hidden = s.hd ? { mode: s.hd } : null; this.grabbedBy = s.gr ? true : null; this.inCage = !!s.cg; this.atGate = !!s.gate;
+    this.mapOpen = !!s.mo; this.hidden = s.hd ? { mode: s.hd } : null; this.grabbedBy = s.gr ? true : null; this.inCage = !!s.cg; this.atGate = !!s.gate;
     this.pile = s.pile ? { x: s.pile[0], z: s.pile[1], yaw: s.pile[2], kids: s.pile[3] } : null;
     const old = new Map(this.loose.map((k) => [k.id, k]));
     this.loose = s.loose.map(([id, x, z, vx, vz, f]) => { const k = old.get(id) || { id, x, z }; k.to = { x, z }; k.vx = vx; k.vz = vz; k.waiting = !!(f & 1); k.caged = !!(f & 2); k.carriedBy = f & 4 ? true : null; return k; });
@@ -126,7 +149,7 @@ export class Mirror {
     this.rescue = { C: data.place.lostAndFound, B: data.balance.rescue, open: false, spares: 0, solo: false };
     this.sus = { level: 0, get name() { return data.balance.heat.names[this.level]; }, get chaosBonus() { return data.balance.heat.chaosBonus[this.level]; } };
     this.job = { quota: data.place.job.quota, target: data.place.job.target, over: false, result: null, time: 0 };
-    this.lightsOff = false; this.jobNo = 0; this.got = 0;
+    this.lightsOff = false; this.jobNo = 0; this.got = 0; this.map = new MirrorMap();
   }
 
   apply(S) {
@@ -140,7 +163,7 @@ export class Mirror {
     this.coats = S.coats.map((s) => this.coatMap.get(s.id));
     const byId = new Map(this.coats.map((c) => [c.pid, c])); byId.order = this.coats;
     // things (a new job starts a fresh list)
-    if (this.newJob) { this.thingMap.clear(); this.personMap.clear(); this.mess.patches = []; this.itemMap.clear(); this.newJob = false; this.reset = true; }
+    if (this.newJob) { this.map = new MirrorMap(); this.thingMap.clear(); this.personMap.clear(); this.mess.patches = []; this.itemMap.clear(); this.newJob = false; this.reset = true; }
     const seenT = new Set();
     for (const a of S.things) {
       let t = this.thingMap.get(a[0]);
@@ -173,12 +196,13 @@ export class Mirror {
     this.rescue.open = !!S.cage[0]; this.rescue.spares = S.cage[1]; this.rescue.solo = !!S.cage[2];
     this.job.time = S.jobState[0]; this.job.over = !!S.jobState[1]; this.job.result = S.result;
     this.lightsOff = !!S.lights;
+    this.map.apply(S.map);
     return S.ev || [];
   }
 
   // glide everything towards the last snapshot
   update(dt) {
-    const k = Math.min(1, dt * 14);
+    const k = Math.min(1, dt * 14); this.map.time += dt;
     for (const c of this.coats) c.update(k);
     for (const t of this.things.list) t.update(k);
     for (const g of this.people.list) g.update(k);

@@ -20,12 +20,14 @@ import { Gadgets } from '../systems/gadgets.js';
 import { Loot } from '../systems/loot.js';
 import { Job } from '../systems/job.js';
 import { Rescue } from '../systems/rescue.js';
+import { TeamMap } from '../systems/teamMap.js';
 
 export const KIDS = [['sid', 'mo', 'tank'], ['pip', 'kit', 'bo'], ['ziggy', 'nell', 'ash'], ['dot', 'rex', 'flo']];
-const NO_INPUT = { move: { x: 0, z: 0 }, aim: null, run: false, use: false, natural: false, presses: {} };
+const NO_INPUT = { move: { x: 0, z: 0 }, aim: null, run: false, use: false, natural: false, presses: {}, map: false, sc: [] };
+const STILL = { x: 0, z: 0 };
 
 export class Game {
-  // D = { place, events, things, controls?, signals, balance, grownups, gadgets, loot }
+  // D = { place, events, things, controls?, signals, balance, grownups, gadgets, loot, crayonmap }
   constructor(R, D, { joinWindow = 20 } = {}) {
     this.R = R; this.D = D; this.joinWindow = joinWindow;
     this.order = []; this.waiting = []; this.out = []; this.jobNo = 0;
@@ -54,6 +56,8 @@ export class Game {
     this.loot = new Loot(this.place, D.loot, B); this.job = new Job(this.place, B);
     this.gadgets = new Gadgets(D.gadgets, { R, world: this.world, signals: this.signals, things: this.things, people: this.people, sus: this.sus, balance: B });
     this.jobEvents = new JobEvents(D.events.events, { signals: this.signals, things: this.things, spots: D.place.events, say: (text, title) => { this.emit({ k: 'announce', text, title }); this.emit({ k: 'sound', name: 'tannoy_ding' }); } }, B.events);
+    this.map = new TeamMap(this.place, D.crayonmap);
+    this.jobEvents.onFire = (e, at) => this.map.note(e.name, at);
     this.players = [];
     for (const id of this.order) this.spawnPlayer(id);
     this.emit({ k: 'newJob', job: this.jobNo });
@@ -88,7 +92,8 @@ export class Game {
     this.emit({ k: 'announce', text: 'A friend left.', title: 'Bye' });
   }
 
-  // input: { move: {x, z} world, aim: {x, z} | null, run, use, natural, presses: { grab, throw, stack, slot1, slot2, slot3, switch } counters }
+  // input: { move: {x, z} world, aim: {x, z} | null, run, use, natural, presses: { grab, throw, stack, slot1, slot2, slot3, switch } counters,
+  //         map: the crayon map is open, sc: scribbles not yet acknowledged (each with the player's own sid) }
   // presses are counters (they only ever go up), so a press is never lost between network packets
   setInput(id, input) { const p = this.player(id); if (p) p.input = input; }
   pressed(p, name) { const n = p.input.presses?.[name] ?? 0, was = p.seen[name] ?? 0; if (n > was) { p.seen[name] = n; return true; } return false; }
@@ -103,19 +108,23 @@ export class Game {
     this.people.step(dt, coats);
     for (const p of this.players) {
       const c = p.coat, I = p.input, h = p.hands;
+      for (const sc of I.sc || []) this.map.add(p.id, sc, c.slot);
+      // with the map open the coat stands still behind a big sheet of paper
+      c.mapOpen = !!I.map && !c.inCage && !c.hidden;
       if (this.pressed(p, 'stack')) c.toggleStack();
       let grab = this.pressed(p, 'grab');
       if (grab && c.atGate && !this.job.over) { this.finish('got away'); grab = false; }
       const sel = this.pressed(p, 'slot1') ? 0 : this.pressed(p, 'slot2') ? 1 : this.pressed(p, 'slot3') ? 2 : null;
-      this.gadgets.use(c, dt, { fire: I.use && !h.held, select: sel, cycle: this.pressed(p, 'switch') ? 1 : 0, aim: I.aim });
+      this.gadgets.use(c, dt, { fire: I.use && !h.held && !c.mapOpen, select: sel, cycle: this.pressed(p, 'switch') ? 1 : 0, aim: I.aim });
       h.step(dt, { grab, throwIt: this.pressed(p, 'throw'), use: I.use, natural: I.natural, aim: I.aim });
-      c.step(dt, I.move, I.run, I.aim, I.natural);
+      c.step(dt, c.mapOpen ? STILL : I.move, I.run && !c.mapOpen, I.aim, I.natural);
       p.events.push(...c.events);
       for (const e of h.events) if (e.type === 'throw') this.sus.instant(this.people, c, B.suspicion.throw);
     }
     this.sus.step(dt, this.people, coats);
     this.closing.step(dt); this.security.step(); this.gadgets.step(dt, coats);
     this.loot.step(dt, coats); this.job.step(dt);
+    this.map.step(dt, { coats: coats.filter((c) => !c.inCage), people: this.people, nav: this.people.nav, solo: this.order.length <= 1, closing: this.closing, caretaker: this.security.caretaker });
     if (!this.job.over && !this.closing.endedJob && this.closing.next >= this.closing.sections.length) { this.closing.endedJob = true; this.finish('shut in'); }
     for (const p of this.players) p.hands.carry();
     this.world.step();
@@ -140,7 +149,7 @@ export class Game {
     }
     for (const e of this.security.take()) {
       if (e.type === 'caretaker') { this.emit({ k: 'announce', text: e.why === 'closing' ? 'The Caretaker is doing his rounds. Get out!' : 'Someone has called the Caretaker!', title: 'Uh oh' }); this.emit({ k: 'shout', who: this.security.caretaker.id, text: "Right. Who's still in here?", sec: 3 }); }
-      if (e.type === 'start') { this.emit({ k: 'announce', text: 'Closing Time! The shutters are coming down, section by section.', title: 'Tannoy' }); this.emit({ k: 'sound', name: 'tannoy_ding' }); }
+      if (e.type === 'start') { this.map.note('Closing Time!', this.place.data.getaway.at); this.emit({ k: 'announce', text: 'Closing Time! The shutters are coming down, section by section.', title: 'Tannoy' }); this.emit({ k: 'sound', name: 'tannoy_ding' }); }
       if (e.type === 'warn') this.emit({ k: 'announce', text: `${e.section.name} closes in ${S.closingTime.warn} seconds!`, title: 'Tannoy' });
       if (e.type === 'shut') this.emit({ k: 'sound', name: 'machine_clunk' });
     }

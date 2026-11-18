@@ -2,6 +2,21 @@
 
 Newest first. One entry per build session (one prompt from the Build guide in the doc "STACKED – Game Plan").
 
+## 2026-11-18 · Prompt 13 of 16 (M1-09): The crayon map
+
+- **Tab (Back on a gamepad) opens the crayon map** (`src/ui/crayonmap/`): a big sheet of exercise-book paper over the game with a live floor plan of Bargain Bonanza drawn like a kid would: wobbly crayon lines in a few passes, grainy crayon texture, coloured-in zigzag scribbles, and kid handwriting (the free **Gaegu** font, OFL licence, bundled in `assets/fonts`, cost EUR 0).
+  - **The shop outline is always there** (from the `map` outline in the place file); **only the parts someone on the team has walked into get coloured in**, with their name, shelves, tills and furniture, doors and puddles. Everywhere else stays blank paper.
+  - **Loot as gold stars** (bigger for big loot; Nan's birthday cake gets its name written over it), the **GETAWAY** flag in the car park, the **Lost & Found** cage once you've seen the staff room, **events** as a yellow "!" burst with their name (they fade after a while), **Closing Time** shutters as a red zigzag (the next section flashes "CLOSING!").
+  - **Grown-ups as doodles where they were last seen** (a guard with a blue cap, granny with a grey bun and a walking stick, the baker's chef hat, the caretaker's keys...), with their **"?" level** over their head ("!" once they know). They react: **slipped = upside down with dizzy stars**, **soaked = dripping**, **blinded = X eyes**, angry eyebrows when chasing, a toddler would be a **tiny devil** (ready for when toddlers arrive). Grown-ups you haven't seen for a few seconds go faint.
+  - **The team** as little trench coats in each player's colour (yours says YOU), holding a sheet of paper if their map is open.
+  - **Playing alone, after Closing Time, a dashed red line shows the Caretaker's round** (where he is and his next stops).
+- **Draw on it:** crayons down the side: **Draw, Arrow, Circle** (drag on the map) and **stickers**: HERE!, LOOT, RUN, DANGER: GRANNY, HIDE, NOPE (pick one, click the map). **Rub out mine** clears only your own. Gamepad: left stick moves a crayon cursor, A draws, LB/RB change crayon, X rubs out, B closes. Stickers and limits are in `data/crayonmap.json`.
+- **Everyone sees everyone's scribbles**, online too (each player's in their colour), and **they're chalked on the shop floor** so a friend who hasn't opened the map still sees the arrow and "RUN".
+- **While the map is open your coat stands still holding up a big sheet of paper with tiny hands** at the corners. Grown-ups watching find that a bit odd (a small "?" fill, `suspicion.mapOpen` in `data/balance.json`).
+- Online: scribbles repeat in a friend's packets until the host has them (none get lost); the map's seen parts and grown-ups ride in each snapshot, the scribbles only when they change (and once a second), so snapshots stay small.
+- Tests: 79 logic tests pass (5 new): the map only knows places the team has been and grown-ups someone could see (and keeps them where they were last seen); scribble rules (repeats ignored, only real stickers, limits, rub out only your own); holding the map up stops you and makes a watching grown-up a little suspicious; **online: friend A's arrow and sticker and friend B's circle reach the host and each other**, and stop being sent once acknowledged; the Caretaker's route shows solo after Closing Time, not with friends.
+- Screenshots: `map_drawing`, `map_sheet`, `map_chalk`, `map_caretaker`; online `online_map_a`, `online_map_b`, `online_map_chalk_host`.
+
 ## 2026-11-18 · Prompt 12 of 16 (M1-08): Multiplayer
 
 - **The game is now one simulation for 1 to 4 players** (`src/core/game.js`): the shop, grown-ups, things, loot, Heat, Closing Time and the cage, with every player's coat, hands and gadgets. It knows nothing about drawing or the network. The screen (`src/render/stage.js`) draws either that game or a mirror of it, so solo, couch, host and friend all look the same.

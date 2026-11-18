@@ -1,7 +1,7 @@
 // STACKED, new build. M1-08: 1 to 4 players. Solo, couch (up to 4 on one screen with gamepads: press A on
 // a pad to join), or online with a join code (one player hosts and runs the game, friends send what they
 // press and get snapshots 20 times a second). The job itself lives in src/core/game.js; the screen in
-// src/render/stage.js. Page options: ?host=CODE, ?join=CODE, ?net=local (tabs of one browser), ?q=low|high.
+// src/render/stage.js. M1-09: Tab (Back on a pad) opens the crayon map (src/ui/crayonmap/). Page options: ?host=CODE, ?join=CODE, ?net=local (tabs of one browser), ?q=low|high.
 // Keys: WASD walk, mouse aim, Shift run, left click gadget (1 2 3 pick), E grab/use, right click throw,
 // Q act natural, R unstack. Test keys (solo/host): T next event, H Heat+1, C Closing Time, Space melon,
 // J puddle, K whack, O plan overlay, Backspace new job.
@@ -16,6 +16,7 @@ import { HostSession, ClientSession } from './net/session.js';
 import { findOnline, makeCode } from './net/links.js';
 import { Stage } from './render/stage.js';
 import { CoatHud } from './ui/coatHud.js';
+import { CrayonMap } from './ui/crayonmap/crayonMap.js';
 import { FollowCamera } from './render/followCamera.js';
 import { Sfx } from './audio/sfx.js';
 import { Voices } from './audio/voices.js';
@@ -29,8 +30,9 @@ import SOUNDS from '../data/sounds.json';
 import GROWNUPS from '../data/grownups.json';
 import GADGETS from '../data/gadgets.json';
 import LOOT from '../data/loot.json';
+import CRAYONMAP from '../data/crayonmap.json';
 
-const DATA = { place: SUPERMARKET, events: SHOP_EVENTS, things: THINGS, signals: SIGNALS, balance: BALANCE, grownups: GROWNUPS, gadgets: GADGETS, loot: LOOT };
+const DATA = { place: SUPERMARKET, events: SHOP_EVENTS, things: THINGS, signals: SIGNALS, balance: BALANCE, grownups: GROWNUPS, gadgets: GADGETS, loot: LOOT, crayonmap: CRAYONMAP };
 const params = new URLSearchParams(location.search);
 const quality = params.get('q') || 'high';                       // chosen, never switched behind the player's back
 const PRESS = ['grab', 'throw', 'stack', 'slot1', 'slot2', 'slot3', 'switch'];
@@ -51,7 +53,8 @@ const stage = new Stage({ place, data: DATA, hud, sfx, voices });
 
 // ---- who plays on this screen: player 1 on keyboard + mouse (or the first pad); more pads join with A ----
 const keyboard = new Input(CONTROLS, 0).attach();
-const locals = [{ id: 'p1', input: keyboard, pad: 0, counters: {} }];
+const newLocal = (id, input, pad) => ({ id, input, pad, counters: {}, mapOpen: false, sid: 0, outbox: [] });
+const locals = [newLocal('p1', keyboard, 0)];
 let mode = 'solo', game = null, mirror = null, host = null, client = null, roomCode = '';
 
 function startLocal() { game = new Game(R, DATA); for (const l of locals) game.addPlayer(l.id); stage.build(game); }
@@ -65,7 +68,7 @@ function checkPads() {
     const p = pads[i]; if (!p || locals.some((l) => l.pad === i)) continue;
     if (p.buttons?.[0]?.pressed || p.buttons?.[9]?.pressed) {
       const id = 'p' + (locals.length + 1), input = new Input(CONTROLS, i); input.readPads = () => (navigator.getGamepads?.() || [])[i] || null;
-      locals.push({ id, input, pad: i, counters: {} });
+      locals.push(newLocal(id, input, i));
       const r = game.addPlayer(id);
       hud.announce(r === 'playing' ? `Player ${locals.length} is in!` : `Player ${locals.length} joins at the next job.`, 'Couch');
     }
@@ -73,13 +76,24 @@ function checkPads() {
 }
 
 // one local player's input for the game (presses are counters, so none get lost on the way)
+// while a player has the crayon map open, their buttons draw on the map instead of doing things in the shop
 function readInput(l, coat) {
   const inp = l.input; inp.update();
+  if (inp.pressed('map')) { l.mapOpen = !l.mapOpen; l.mute = true; }
+  if (l.mute && !inp.down('use') && !inp.down('grab')) l.mute = false;       // a click that closed the map is not a shot
   const pos = coat ? coat.walker.position : { x: 0, z: 0 };
   const aim = l === locals[0] ? camRig.aimToWorld(inp.aim, pos, innerWidth, innerHeight) : (inp.aim?.mode === 'stick' ? camRig.aimToWorld(inp.aim, pos) : null);
-  for (const n of PRESS) if (inp.pressed(n)) l.counters[n] = (l.counters[n] ?? 0) + 1;
-  return { move: camRig.moveToWorld(inp.move), aim, run: inp.down('run'), use: inp.down('use'), natural: inp.down('natural'), presses: { ...l.counters } };
+  if (!l.mapOpen && !l.mute) for (const n of PRESS) if (inp.pressed(n)) l.counters[n] = (l.counters[n] ?? 0) + 1;
+  const busy = l.mapOpen || l.mute;
+  return { move: camRig.moveToWorld(inp.move), aim, run: inp.down('run'), use: inp.down('use') && !busy, natural: inp.down('natural') && !l.mapOpen, presses: { ...l.counters }, map: l.mapOpen, sc: l.outbox.slice() };
 }
+
+// the crayon map: the first player on this screen with it open steers it; what they draw waits in their
+// outbox until the game (or the host) says it has it
+const mapOwner = () => locals.find((l) => l.mapOpen) || null;
+const crayonMap = new CrayonMap(SUPERMARKET, CRAYONMAP, (s) => { const l = mapOwner(); if (l) l.outbox.push({ sid: ++l.sid, ...s }); });
+crayonMap.onClose = () => { const l = mapOwner(); if (l) { l.mapOpen = false; l.mute = true; } };
+let mapJob = -1;
 
 // ---- online: host or join ----
 const net = document.getElementById('net'), netStatus = (t, bad = false) => { net.querySelector('.status').textContent = t; net.querySelector('.status').style.color = bad ? '#c4553d' : ''; };
@@ -142,6 +156,12 @@ function frame(now) {
   const focus = pts.length ? { x: pts.reduce((a, p) => a + p.x, 0) / pts.length, z: pts.reduce((a, p) => a + p.z, 0) / pts.length } : { x: -14, z: 14 };
   const spread = pts.reduce((m, p) => Math.max(m, Math.hypot(p.x - focus.x, p.z - focus.z)), 0);
   camRig.update(dt, focus, mine.length === 1 ? inputs[0].I.aim : null, Math.min(2.2, 1 + Math.max(0, spread - 3) / 9));
+  // the crayon map: drop scribbles the game has, then draw the map for whoever has it open
+  if (model.jobNo !== mapJob) { mapJob = model.jobNo; for (const l of locals) l.outbox = []; }
+  for (const l of locals) { const ack = +(model.map.acks.get(mode === 'client' ? myId : l.id) ?? 0); if (l.outbox.length) l.outbox = l.outbox.filter((s) => s.sid > ack); }
+  const owner = mapOwner();
+  crayonMap.show(!!owner);
+  if (owner) crayonMap.draw(dt, model, mode === 'client' ? myId : owner.id, owner !== locals[0] || owner.input.device === 'pad' ? owner.input.pad : null);
   stage.update(dt, { watch, focus, camera, events, aims: inputs.map(({ l, I }) => ({ aim: I.aim, at: coatOf(mode === 'client' ? myId : l.id)?.walker.feet ?? focus })) });
   // the HUD shows player 1 of this screen
   if (watch) {
@@ -157,7 +177,7 @@ function frame(now) {
     fps = Math.round(frames / fpsT); frames = 0; fpsT = 0;
     const who = mode === 'client' ? 'online (joined)' : mode === 'host' ? `online host, room ${roomCode}` : locals.length > 1 ? `couch, ${locals.length} players` : 'solo';
     const next = game?.jobEvents.upcoming ? ` · next event in ${Math.max(0, Math.ceil(game.jobEvents.nextAt - game.jobEvents.time))} s` : '';
-    hud.top(`STACKED ${SUPERMARKET.name} · ${fps} fps · ${who}${next}  |  WASD walk, mouse aim, Shift run, left click gadget (1 2 3), E grab/use, right click throw, Q act natural, R unstack · gamepad: A on a 2nd pad joins${game ? '  ·  T event H heat C closing Space melon J puddle K whack O plan Backspace new job' : ''}`);
+    hud.top(`STACKED ${SUPERMARKET.name} · ${fps} fps · ${who}${next}  |  WASD walk, mouse aim, Shift run, left click gadget (1 2 3), E grab/use, right click throw, Q act natural, R unstack, Tab crayon map · gamepad: A on a 2nd pad joins${game ? '  ·  T event H heat C closing Space melon J puddle K whack O plan Backspace new job' : ''}`);
   }
   requestAnimationFrame(frame);
 }
@@ -174,5 +194,5 @@ globalThis.__stacked2 = {
   get gadgets() { return (game ?? mirror).gadgets; }, get jobEvents() { return game?.jobEvents; }, get signals() { return game?.signals; },
   get coatView() { return stage.coatViews.get(this.coat); }, get peopleView() { return stage.peopleView; }, get placeView() { return stage.placeView; }, get fade() { return stage.fade; },
   get place() { return place; }, get area() { return areaNow; }, get host() { return host; }, get client() { return client; },
-  get aim() { return lastAim; }, camRig, input: keyboard, clock, quality, renderer, get fps() { return fps; }, hostGame, joinGame,
+  get aim() { return lastAim; }, crayonMap, get map() { return (game ?? mirror).map; }, camRig, input: keyboard, clock, quality, renderer, get fps() { return fps; }, hostGame, joinGame,
 };

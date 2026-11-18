@@ -24,6 +24,8 @@ export class JobEvents {
     const i = this.list.indexOf(e); if (i >= this.next) this.next = i + 1;
     this.fired.push({ id, time: this.time });
     if (e.say) this.ctx.say?.(e.say, e.name);
+    const sig = e.actions.find((a) => a.signal), at = this.ctx.spots[e.id] ?? (sig ? (sig.points?.[0] ?? (typeof sig.at === 'string' ? this.ctx.spots[sig.at] : sig.at)) : null);
+    if (at) this.onFire?.(e, at);                  // the crayon map marks where it happens
     for (const a of e.actions) {
       if (a.spawn) for (const at of a.at) this.ctx.things.spawn(a.spawn, at.length === 2 ? [at[0], 0, at[1]] : at);
       if (a.signal) { this.emit(a); if ((a.repeat || 1) > 1) this.pending.push({ a, left: a.repeat - 1, wait: a.every }); }

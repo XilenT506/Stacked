@@ -1,7 +1,7 @@
 // Suspicion and Heat. Every grown-up keeps a "?" meter (0..1) for every coat. It fills while they can see
 // the coat doing odd things (running, wobbling, carrying something silly, riding a trolley, unstacking),
 // faster when the coat is short and close, and drains when you keep your distance, stay out of sight,
-// hide, or Act Natural (hold Q). Staff are slower to suspect a coat holding a mop or a clipboard.
+// hide, or Act Natural (hold Q). Holding up the crayon map looks a little odd too. Staff are slower to suspect a coat holding a mop or a clipboard.
 // A full meter: "THAT'S NOT A GROWN-UP!" That grown-up turns hostile and the Heat goes up.
 // Heat 0 Calm, 1 Twitchy, 2 Alert (more security), 3 Panic (front doors lock, the Caretaker comes).
 const IGNORE = new Set(['slipped', 'stunned', 'carry', 'grab']);
@@ -73,6 +73,7 @@ export class Suspicion {
           if (c.wobble > S.wobblyAbove) fill += S.wobbly;
           if (c.carrySilly) fill += S.carrySilly;
           if (c.riding) fill += S.ride;
+          if (c.mapOpen) fill += S.mapOpen ?? 0;                                       // a grown-up hiding behind a big sheet of paper
           fill *= 1 + (S.closeBoost - 1) * Math.max(0, 1 - d / g.type.sight);       // closer is worse
           fill *= c.state.suspicionRate ?? 1;                                        // a short grown-up looks odd
           if (c.disguiseProp && g.type.staff) fill *= c.disguiseProp.suspicionNearStaff ?? S.disguiseNearStaff;

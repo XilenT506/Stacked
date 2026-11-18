@@ -1,0 +1,23 @@
+{
+  "_about": "The crayon map (Tab, or Back on a gamepad). Everything you can stick on it, the crayon colours of the four players, and how far a coat sees a grown-up to put them on the map.",
+  "stickers": [
+    "HERE!",
+    "LOOT",
+    "RUN",
+    "DANGER: GRANNY",
+    "HIDE",
+    "NOPE"
+  ],
+  "playerColors": [
+    "#e2694f",
+    "#4f9fc9",
+    "#e0a83a",
+    "#5fae4f"
+  ],
+  "seeGrownups": 13,
+  "maxScribbles": 48,
+  "maxPerPlayer": 16,
+  "maxPoints": 24,
+  "eventsShownFor": 30,
+  "minStep": 0.6
+}

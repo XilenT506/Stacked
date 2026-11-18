@@ -216,7 +216,7 @@ console.log('gadgets', JSON.stringify(gad), gad.counts.grownup > 0 && gad.banana
 // loot: pocket the chocolate, carry the giant lolly out to the getaway gate, get away
 await shop.evaluate(() => { const S = __stacked2, c = S.coat; c.stack = ['sid', 'mo', 'tank']; c.loose = []; c.pile = null; c.grabbedBy = null; c.mods = {}; c.hidden = null; c.wobble = 0; c.applyHeight();
   S.job.over = false; S.job.result = null;      // (Closing Time already ended the job above)
-  for (const g of S.people.list) { g.hostile.clear(); g.sus.clear(); if (g.typeName === 'caretaker' || g.typeName === 'guard') g.walker.body.setTranslation({ x: -8, y: 0.9, z: -15 }, true); } });
+  S.sus.level = 0; for (const g of S.people.list) { g.hostile.clear(); g.sus.clear(); if (g.typeName === 'caretaker' || g.typeName === 'guard') { g.walker.body.setTranslation({ x: -8, y: 0.9, z: -15 }, true); g.type = { ...g.type, hunts: false }; g.set('idle'); } } });
 await go(-0.3, 2.6); await wait2(0.6); await shot('loot_sweets');
 await key('KeyE', 0.1); await wait2(0.2); await key('KeyE', 0.1); await wait2(0.4);
 await shop.keyboard.down('KeyS'); await wait2(0.5); await shop.keyboard.up('KeyS'); await wait2(0.3); await shot('loot_carry');
@@ -225,6 +225,36 @@ await go(16, 16.4); await shop.keyboard.down('KeyS'); await wait2(0.6); await sh
 await key('KeyE', 0.1); await wait2(0.6); await shot('loot_results');
 const res = await shop.evaluate(() => __stacked2.job.result && { banked: __stacked2.job.result.banked, total: __stacked2.job.result.total, met: __stacked2.job.result.met });
 console.log('loot', JSON.stringify(carrying), JSON.stringify(res), res && res.banked > 0 ? 'OK' : 'FAIL');
+
+// the crayon map: a fresh job, a walk round, then Tab: draw an arrow, a circle and stickers; the floor chalk; the paper the coat holds up; the Caretaker's route
+await key('Backspace', 0.1); await wait2(0.5);
+for (const [x, z] of [[-14, 10], [-5, 6], [-15.5, -1], [-11.5, -1], [-3.5, 2], [0.5, 0], [4.5, -1], [13, -4], [13, 4], [10, -9], [-12, -9], [-6, -12.5]]) { await go(x, z); await wait2(0.35); }
+await shop.evaluate(() => { const g = __stacked2.game, me = g.players[0].coat;
+  g.jobEvents.fire('freeSamples');
+  const sh = g.people.list.find((p) => p.typeName === 'shopper'); sh.walker.body.setTranslation({ x: -11.5, y: 0.9, z: 2 }, true); sh.slip('test', 60);
+  const gr = g.people.list.find((p) => p.typeName === 'granny'); gr.walker.body.setTranslation({ x: -7.5, y: 0.9, z: -8 }, true); gr.effects.soaked = 60;
+  for (const p of g.people.list) if (p.typeName === 'cashier') p.sus.set(me, 0.55); });
+await go(-8, -8.5); await wait2(0.6);
+await key('Tab', 0.1); await wait2(0.3);
+const B = await shop.evaluate(() => __stacked2.crayonMap.buttons.map((b) => [b.x + b.w / 2, b.y + b.h / 2]));
+const V = (x, z) => shop.evaluate(([x, z]) => __stacked2.crayonMap.V.px(x, z), [x, z]);
+const drag = async (pts) => { await shop.mouse.move(...pts[0]); await shop.mouse.down(); for (const p of pts.slice(1)) await shop.mouse.move(...p, { steps: 6 }); await shop.mouse.up(); };
+await shop.mouse.click(...B[1]); await drag([await V(-8, -7.5), await V(-12, -4), await V(-12, 4), await V(-10, 8), await V(-14, 11)]);
+await shop.mouse.click(...B[2]); await drag([await V(13, -7), await V(15.5, -7)]);
+await shop.mouse.click(...B[3]); await shop.mouse.click(...await V(-12, 6));
+await shop.mouse.click(...B[4]); await shop.mouse.click(...await V(13, -2));
+await shop.mouse.click(...B[6]); await shop.mouse.click(...await V(-6, -4));
+await wait2(0.4); await shot('map_drawing');
+const mapState = await shop.evaluate(() => { const m = __stacked2.map; return { areas: [...m.seenAreas].length, people: m.seenPeople.size, scribbles: m.scribbles.map((s) => s.kind + (s.text ? ':' + s.text : '')), open: __stacked2.coat.mapOpen }; });
+console.log('crayon map', JSON.stringify(mapState), mapState.scribbles.length === 5 && mapState.open && mapState.areas >= 8 ? 'OK' : 'FAIL');
+await shop.evaluate(() => { __stacked2.crayonMap.canvas.style.display = 'none'; }); await wait2(0.3); await shot('map_sheet');
+await key('Tab', 0.1); await wait2(0.3);
+await go(-11, 9.5); await wait2(0.8); await shot('map_chalk');
+await shop.evaluate(() => { __stacked2.game.closing.start(); }); await wait2(4);
+await key('Tab', 0.1); await wait2(0.4); await shot('map_caretaker');
+const route = await shop.evaluate(() => __stacked2.map.route);
+console.log('caretaker route', JSON.stringify(route), route?.length >= 3 ? 'OK' : 'FAIL');
+await key('Tab', 0.1);
 
 console.log(errors.length ? 'ERRORS ' + errors.join(' | ') : 'no errors');
 await browser.close(); server.close();

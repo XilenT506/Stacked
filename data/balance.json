@@ -70,6 +70,7 @@
     "near": 0.04,
     "nearDistance": 4,
     "run": 0.4,
+    "mapOpen": 0.15,
     "wobbly": 0.3,
     "wobblyAbove": 0.6,
     "carrySilly": 0.18,
