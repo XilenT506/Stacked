@@ -168,7 +168,8 @@ await shop.evaluate(() => { const S = __stacked2, g = S.people.byType('guard')[0
 const spare = await shop.evaluate(() => new Promise((res) => { const S = __stacked2, t0 = S.clock.time; const f = () => (S.rescue.spares < 2 ? res(true) : S.clock.time - t0 > 10 ? res(false) : requestAnimationFrame(f)); f(); }));
 await wait2(1); await shot('rescue_spare_kid');
 const caged = await shop.evaluate(() => new Promise((res) => { const S = __stacked2, t0 = S.clock.time; const f = () => (S.coat.loose.some((k) => k.caged) ? res(true) : S.clock.time - t0 > 30 ? res(false) : requestAnimationFrame(f)); f(); }));
-await shop.evaluate(() => { const S = __stacked2; S.rescue.warden.walker.body.setTranslation({ x: -12, y: 0.9, z: -12 }, true); });
+await shop.evaluate(() => { const S = __stacked2, c = S.coat; S.rescue.warden.walker.body.setTranslation({ x: -12, y: 0.9, z: -12 }, true);
+  c.stack = [c.stack[0], 'mo', 'sid'].slice(0, 3); c.applyHeight(); });     // walk in as a full coat (a lone kid gets chased)
 await go(-4.9, -14.0); await wait2(0.6); await shot('rescue_cage');
 await key('KeyE', 0.1); await wait2(1); await shot('rescue_open');
 const opened = await shop.evaluate(() => __stacked2.rescue.open);
