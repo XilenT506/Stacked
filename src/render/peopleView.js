@@ -66,11 +66,34 @@ function mark(text, color) {
   return s;
 }
 
+// a white speech bubble with dark text
+export function bubble(text, { size = 34, w = 640 } = {}) {
+  const c = document.createElement('canvas'); c.width = w; c.height = 140;
+  const g = c.getContext('2d'); g.font = `bold ${size}px "Trebuchet MS", sans-serif`;
+  const tw = Math.min(w - 40, g.measureText(text).width + 40), x0 = (w - tw) / 2;
+  g.fillStyle = '#fff'; g.strokeStyle = '#33201a'; g.lineWidth = 6;
+  g.beginPath(); g.roundRect(x0, 10, tw, 90, 26); g.fill(); g.stroke();
+  g.beginPath(); g.moveTo(w / 2 - 14, 98); g.lineTo(w / 2, 128); g.lineTo(w / 2 + 14, 98); g.fill();
+  g.fillStyle = '#33201a'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(text, w / 2, 56);
+  const tex = new T.CanvasTexture(c); tex.colorSpace = T.SRGBColorSpace;
+  const s = new T.Sprite(new T.SpriteMaterial({ map: tex, depthTest: false })); s.scale.set(3.2, 0.7, 1); s.renderOrder = 13;
+  return s;
+}
+
 const ALERT = new Set(['chase', 'shout', 'carry', 'grab']), CURIOUS = new Set(['investigate', 'inspect', 'search']);
 
 export class PeopleView {
   constructor(scene, people, heights) {
-    this.scene = scene; this.views = people.list.map((g) => this.make(g, heights[g.model]?.height ?? 1.8)); this.t = 0;
+    this.scene = scene; this.heights = heights; this.t = 0; this.watch = null;     // watch = the local player's coat (whose meters to show)
+    this.views = people.list.map((g) => this.make(g, heights[g.model]?.height ?? 1.8));
+    people.onAdd = (g) => this.views.push(this.make(g, (heights[g.model]?.height ?? 1.8) * (g.type.scale ?? 1)));
+  }
+
+  // a speech bubble over someone's head for a moment
+  shout(g, text, sec = 2.5) {
+    const v = this.views.find((x) => x.g === g); if (!v) return;
+    if (v.bubble) v.root.remove(v.bubble);
+    v.bubble = bubble(text); v.bubble.position.y = v.height + 1.1; v.root.add(v.bubble); v.bubbleT = sec;
   }
 
   make(g, height) {
@@ -83,14 +106,19 @@ export class PeopleView {
       new T.MeshBasicMaterial({ color: 0xfff1a8, transparent: true, opacity: 0.16, depthWrite: false }));
     cone.rotation.x = -Math.PI / 2; cone.position.y = 0.03; root.add(cone);
     const q = mark('?', '#e0a83a'), ex = mark('!', '#c4553d'); q.position.y = ex.position.y = height + 0.45; root.add(q, ex);
+    // the "?" meter for the player's coat: a bar under the "?" that fills from yellow to red
+    const barBg = new T.Sprite(new T.SpriteMaterial({ color: 0x33201a, depthTest: false })), bar = new T.Sprite(new T.SpriteMaterial({ color: 0xe0a83a, depthTest: false }));
+    barBg.scale.set(0.62, 0.11, 1); bar.center.set(0, 0.5); bar.scale.set(0.001, 0.07, 1);
+    barBg.position.y = bar.position.y = height + 0.12; bar.position.x = -0.29; barBg.renderOrder = 11; bar.renderOrder = 12; root.add(barBg, bar);
     const stars = new T.Group(); for (let i = 0; i < 3; i++) { const s = mark('★', '#f4c542'); s.scale.setScalar(0.3); stars.add(s); } root.add(stars);
     const kid = kidFigure(0xffffff); kid.scale.setScalar(0.85); kid.visible = false; root.add(kid);
-    const v = { g, root, body, stand, cone, q, ex, stars, kid, height, U: null, ph: 0 };
+    const v = { g, root, body, stand, cone, q, ex, stars, kid, height, U: null, ph: 0, bar, barBg, bubble: null, bubbleT: 0 };
     loadModel(g.model).then((md) => {
       if (!md) return;
       const bb = md.geo.boundingBox, h = bb.max.y - bb.min.y, s = height / h;
       v.U = { uC: { value: new T.Vector4((bb.min.x + bb.max.x) / 2, bb.min.y, h, (bb.min.z + bb.max.z) / 2) }, uPh: { value: 0 }, uAmp: { value: 0 }, uT: { value: 0 } };
       const mesh = new T.Mesh(md.geo, walkMaterial(md.mat, v.U)); mesh.castShadow = true;
+      if (g.type.hunts) mesh.material.color.setHex(0x8fa3c8);          // the Caretaker: same overalls, colder colours
       mesh.scale.setScalar(s); mesh.position.set(-(bb.min.x + bb.max.x) / 2 * s, -bb.min.y * s, -(bb.min.z + bb.max.z) / 2 * s);
       body.remove(stand); body.add(mesh);
     });
@@ -113,7 +141,12 @@ export class PeopleView {
       v.body.position.z = -down * 0.4;
       v.stars.visible = !!down;
       v.stars.children.forEach((s, i) => { const a = this.t * 4 + i * 2.1; s.position.set(Math.sin(a) * 0.35, 0.5, -1.2 + Math.cos(a) * 0.35); });
-      v.q.visible = CURIOUS.has(st); v.ex.visible = ALERT.has(st);
+      const sus = this.watch ? g.sus.get(this.watch) ?? 0 : 0, hostile = this.watch && g.hostile.has(this.watch);
+      v.q.visible = (CURIOUS.has(st) || sus > 0.03) && !ALERT.has(st) && !hostile; v.ex.visible = ALERT.has(st) || (hostile && st !== 'slipped');
+      v.bar.visible = v.barBg.visible = sus > 0.03 && !hostile;
+      v.bar.scale.x = 0.58 * sus; v.bar.material.color.setHex(sus > 0.75 ? 0xc4553d : sus > 0.45 ? 0xe07a3a : 0xe0a83a);
+      v.q.scale.setScalar(0.55 * (1 + sus * 0.5));
+      if (v.bubble) { v.bubbleT -= dt; if (v.bubbleT <= 0) { v.root.remove(v.bubble); v.bubble = null; } }
       const pulse = 1 + Math.sin(this.t * 10) * 0.08; v.ex.scale.setScalar(0.55 * pulse);
       // the cone: red when they are after someone, hidden while they are down
       v.cone.visible = !down; v.cone.material.color.setHex(ALERT.has(st) ? 0xff7a6a : CURIOUS.has(st) ? 0xffd27a : 0xfff1a8);

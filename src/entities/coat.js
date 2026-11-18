@@ -103,6 +103,8 @@ export class Coat {
     this.walker.step(dt, move, run, face);
     // wobble: fills with running, carrying, sharp turns and slippery floors; drains when calm
     const sp = this.walker.flatSpeed, moving = sp > 0.5;
+    this.running = !!run && moving && !M.forceMove;                       // grown-ups notice running
+    this.actingNatural = !!actNatural && !this.hidden;                   // Q: tip the hat, nod, wave
     let fill = 0;
     if (run && moving) fill += B.runFill;
     if (this.carryKg && moving) fill += B.carryFillPerKg * this.carryKg;

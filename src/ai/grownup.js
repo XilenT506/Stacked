@@ -18,6 +18,7 @@ export class GrownUp {
     this.step_i = 0; this.state = this.routine && !(this.routine.startAt > 0) ? 'routine' : type.stays ? 'idle' : 'wander';
     this.t = 0; this.path = null; this.goal = null; this.repathT = 0; this.events = [];
     this.target = null; this.lastSeen = null; this.lostT = 0; this.carrying = null; this.inspected = new Map();
+    this.sus = new Map(); this.hostile = new Set();      // per coat: the "?" meter (0..1) and who they know is not a grown-up
     this.onIce = false; this.doing = null; this.rnd = mulberry(spec.seed ?? 1);
     this.unlisten = ctx.signals?.listen({ position: () => this.walker.feet, hear: (s, d) => this.hear(s, d) });
   }
@@ -88,15 +89,17 @@ export class GrownUp {
     if (BUSY.has(this.state) && this.state !== 'chase') return;
     for (const c of coats) {
       const kids = [];
-      if (c.count === 1 && !c.hidden && !c.grabbedBy) kids.push({ coat: c, kid: null, p: c.walker.feet });
+      // a lone kid, or a coat this grown-up knows is not a grown-up (the Caretaker treats every coat that way)
+      const knows = this.hostile.has(c) || this.type.hunts;
+      if ((c.count === 1 || knows) && !c.hidden && !c.grabbedBy) kids.push({ coat: c, kid: null, p: c.walker.feet });
       for (const k of c.loose) if (!k.carriedBy) kids.push({ coat: c, kid: k, p: { x: k.x, z: k.z } });
       for (const k of kids) {
         if (!this.sees(k.p)) continue;
         if (this.state === 'chase') { if (this.target.kid === k.kid && this.target.coat === k.coat) { this.lastSeen = { ...k.p }; this.lostT = 0; } continue; }
-        if (this.type.chases) { this.set('chase'); this.target = k; this.lastSeen = { ...k.p }; this.lostT = 0; this.say('children'); this.events.push({ type: 'chase' }); return; }
+        if (this.type.chases) { this.set('chase'); this.target = k; this.lastSeen = { ...k.p }; this.lostT = 0; this.say('children'); this.events.push({ type: 'chase' }); if (!knows) this.events.push({ type: 'kidShout' }); return; }
         if (this.clock < (this.shoutCool ?? -1)) { this.faceTo = { x: k.p.x - this.feet.x, z: k.p.z - this.feet.z }; continue; }   // already shouted: just stare
         this.shoutCool = this.clock + this.T.shoutCooldown;
-        this.set('shout', this.T.shoutTime); this.face(k.p); this.say('children');
+        this.set('shout', this.T.shoutTime); this.face(k.p); this.say('children'); this.events.push({ type: 'kidShout' });
         this.ctx.signals.emit({ type: 'alarm', position: k.p, source: this, range: 25, data: { event: 'shout' } });
         return;
       }
@@ -145,7 +148,7 @@ export class GrownUp {
         if (this.walkTo(dt, this.type.walk * 1.2)) this.dropKid(true);
         break;
       case 'grab':
-        if (this.t <= 0) { const c = this.holding; if (c) { c.grabbedBy = null; c.mods = {}; } this.holding = null; this.set('stunned', T.stunnedTime); this.events.push({ type: 'wriggleFree' }); }
+        if (this.t <= 0) { const c = this.holding; if (c) { c.grabbedBy = null; c.mods = {}; } this.holding = null; this.set('stunned', T.stunnedTime * (this.type.toughness ?? 1)); this.events.push({ type: 'wriggleFree' }); }
         break;
       case 'slipped': case 'stunned': if (this.t <= 0) this.back(); break;
     }
@@ -169,7 +172,7 @@ export class GrownUp {
     const tg = this.target, f = this.feet, T = this.T;
     // the kid got away into the coat again, or out of sight for too long
     if (tg.kid && !tg.coat.loose.includes(tg.kid)) { this.lastSeen = null; }
-    const live = tg.kid ? (tg.coat.loose.includes(tg.kid) ? { x: tg.kid.x, z: tg.kid.z } : null) : (tg.coat.count === 1 && !tg.coat.hidden ? tg.coat.walker.feet : null);
+    const live = tg.kid ? (tg.coat.loose.includes(tg.kid) ? { x: tg.kid.x, z: tg.kid.z } : null) : ((tg.coat.count === 1 || this.hostile.has(tg.coat) || this.type.hunts) && !tg.coat.hidden && !tg.coat.grabbedBy ? tg.coat.walker.feet : null);
     this.lostT += dt;
     if (!live || this.lostT > T.lostSightAfter) {
       if (this.lastSeen) { this.go('search', this.lastSeen, this.type.run * 0.7); } else this.back();
@@ -188,12 +191,28 @@ export class GrownUp {
       const lf = this.ctx.spots.lostAndFound || [this.home.x, this.home.z];
       this.set('carry'); this.goal = { x: lf[0], z: lf[1] };
       this.events.push({ type: 'grabKid', kid: tg.kid.id });
+    } else if (tg.coat.count > 1) {    // a whole coat: yank the top kid out and carry that one off
+      const kid = tg.coat.spill();
+      if (kid) { this.target = { coat: tg.coat, kid }; return this.grab(this.target); }
     } else {                          // the last kid in the coat: held for a moment (Lost & Found comes later)
       tg.coat.grabbedBy = this; tg.coat.mods = { frozen: true }; this.holding = tg.coat;
       this.set('grab', this.T.grabHold);
       this.events.push({ type: 'grabCoat' });
     }
     this.target = null;
+  }
+
+  // the "?" meter is full: THAT'S NOT A GROWN-UP!
+  bust(coat) {
+    if (this.hostile.has(coat)) return;
+    this.hostile.add(coat); this.sus.set(coat, 1);
+    this.say('children'); this.events.push({ type: 'bust', coat });
+    const p = coat.walker.feet;
+    this.ctx.signals?.emit({ type: 'alarm', position: p, source: this, range: 25, data: { event: 'shout', bust: true } });
+    if (!BUSY.has(this.state)) {
+      if (this.type.chases) { this.set('chase'); this.target = { coat, kid: null, p }; this.lastSeen = { ...p }; this.lostT = 0; }
+      else { this.set('shout', this.T.shoutTime); this.face(p); this.shoutCool = this.clock + this.T.shoutCooldown; }
+    }
   }
 
   // put the kid down: at Lost & Found it waits there; dropped on the way (slipped) it runs off again
@@ -217,7 +236,7 @@ export class GrownUp {
       if (this.carrying) this.dropKid(false);
       if (this.holding) { this.holding.grabbedBy = null; this.holding.mods = {}; this.holding = null; }
       this.slipDir = { x: this.walker.vel.x, z: this.walker.vel.z };
-      this.set('slipped', this.T.slippedTime); this.say('slip');
+      this.set('slipped', this.T.slippedTime * (this.type.toughness ?? 1)); this.say('slip');
       this.ctx.signals?.emit({ type: 'noise', position: f, source: this, range: 8, data: { event: 'grown-up slip' } });
       this.events.push({ type: 'slip' });
     }

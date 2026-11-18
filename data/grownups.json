@@ -35,7 +35,8 @@
         "#7fae4e",
         "#5f7d99",
         "#c9a8d8"
-      ]
+      ],
+      "staff": false
     },
     "granny": {
       "name": "Granny",
@@ -48,7 +49,8 @@
       "fov": 100,
       "slipChance": 0.7,
       "chases": false,
-      "stays": false
+      "stays": false,
+      "staff": false
     },
     "shelf_stacker": {
       "name": "Shelf stacker",
@@ -61,7 +63,8 @@
       "fov": 110,
       "slipChance": 0.9,
       "chases": false,
-      "stays": false
+      "stays": false,
+      "staff": true
     },
     "guard": {
       "name": "Security guard",
@@ -75,7 +78,8 @@
       "slipChance": 1.0,
       "chases": true,
       "stays": false,
-      "grabRadius": 0.85
+      "grabRadius": 0.85,
+      "staff": true
     },
     "cashier": {
       "name": "Cashier",
@@ -88,7 +92,8 @@
       "fov": 120,
       "slipChance": 0.9,
       "chases": false,
-      "stays": true
+      "stays": true,
+      "staff": true
     },
     "baker": {
       "name": "Baker",
@@ -101,7 +106,26 @@
       "fov": 120,
       "slipChance": 0.9,
       "chases": false,
-      "stays": true
+      "stays": true,
+      "staff": true
+    },
+    "caretaker": {
+      "name": "Caretaker",
+      "models": [
+        "gus"
+      ],
+      "walk": 2,
+      "run": 5.4,
+      "sight": 14,
+      "fov": 140,
+      "slipChance": 1.0,
+      "chases": true,
+      "stays": false,
+      "staff": true,
+      "hunts": true,
+      "toughness": 0.35,
+      "grabRadius": 0.95,
+      "scale": 1.15
     }
   },
   "timing": {

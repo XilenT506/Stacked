@@ -8,6 +8,19 @@ export class CoatHud {
     this.heads = document.getElementById('heads'); this.bar = document.getElementById('wobble'); this.label = document.getElementById('height');
     this.hintEl = document.getElementById('hint'); this.annEl = document.getElementById('announce');
     this.shake = 0; this.annT = 0;
+    this.heatEl = document.getElementById('heat'); this.closeEl = document.getElementById('closing');
+  }
+
+  // Heat (0 Calm .. 3 Panic) and the Closing Time clock, top right
+  status(sus, closing) {
+    if (!sus) { this.heatEl.style.display = this.closeEl.style.display = 'none'; return; }
+    this.heatEl.style.display = this.closeEl.style.display = 'block';
+    const colors = ['#7fbf5f', '#e0a83a', '#e07a3a', '#c4553d'];
+    this.heatEl.innerHTML = `<b>HEAT</b> ${[0, 1, 2].map((i) => `<span class="pip" style="background:${i < sus.level ? colors[sus.level] : '#fff'}"></span>`).join('')} <span style="color:${colors[sus.level]}">${sus.name}</span>`;
+    const t = closing.startsIn, mm = Math.floor(t / 60), ss = String(Math.floor(t % 60)).padStart(2, '0');
+    const left = closing.sections.length - closing.next;
+    this.closeEl.textContent = !closing.started ? `Closing Time in ${mm}:${ss}` : left > 0 ? `CLOSING TIME! ${left} section${left > 1 ? 's' : ''} still open` : 'CLOSING TIME! The shop is shut';
+    this.closeEl.className = closing.started ? 'urgent' : '';
   }
 
   top(text) { this.topEl.textContent = text; }

@@ -16,7 +16,17 @@ export class People {
       const model = spec.model || type.models[n % type.models.length];
       return new GrownUp(R, world, type, { ...spec, id: i, model, seed: 1000 + i * 77 }, this.ctx);
     });
-    this.time = 0; this.events = [];
+    this.time = 0; this.events = []; this.R = R; this.world = world; this.data = data; this.count = count;
+    this.onAdd = null;            // the renderer adds a figure for anyone who arrives later
+  }
+
+  // someone new walks in (extra guards at higher Heat, the Caretaker)
+  add(spec) {
+    const type = this.data.types[spec.type]; if (!type) throw new Error(`unknown grown-up type "${spec.type}"`);
+    const n = this.count[spec.type] = (this.count[spec.type] ?? -1) + 1;
+    const g = new GrownUp(this.R, this.world, type, { ...spec, id: this.list.length, model: spec.model || type.models[n % type.models.length], seed: 5000 + this.list.length * 77 }, this.ctx);
+    this.list.push(g); this.onAdd?.(g); this.events.push({ type: 'arrive', who: g });
+    return g;
   }
 
   step(dt, coats) {

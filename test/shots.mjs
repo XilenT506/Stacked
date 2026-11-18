@@ -154,6 +154,31 @@ const slipped = await shop.evaluate(() => new Promise((res) => {
 await wait2(0.4); await shot('people_slip');
 console.log('shopper slip', slipped ? 'OK' : 'FAIL');
 console.log('people', JSON.stringify(await ppl()));
+
+// disguise and Heat: a cashier's "?" meter, Act Natural, a bust, Heat 3 with the Caretaker, Closing Time
+await shop.evaluate(() => { const S = __stacked2; S.sus.points = 0; S.sus.level = 0; for (const g of S.people.list) { g.sus.clear(); g.hostile.clear(); } });
+await go(-5.8, 6); await wait2(0.4);
+const susOf = () => shop.evaluate(() => Math.max(...__stacked2.people.byType('cashier').map((g) => g.sus.get(__stacked2.coat) ?? 0)));
+await shop.keyboard.down('ShiftLeft');
+for (let i = 0; i < 3; i++) { await key('KeyS', 0.35); await key('KeyW', 0.35); }
+await shop.keyboard.up('ShiftLeft');
+const filled = await susOf(); await shot('heat_meter');
+await shop.keyboard.down('KeyQ'); await wait2(1.5); await shot('heat_act_natural'); await shop.keyboard.up('KeyQ');
+const drained = await susOf();
+console.log('meter', filled.toFixed(2), '-> act natural', drained.toFixed(2), filled > 0.3 && drained < filled ? 'OK' : 'FAIL');
+await shop.keyboard.down('ShiftLeft');
+for (let i = 0; i < 6 && (await shop.evaluate(() => __stacked2.sus.level)) === 0; i++) { await key('KeyS', 0.35); await key('KeyW', 0.35); }
+await shop.keyboard.up('ShiftLeft'); await shot('heat_bust');
+const lvl1 = await shop.evaluate(() => __stacked2.sus.level);
+console.log('bust heat', lvl1, lvl1 >= 1 ? 'OK' : 'FAIL');
+await go(-12, 6); await key('KeyH', 0.1); await key('KeyH', 0.1); await key('KeyH', 0.1); await wait2(1.5); await shot('heat_panic');
+const panic = await shop.evaluate(() => ({ level: __stacked2.sus.level, caretaker: !!__stacked2.security.caretaker, front: __stacked2.closing.closed.has('front'), guards: __stacked2.people.byType('guard').length }));
+console.log('panic', JSON.stringify(panic), panic.level === 3 && panic.caretaker && panic.front ? 'OK' : 'FAIL');
+await shop.evaluate(() => { const S = __stacked2; S.closing.C.sectionEvery = 2; S.closing.C.warn = 1; });
+await key('KeyC', 0.1); await wait2(9);
+await shop.evaluate(() => __stacked2.camRig.offset.multiplyScalar(2.6)); await go(0, -2); await wait2(1.5); await shot('heat_closing_time');
+const shut = await shop.evaluate(() => [...__stacked2.closing.closed]);
+console.log('closing time', JSON.stringify(shut), shut.length >= 3 ? 'OK' : 'FAIL');
 console.log(errors.length ? 'ERRORS ' + errors.join(' | ') : 'no errors');
 await browser.close(); server.close();
 if (errors.length) process.exit(1);

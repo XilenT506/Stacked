@@ -64,5 +64,72 @@
     "_about": "timed events per job (seconds after the start)",
     "firstAt": 60,
     "gap": 75
+  },
+  "suspicion": {
+    "_about": "the \"?\" meter each grown-up has for each coat, 0..1 per second; full = THAT'S NOT A GROWN-UP!",
+    "near": 0.04,
+    "nearDistance": 4,
+    "run": 0.55,
+    "wobbly": 0.3,
+    "wobblyAbove": 0.6,
+    "carrySilly": 0.18,
+    "ride": 0.4,
+    "bump": 0.35,
+    "bumpSeenByOthers": 0.1,
+    "throw": 0.3,
+    "unstack": 0.6,
+    "spillSeen": 0.5,
+    "actNaturalFill": 0.3,
+    "actNaturalDrain": 0.35,
+    "drainUnseen": 0.12,
+    "drainFar": 0.06,
+    "farDistance": 7,
+    "disguiseNearStaff": 0.5,
+    "closeBoost": 1.6,
+    "actNaturalLines": [
+      "Lovely weather!",
+      "Afternoon!",
+      "Just browsing.",
+      "Marvellous tins.",
+      "Taxes, eh?",
+      "How about that match?"
+    ]
+  },
+  "heat": {
+    "_about": "Heat for the whole job: points from busts and shouts; level = how many thresholds are passed (0 Calm, 1 Twitchy, 2 Alert, 3 Panic)",
+    "names": [
+      "Calm",
+      "Twitchy",
+      "Alert",
+      "Panic"
+    ],
+    "thresholds": [
+      1,
+      2,
+      3
+    ],
+    "bust": 1,
+    "kidShout": 0.5,
+    "extraGuards": [
+      0,
+      0,
+      1,
+      2
+    ],
+    "chaosBonus": [
+      1,
+      1.2,
+      1.5,
+      2
+    ],
+    "caretakerAt": 3,
+    "lockFrontAt": 3
+  },
+  "closingTime": {
+    "_about": "seconds into the job, then one section every sectionEvery seconds, with a warning first",
+    "startsAt": 420,
+    "sectionEvery": 25,
+    "warn": 8,
+    "shutterHeight": 3
   }
 }

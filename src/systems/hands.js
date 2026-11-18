@@ -69,13 +69,14 @@ export class Hands {
     this.held = t; t.holder = this.coat; t.setCarried(true);
     this.coat.carryKg = t.def.mass || 0;
     this.coat.disguiseProp = t.def.disguise || null;
+    this.coat.carrySilly = !t.def.disguise;                             // a grown-up carrying a melon about looks odd
     this.things.sound(t); this.events.push({ type: 'pickUp', thing: t });
   }
 
   release(vel) {
     const t = this.held; this.held = null; t.holder = null; t.setCarried(false);
     t.body.setLinvel(vel, true); t.prevVel = { ...vel };
-    this.coat.carryKg = 0; this.coat.disguiseProp = null;
+    this.coat.carryKg = 0; this.coat.disguiseProp = null; this.coat.carrySilly = false;
     return t;
   }
 
@@ -100,7 +101,7 @@ export class Hands {
     const r = t.def.ride;
     this.riding = t; t.rider = this.coat; t.setCarried(true);
     for (const col of t.colliders) this.walker.ignore.add(col.handle);
-    this.coat.mods = { speed: r.topSpeed, grip: r.grip, wobble: r.wobble };
+    this.coat.mods = { speed: r.topSpeed, grip: r.grip, wobble: r.wobble }; this.coat.riding = true;
     this.things.sound(t); this.events.push({ type: 'ride', thing: t });
   }
 
@@ -110,7 +111,7 @@ export class Hands {
     const vel = { x: v.x * k, y: 0, z: v.z * k };
     t.body.setLinvel(vel, true); t.prevVel = { ...vel };
     for (const col of t.colliders) this.walker.ignore.delete(col.handle);
-    this.coat.mods = {}; this.events.push({ type: 'letGo', thing: t });
+    this.coat.mods = {}; this.coat.riding = false; this.events.push({ type: 'letGo', thing: t });
   }
 
   // the till belt: you lie on it like shopping and it carries you to the end

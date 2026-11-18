@@ -1,6 +1,7 @@
 // Draws one Coat (src/entities/coat.js): the bending trench coat for 3 and 2 kids, a single kid in a far
 // too big hat for 1, the loose kids running around, and the coat lying on the floor like laundry after R.
 import * as T from 'three';
+import { bubble } from './peopleView.js';
 import { loadHero, bendUniforms, bendMaterial, bendPoint, HERO_S, HEAD_Y } from './heroModel.js';
 
 export const KID_COLORS = { sid: 0xe2694f, mo: 0x4f9fc9, tank: 0x7fbf5f, pip: 0xe0a83a };
@@ -34,8 +35,8 @@ function animateKid(k, t, running, waving) {
 }
 
 export class CoatView {
-  constructor(scene, coat) {
-    this.coat = coat; this.scene = scene;
+  constructor(scene, coat, lines = []) {
+    this.coat = coat; this.scene = scene; this.lines = lines;
     this.root = new T.Group(); scene.add(this.root);
     this.coatG = new T.Group(); this.root.add(this.coatG);           // the coat model (standing or lying)
     this.kid = kidFigure(KID_COLORS[coat.stack[0]]); this.root.add(this.kid);   // shown when only one kid is left
@@ -77,6 +78,12 @@ export class CoatView {
   // events: what the coat reported since the last frame (spill, restack, unstack, hit...)
   update(dt, events = []) {
     const c = this.coat, w = c.walker, f = w.feet;
+    // Act Natural: a grown-up remark in a bubble, a new one each time you start
+    if (c.actingNatural && !this.natBubble && this.lines?.length) {
+      this.natBubble = bubble(this.lines[(this.lineN = ((this.lineN ?? -1) + 1) % this.lines.length)]);
+      this.natBubble.position.set(0, c.state.height + 0.9, 0); this.root.add(this.natBubble);
+    } else if (!c.actingNatural && this.natBubble) { this.root.remove(this.natBubble); this.natBubble = null; }
+    if (this.natBubble) this.natBubble.position.y = c.state.height + 0.9;
     this.t += dt;
     for (const e of events) if (e.type === 'spill' || e.type === 'restack' || e.type === 'unstack' || e.type === 'hit') this.pop = 1;
     this.pop = Math.max(0, this.pop - dt * 3);
@@ -133,12 +140,14 @@ export class CoatView {
     this.head.position.set(hp.x, hp.y, hp.z);
     this.head.quaternion.setFromAxisAngle(new T.Vector3(dir.y, 0, -dir.x), hp.th);
     this.head.rotateY(Math.sin(this.t * 0.7) * 0.15 + c.wobble * 0.3 * Math.sin(this.t * 7));
+    if (c.actingNatural) this.head.rotateX(Math.max(0, Math.sin(this.t * 5)) * 0.35);                  // Act Natural: a polite nod
     this.hands.forEach((m, i) => {
       const [sx, sy] = m.userData.sh, q = bendPoint({ x: sx, y: sy, z: 0 }, dir, th0, k);
       m.position.set(q.x, q.y, q.z);
       m.quaternion.setFromAxisAngle(new T.Vector3(dir.y, 0, -dir.x), q.th);
       m.rotateX(Math.sin(this.t * 9 + i * Math.PI) * Math.min(1, w.flatSpeed / 5) * 0.35);       // arms swing when walking
       m.rotateZ((i ? -1 : 1) * c.wobble * 0.5 * (1 + Math.sin(this.t * 10 + i)));               // flail when wobbly
+      if (c.actingNatural && i === 0) { m.rotateZ(1.9 + Math.sin(this.t * 9) * 0.35); }              // ...and a cheery wave
       if (c.hidden?.mode === 'pose') { m.rotateZ((i ? -1 : 1) * 1.2); m.rotateX(i ? -0.5 : 0.3); }   // a stiff mannequin pose
     });
   }

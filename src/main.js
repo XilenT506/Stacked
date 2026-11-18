@@ -1,4 +1,4 @@
-// STACKED, new build. M1-03: grown-ups (src/ai/) in the living supermarket. The shop (data/places/supermarket.json) is full of
+// STACKED, new build. M1-04: disguise, suspicion and Heat, Closing Time and the Caretaker, with grown-ups (src/ai/) in the living supermarket. The shop (data/places/supermarket.json) is full of
 // interactive things (data/interactables.json) that talk to each other through signals; timed events
 // (data/places/supermarket/events.json) shake things up, and the mess stays for the whole job.
 // ?place=playground opens the old physics playground instead.
@@ -30,6 +30,10 @@ import { Voices } from './audio/voices.js';
 import { People } from './ai/people.js';
 import { PeopleView } from './render/peopleView.js';
 import GROWNUPS from '../data/grownups.json';
+import { Suspicion } from './systems/suspicion.js';
+import { ClosingTime } from './systems/closingTime.js';
+import { Security } from './systems/security.js';
+import { ShutterView } from './render/shutterView.js';
 import SUPERMARKET from '../data/places/supermarket.json';
 import SHOP_EVENTS from '../data/places/supermarket/events.json';
 import THINGS from '../data/interactables.json';
@@ -56,7 +60,7 @@ const sfx = new Sfx(SOUNDS.sounds), voices = new Voices();
 const hud = new CoatHud();
 
 const R = await initPhysics();
-let people = null, peopleView = null, scene, world, place, placeView, areaNow = null, signals, mess, things, thingsView, jobEvents, hands, pg, rings, lights, coat, coatView, fade, aimMark, aimNow = null, events = [];
+let people = null, peopleView = null, sus = null, closing = null, security = null, shutterView = null, scene, world, place, placeView, areaNow = null, signals, mess, things, thingsView, jobEvents, hands, pg, rings, lights, coat, coatView, fade, aimMark, aimNow = null, events = [];
 
 function reset() {
   scene = new T.Scene(); scene.background = new T.Color(0xfff3e2);
@@ -71,7 +75,7 @@ function reset() {
   things.announce = (text) => hud.announce(text);
   fade = new WallFade();
   if (placeName === 'playground') {
-    pg = buildPlayground(R, world, things); place = null; placeView = null; jobEvents = null; people = null; peopleView = null;
+    pg = buildPlayground(R, world, things); place = null; placeView = null; jobEvents = null; people = null; peopleView = null; sus = closing = security = shutterView = null;
     for (const s of pg.statics) { const m = staticMesh(s); scene.add(m); if (s.fade) fade.add(m); }
     coat = new Coat(R, world, signals, BALANCE, [0, 0, 4], undefined, { mess });
     coat.bounds = { x0: -7.5, x1: 7.5, z0: -5.5, z1: 5.5 };         // loose kids stay inside the room
@@ -84,11 +88,15 @@ function reset() {
     coat.bounds = { x0: D.bounds[0] + 1, z0: D.bounds[1] + 1, x1: D.bounds[2] - 1, z1: D.bounds[3] - 1 };
     people = new People(R, world, place, GROWNUPS, { signals, mess, things: things.list });
     peopleView = new PeopleView(scene, people, GROWNUPS.models);
+    sus = new Suspicion(BALANCE); closing = new ClosingTime(R, world, place, BALANCE, { nav: people.nav });
+    security = new Security({ people, closing, suspicion: sus, place, balance: BALANCE });
+    shutterView = new ShutterView(scene, closing, fade);
     jobEvents = new JobEvents(SHOP_EVENTS.events, { signals, things, spots, say: (text, name) => { hud.announce(text, name); sfx.play('tannoy_ding'); } }, BALANCE.events);
   }
   hands = new Hands(coat, things, BALANCE);
   thingsView = new ThingsView(scene, things, mess);
-  coatView = new CoatView(scene, coat);
+  coatView = new CoatView(scene, coat, BALANCE.suspicion.actNaturalLines);
+  if (peopleView) peopleView.watch = coat;
   aimMark = new T.Mesh(new T.RingGeometry(0.18, 0.26, 24), new T.MeshBasicMaterial({ color: 0xc4553d, transparent: true, opacity: 0.8 }));
   aimMark.rotation.x = -Math.PI / 2; scene.add(aimMark);
   rings = new SignalRings(scene);
@@ -111,6 +119,8 @@ addEventListener('keydown', (e) => {
   if (e.code === 'KeyJ') spillAt();
   if (e.code === 'KeyK') coat.hit(8);
   if (e.code === 'KeyT' && jobEvents?.upcoming) jobEvents.fire(jobEvents.upcoming.id);
+  if (e.code === 'KeyH' && sus) sus.addHeat(1, 'test key');
+  if (e.code === 'KeyC' && closing) closing.start();
   if (e.code === 'Backspace') reset();
   if (e.code === 'KeyV') rings.on = !rings.on;
   if (e.code === 'KeyO' && placeView) placeView.overlay.visible = !placeView.overlay.visible;
@@ -140,6 +150,8 @@ function frame(now) {
     people?.step(STEP, [coat]);
     hands.step(STEP, { grab, throwIt, use: input.down('use'), natural: input.down('natural'), aim: aimNow }); grab = throwIt = false;
     coat.step(STEP, move, input.down('run'), aimNow, input.down('natural')); events.push(...coat.events);
+    if (sus) { sus.step(STEP, people, [coat]); for (const e of hands.events) if (e.type === 'throw') sus.instant(people, coat, BALANCE.suspicion.throw); }
+    closing?.step(STEP); security?.step();
     hands.carry();
     world.step(); coat.events = []; coat.checkHits(world); events.push(...coat.events);
     things.step(STEP); signals.flush(STEP); mess.step(STEP); jobEvents?.step(STEP);
@@ -149,6 +161,17 @@ function frame(now) {
     if (e.type === 'say' && e.clip) voices.say(e.who.id, e.clip, e.who.feet);
     if (e.type === 'slip') sfx.play('slip_whee', e.who.feet);
   }
+  for (const e of sus?.take() || []) {
+    if (e.type === 'bust') peopleView.shout(e.who, "THAT'S NOT A GROWN-UP!");
+    if (e.type === 'heat') hud.announce(['', 'People are starting to stare.', 'Security has been called!', 'PANIC! The front doors are locked!'][e.level], `Heat ${e.level}: ${BALANCE.heat.names[e.level]}`);
+  }
+  for (const e of security?.take() || []) {
+    if (e.type === 'caretaker') { hud.announce(e.why === 'closing' ? 'The Caretaker is doing his rounds. Get out!' : 'Someone has called the Caretaker!', 'Uh oh'); peopleView.shout(security.caretaker, 'Right. Who\'s still in here?', 3); }
+    if (e.type === 'start') { hud.announce('Closing Time! The shutters are coming down, section by section.', 'Tannoy'); sfx.play('tannoy_ding'); }
+    if (e.type === 'warn') hud.announce(`${e.section.name} closes in ${BALANCE.closingTime.warn} seconds!`, 'Tannoy');
+    if (e.type === 'shut') sfx.play('machine_clunk');
+  }
+  shutterView?.update(dt); hud.status(sus, closing);
   coatView.update(dt, events); hud.update(dt, coat, events, areaNow, hands.hint()); events = [];
   aimMark.visible = !!aimNow;
   if (aimNow) aimMark.position.set(wp.x + aimNow.x * 1.6, 0.03, wp.z + aimNow.z * 1.6);
@@ -172,4 +195,4 @@ requestAnimationFrame(frame);
 addEventListener('resize', () => { renderer.setSize(innerWidth, innerHeight); camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix(); });
 globalThis.__stacked2 = { get world() { return world; }, get pg() { return pg; }, get walker() { return coat.walker; }, get coat() { return coat; }, get coatView() { return coatView; },
   get place() { return place; }, get placeView() { return placeView; }, get area() { return areaNow; }, get things() { return things; }, get hands() { return hands; }, get mess() { return mess; },
-  get jobEvents() { return jobEvents; }, get people() { return people; }, camRig, get fade() { return fade; }, input, get aim() { return aimNow; }, get signals() { return signals; }, clock, quality, renderer, get fps() { return fps; }, bowl };
+  get jobEvents() { return jobEvents; }, get people() { return people; }, get sus() { return sus; }, get closing() { return closing; }, get security() { return security; }, get peopleView() { return peopleView; }, camRig, get fade() { return fade; }, input, get aim() { return aimNow; }, get signals() { return signals; }, clock, quality, renderer, get fps() { return fps; }, bowl };

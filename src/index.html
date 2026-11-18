@@ -17,12 +17,16 @@
   #wobble { height: 100%; width: 0; }
   #hint { position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%); background: #33201a; color: #fff3e2; padding: 6px 14px; border-radius: 14px; font-size: 16px; pointer-events: none; transition: opacity 0.2s; opacity: 0; }
   #announce { position: fixed; left: 50%; top: 52px; transform: translateX(-50%); max-width: 70%; background: #fff3e2; color: #33201a; border: 3px solid #33201a; padding: 8px 16px; border-radius: 14px; font-size: 18px; pointer-events: none; transition: opacity 0.4s; opacity: 0; text-align: center; }
+  #heat, #closing { position: fixed; right: 16px; background: #fff3e2; color: #33201a; border: 3px solid #33201a; border-radius: 12px; padding: 4px 12px; font-size: 16px; pointer-events: none; display: none; }
+  #heat { top: 52px; } #closing { top: 92px; }
+  #closing.urgent { background: #c4553d; color: #fff3e2; animation: bob 0.5s infinite alternate; }
+  .pip { display: inline-block; width: 14px; height: 14px; border-radius: 50%; border: 2px solid #33201a; margin: 0 1px -2px; }
   #hud { position: fixed; left: 16px; top: 12px; color: #33201a; font-size: 14px; pointer-events: none; }
 </style>
 </head>
 <body>
 <div id="hud">STACKED, new build</div>
-<div id="hint"></div><div id="announce"></div>
+<div id="heat"></div><div id="closing"></div><div id="hint"></div><div id="announce"></div>
 <div id="coathud"><div id="heads"></div><div id="wobblebox"><div id="wobble"></div></div><div id="height"></div></div>
 <script type="module" src="./main.js"></script>
 </body>
