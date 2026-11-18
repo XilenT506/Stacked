@@ -125,6 +125,33 @@ console.log('pose', posed, posed === 'pose' ? 'OK' : 'FAIL');
 await go(-7.1, 6.5); await wait2(0.6); await key('KeyE'); await wait2(0.9); await shot('living_belt');
 const belt = await shop.evaluate(() => !!__stacked2.hands.belt);
 console.log('belt', belt ? 'OK' : 'FAIL');
+
+// grown-ups: the crowd at the free samples, a guard chasing a lone kid, a shopper flat on the floor
+const ppl = () => shop.evaluate(() => __stacked2.people.list.map((g) => ({ t: g.typeName, s: g.state, x: +g.feet.x.toFixed(1), z: +g.feet.z.toFixed(1) })));
+await go(13, 1.5); await wait2(4); await shot('people_free_samples');
+const crowd = (await ppl()).filter((g) => Math.hypot(g.x - 13, g.z + 3) < 5).length;
+console.log('crowd at the bakery', crowd, crowd >= 3 ? 'OK' : 'FAIL');
+// a lone kid right in front of the guard
+await shop.evaluate(() => { const g = __stacked2.people.byType('guard')[0], f = g.feet, y = g.walker.yaw, c = __stacked2.coat;
+  const x = f.x + Math.sin(y) * 4, z = f.z + Math.cos(y) * 4; c.walker.body.setTranslation({ x, y: 1.2, z }, true); });
+await key('KeyK', 0.1); await wait2(0.3); await key('KeyK', 0.1); await wait2(0.8);
+await shot('people_chase');
+const chased = await shop.evaluate(() => __stacked2.people.byType('guard')[0].state);
+const grabbed = await shop.evaluate(() => new Promise((res) => { const g = __stacked2.people.byType('guard')[0], t0 = __stacked2.clock.time;
+  const f = () => (g.carrying || g.holding ? res(true) : __stacked2.clock.time - t0 > 12 ? res(false) : requestAnimationFrame(f)); f(); }));
+await shot('people_grab');
+console.log('guard', chased, grabbed ? 'grabbed' : 'no grab', (chased === 'chase' || chased === 'grab') && grabbed ? 'OK' : 'FAIL');
+// a puddle under a walking shopper
+const slipped = await shop.evaluate(() => new Promise((res) => {
+  const S = __stacked2, g = S.people.byType('shopper').find((p) => p.walker.flatSpeed > 0.5) || S.people.byType('shopper')[0];
+  S.coat.walker.body.setTranslation({ x: g.feet.x + 2, y: 1.2, z: g.feet.z + 2.5 }, true);
+  const v = g.walker.vel, l = Math.hypot(v.x, v.z) || 1;
+  S.signals.emit({ type: 'slippery', position: { x: g.feet.x + v.x / l * 0.8, y: 0, z: g.feet.z + v.z / l * 0.8 }, range: 1.2, data: { color: '#c4231d' } });
+  S.signals.emit({ type: 'noise', position: { x: g.feet.x + v.x / l * 4, y: 0, z: g.feet.z + v.z / l * 4 }, range: 6 });
+  const t0 = S.clock.time; const f = () => (g.state === 'slipped' ? res(true) : S.clock.time - t0 > 8 ? res(false) : requestAnimationFrame(f)); f(); }));
+await wait2(0.4); await shot('people_slip');
+console.log('shopper slip', slipped ? 'OK' : 'FAIL');
+console.log('people', JSON.stringify(await ppl()));
 console.log(errors.length ? 'ERRORS ' + errors.join(' | ') : 'no errors');
 await browser.close(); server.close();
 if (errors.length) process.exit(1);

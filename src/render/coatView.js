@@ -81,7 +81,7 @@ export class CoatView {
     for (const e of events) if (e.type === 'spill' || e.type === 'restack' || e.type === 'unstack' || e.type === 'hit') this.pop = 1;
     this.pop = Math.max(0, this.pop - dt * 3);
     this.root.position.set(f.x, f.y, f.z);
-    this.root.visible = c.hidden?.mode !== 'inside';                    // climbed into a box: only the box shows
+    this.root.visible = c.hidden?.mode !== 'inside' && !c.grabbedBy;     // in a box, or held up by a grown-up (drawn in their arms)                    // climbed into a box: only the box shows
     this.root.rotation.y = w.yaw;
     const n = c.count;
     // 3 kids: the full coat; 2 kids: the same coat, squashed shorter; 1 kid: just a kid
@@ -100,6 +100,7 @@ export class CoatView {
     // loose kids: run around, then wave to be picked up
     const seen = new Set();
     for (const k of c.loose) {
+      if (k.carriedBy) continue;                                          // drawn in the grown-up's arms
       let m = this.looseG.get(k); if (!m) { m = kidFigure(KID_COLORS[k.id] ?? 0xffffff); this.scene.add(m); this.looseG.set(k, m); }
       seen.add(k);
       m.position.set(k.x, f.y + (k.waiting ? 0 : Math.abs(Math.sin(this.t * 16)) * 0.05), k.z);

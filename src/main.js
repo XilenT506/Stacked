@@ -1,4 +1,4 @@
-// STACKED, new build. M1-02: the living supermarket. The shop (data/places/supermarket.json) is full of
+// STACKED, new build. M1-03: grown-ups (src/ai/) in the living supermarket. The shop (data/places/supermarket.json) is full of
 // interactive things (data/interactables.json) that talk to each other through signals; timed events
 // (data/places/supermarket/events.json) shake things up, and the mess stays for the whole job.
 // ?place=playground opens the old physics playground instead.
@@ -26,6 +26,10 @@ import { CoatHud } from './ui/coatHud.js';
 import { FollowCamera } from './render/followCamera.js';
 import { WallFade } from './render/wallFade.js';
 import { Sfx } from './audio/sfx.js';
+import { Voices } from './audio/voices.js';
+import { People } from './ai/people.js';
+import { PeopleView } from './render/peopleView.js';
+import GROWNUPS from '../data/grownups.json';
 import SUPERMARKET from '../data/places/supermarket.json';
 import SHOP_EVENTS from '../data/places/supermarket/events.json';
 import THINGS from '../data/interactables.json';
@@ -48,11 +52,11 @@ document.body.appendChild(renderer.domElement);
 const camera = new T.PerspectiveCamera(42, innerWidth / innerHeight, 0.1, 200);
 const camRig = new FollowCamera(camera);
 const input = new Input(CONTROLS).attach();
-const sfx = new Sfx(SOUNDS.sounds);
+const sfx = new Sfx(SOUNDS.sounds), voices = new Voices();
 const hud = new CoatHud();
 
 const R = await initPhysics();
-let scene, world, place, placeView, areaNow = null, signals, mess, things, thingsView, jobEvents, hands, pg, rings, lights, coat, coatView, fade, aimMark, aimNow = null, events = [];
+let people = null, peopleView = null, scene, world, place, placeView, areaNow = null, signals, mess, things, thingsView, jobEvents, hands, pg, rings, lights, coat, coatView, fade, aimMark, aimNow = null, events = [];
 
 function reset() {
   scene = new T.Scene(); scene.background = new T.Color(0xfff3e2);
@@ -67,7 +71,7 @@ function reset() {
   things.announce = (text) => hud.announce(text);
   fade = new WallFade();
   if (placeName === 'playground') {
-    pg = buildPlayground(R, world, things); place = null; placeView = null; jobEvents = null;
+    pg = buildPlayground(R, world, things); place = null; placeView = null; jobEvents = null; people = null; peopleView = null;
     for (const s of pg.statics) { const m = staticMesh(s); scene.add(m); if (s.fade) fade.add(m); }
     coat = new Coat(R, world, signals, BALANCE, [0, 0, 4], undefined, { mess });
     coat.bounds = { x0: -7.5, x1: 7.5, z0: -5.5, z1: 5.5 };         // loose kids stay inside the room
@@ -78,6 +82,8 @@ function reset() {
     coat = new Coat(R, world, signals, BALANCE, [sx, 0, sz], undefined, { mess });
     coat.floorZones = place.slippery;
     coat.bounds = { x0: D.bounds[0] + 1, z0: D.bounds[1] + 1, x1: D.bounds[2] - 1, z1: D.bounds[3] - 1 };
+    people = new People(R, world, place, GROWNUPS, { signals, mess, things: things.list });
+    peopleView = new PeopleView(scene, people, GROWNUPS.models);
     jobEvents = new JobEvents(SHOP_EVENTS.events, { signals, things, spots, say: (text, name) => { hud.announce(text, name); sfx.play('tannoy_ding'); } }, BALANCE.events);
   }
   hands = new Hands(coat, things, BALANCE);
@@ -131,20 +137,25 @@ function frame(now) {
   if (input.pressed('stack')) { coat.toggleStack(); events.push(...coat.events); }
   let grab = input.pressed('grab'), throwIt = input.pressed('throw');
   for (let i = 0; i < steps; i++) {
+    people?.step(STEP, [coat]);
     hands.step(STEP, { grab, throwIt, use: input.down('use'), natural: input.down('natural'), aim: aimNow }); grab = throwIt = false;
     coat.step(STEP, move, input.down('run'), aimNow, input.down('natural')); events.push(...coat.events);
     hands.carry();
     world.step(); coat.events = []; coat.checkHits(world); events.push(...coat.events);
     things.step(STEP); signals.flush(STEP); mess.step(STEP); jobEvents?.step(STEP);
   }
-  thingsView.update(dt);
+  thingsView.update(dt); peopleView?.update(dt);
+  for (const e of people?.take() || []) {
+    if (e.type === 'say' && e.clip) voices.say(e.who.id, e.clip, e.who.feet);
+    if (e.type === 'slip') sfx.play('slip_whee', e.who.feet);
+  }
   coatView.update(dt, events); hud.update(dt, coat, events, areaNow, hands.hint()); events = [];
   aimMark.visible = !!aimNow;
   if (aimNow) aimMark.position.set(wp.x + aimNow.x * 1.6, 0.03, wp.z + aimNow.z * 1.6);
   camRig.update(dt, wp, aimNow);
   lights.sun.position.set(wp.x - 6, 12, wp.z + 6); lights.sun.target.position.set(wp.x, 0, wp.z);   // the shadows follow you around the shop
   updateLights(dt);
-  sfx.listener = { x: wp.x, z: wp.z };
+  sfx.listener = voices.listener = { x: wp.x, z: wp.z };
   areaNow = place?.areaAt(wp.x, wp.z) ?? null;
   fade.update(dt, camera.position, [coat.walker.feet]);
   rings.update(dt);
@@ -161,4 +172,4 @@ requestAnimationFrame(frame);
 addEventListener('resize', () => { renderer.setSize(innerWidth, innerHeight); camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix(); });
 globalThis.__stacked2 = { get world() { return world; }, get pg() { return pg; }, get walker() { return coat.walker; }, get coat() { return coat; }, get coatView() { return coatView; },
   get place() { return place; }, get placeView() { return placeView; }, get area() { return areaNow; }, get things() { return things; }, get hands() { return hands; }, get mess() { return mess; },
-  get jobEvents() { return jobEvents; }, camRig, get fade() { return fade; }, input, get aim() { return aimNow; }, get signals() { return signals; }, clock, quality, renderer, get fps() { return fps; }, bowl };
+  get jobEvents() { return jobEvents; }, get people() { return people; }, camRig, get fade() { return fade; }, input, get aim() { return aimNow; }, get signals() { return signals; }, clock, quality, renderer, get fps() { return fps; }, bowl };

@@ -21,7 +21,7 @@ function isArm(x, y) {
 }
 
 // smooth shading: average the normals of faces that share a corner (the model splits corners at texture seams)
-function smoothNormals(geo) {
+export function smoothNormals(geo) {
   const pos = geo.attributes.position, idx = geo.index, acc = new Map(), key = (i) => `${Math.round(pos.getX(i) * 2e4)},${Math.round(pos.getY(i) * 2e4)},${Math.round(pos.getZ(i) * 2e4)}`;
   const a = new T.Vector3(), b = new T.Vector3(), c = new T.Vector3(), n = new T.Vector3();
   const tri = idx ? idx.count : pos.count, get = (k) => (idx ? idx.getX(k) : k);

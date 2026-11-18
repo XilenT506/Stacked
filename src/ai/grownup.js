@@ -1,0 +1,226 @@
+// One grown-up: a walking capsule with a type (data/grownups.json), eyes (a sight cone that tall shelves
+// block), ears (signals) and a state: idle, wander, routine, investigate, crowd, flee, inspect, shout,
+// chase, search, carry, grab, slipped, stunned. Nothing is scripted: they follow their routine until a
+// signal or something they see changes their mind.
+//   step(dt, { coats, time }) before world.step(); this.events says what happened (voices, sounds, tests).
+import { Walker } from '../entities/walker.js';
+
+const DEG = Math.PI / 180;
+const BUSY = new Set(['chase', 'carry', 'grab', 'slipped', 'stunned', 'shout']);
+
+export class GrownUp {
+  constructor(R, world, type, spec, ctx) {
+    this.type = type; this.typeName = spec.type; this.ctx = ctx; this.T = ctx.timing;
+    this.id = spec.id; this.model = spec.model; this.home = { x: spec.at[0], z: spec.at[1] };
+    this.walker = new Walker(R, world, [spec.at[0], 0, spec.at[1]], { radius: 0.3, height: 1.8, speed: type.walk });
+    if (spec.face) this.walker.yaw = Math.atan2(spec.face[0], spec.face[1]);
+    this.routine = spec.routine ? ctx.routines[spec.routine] : null; this.routineName = spec.routine || null;
+    this.step_i = 0; this.state = this.routine && !(this.routine.startAt > 0) ? 'routine' : type.stays ? 'idle' : 'wander';
+    this.t = 0; this.path = null; this.goal = null; this.repathT = 0; this.events = [];
+    this.target = null; this.lastSeen = null; this.lostT = 0; this.carrying = null; this.inspected = new Map();
+    this.onIce = false; this.doing = null; this.rnd = mulberry(spec.seed ?? 1);
+    this.unlisten = ctx.signals?.listen({ position: () => this.walker.feet, hear: (s, d) => this.hear(s, d) });
+  }
+
+  get position() { return this.walker.position; }
+  get feet() { return this.walker.feet; }
+  say(key) { const k = this.ctx.voices?.[this.model]?.[key]; this.events.push({ type: 'say', key, clip: k }); }
+  set(state, t = 0) { this.state = state; this.t = t; this.path = null; this.goal = null; this.doing = null; this.arrived = false; }
+
+  // can I see this point? (in range, inside my cone, nothing tall in between)
+  sees(p) {
+    const f = this.feet, dx = p.x - f.x, dz = p.z - f.z, d = Math.hypot(dx, dz);
+    if (d > this.type.sight || d < 0.01) return d < 0.01;
+    let a = Math.atan2(dx, dz) - this.walker.yaw; a = Math.atan2(Math.sin(a), Math.cos(a));
+    if (Math.abs(a) > this.type.fov * DEG / 2) return false;
+    return this.ctx.nav.clear(f.x, f.z, p.x, p.z, true);
+  }
+
+  // ears: every signal within its range reaches here
+  hear(s) {
+    if (s.source === this || BUSY.has(this.state)) return;
+    const p = s.position, run = this.type.run;
+    if (s.type === 'smell') { this.flee(p); this.say('smell'); return; }
+    if (s.type === 'food') { if (!this.type.stays && this.state !== 'crowd') { this.go('crowd', p, this.type.walk * 1.4, this.T.crowdTime); this.say('food'); } return; }
+    if (s.type === 'noise' || s.type === 'crash' || s.type === 'alarm' || s.type === 'spill') {
+      if (this.state === 'crowd' && s.type === 'noise') return;            // free cake beats a bit of noise
+      if (this.type.stays) { this.face(p); this.say('notice'); return; }   // cashiers just turn and look
+      const hurry = this.type.chases && (s.type !== 'noise' || s.data?.event === 'shout');
+      this.go('investigate', p, hurry ? run : this.type.walk * 1.3, this.T.investigateLook);
+      if (s.type !== 'spill') this.say('notice');
+    }
+  }
+
+  face(p) { const f = this.feet; this.walker.yaw = Math.atan2(p.x - f.x, p.z - f.z); }
+  go(state, p, speed, stay = 0) { this.set(state); this.goal = { x: p.x, z: p.z }; this.speed = speed; this.stay = stay; }
+
+  flee(from) {
+    const f = this.feet, dx = f.x - from.x, dz = f.z - from.z, d = Math.hypot(dx, dz) || 1, D = this.T.fleeDistance;
+    this.go('flee', { x: f.x + dx / d * D, z: f.z + dz / d * D }, this.type.run, 0); this.t = this.T.fleeTime;
+  }
+
+  // walk the path to this.goal; true when arrived
+  walkTo(dt, speed) {
+    const f = this.feet;
+    this.repathT -= dt;
+    if (!this.path || this.repathT <= 0) { this.path = this.ctx.nav.path(f.x, f.z, this.goal.x, this.goal.z) || []; this.repathT = this.T.repath; }
+    while (this.path.length && Math.hypot(this.path[0].x - f.x, this.path[0].z - f.z) < 0.35) this.path.shift();
+    if (!this.path.length) { this.move = null; return true; }
+    const n = this.path[0], d = Math.hypot(n.x - f.x, n.z - f.z);
+    this.walker.speed = speed; this.move = { x: (n.x - f.x) / d, z: (n.z - f.z) / d };
+    return false;
+  }
+
+  step(dt, { coats = [], time = 0 } = {}) {
+    this.events = []; this.move = null; this.t -= dt; this.clock = time;
+    this.look(coats);
+    this.think(dt, coats, time);
+    this.checkSlip();
+    const m = this.move || { x: 0, z: 0 };
+    this.walker.grip = this.state === 'slipped' ? 0.08 : 1;          // slipped: they skid on along the floor
+    this.walker.step(dt, m, false, this.faceTo || null); this.faceTo = null;
+    if (this.carrying) { const f = this.feet; this.carrying.x = f.x; this.carrying.z = f.z; }
+  }
+
+  // eyes: a kid on their own (no disguise), a loose kid, or a coat posing among the mannequins
+  look(coats) {
+    if (BUSY.has(this.state) && this.state !== 'chase') return;
+    for (const c of coats) {
+      const kids = [];
+      if (c.count === 1 && !c.hidden && !c.grabbedBy) kids.push({ coat: c, kid: null, p: c.walker.feet });
+      for (const k of c.loose) if (!k.carriedBy) kids.push({ coat: c, kid: k, p: { x: k.x, z: k.z } });
+      for (const k of kids) {
+        if (!this.sees(k.p)) continue;
+        if (this.state === 'chase') { if (this.target.kid === k.kid && this.target.coat === k.coat) { this.lastSeen = { ...k.p }; this.lostT = 0; } continue; }
+        if (this.type.chases) { this.set('chase'); this.target = k; this.lastSeen = { ...k.p }; this.lostT = 0; this.say('children'); this.events.push({ type: 'chase' }); return; }
+        this.set('shout', this.T.shoutTime); this.face(k.p); this.say('children');
+        this.ctx.signals.emit({ type: 'alarm', position: k.p, source: this, range: 25, data: { event: 'shout' } });
+        return;
+      }
+      // a posing coat in the mannequin row gets a long, hard look
+      if (c.hidden?.mode === 'pose' && this.state !== 'inspect' && this.state !== 'chase') {
+        const p = c.walker.feet, last = this.inspected.get(c) ?? -1e9;
+        if (this.clock - last > this.T.inspectCooldown && Math.hypot(p.x - this.feet.x, p.z - this.feet.z) < 9 && this.sees(p)) {
+          this.inspected.set(c, this.clock); this.go('inspect', p, this.type.walk, this.T.inspectTime); this.inspectCoat = c; this.say('inspect');
+        }
+      }
+    }
+  }
+
+  think(dt, coats, time) {
+    const T = this.T, f = this.feet;
+    switch (this.state) {
+      case 'idle': if (this.routine && time >= (this.routine.startAt ?? 0)) this.set('routine'); break;
+      case 'wander':
+        if (this.routine && time >= (this.routine.startAt ?? 0)) { this.set('routine'); break; }
+        if (!this.goal) {
+          if (this.t > 0) break;
+          const R = T.wanderRadius, a = this.rnd() * Math.PI * 2, r = 1.5 + this.rnd() * R;
+          const p = { x: this.home.x + Math.sin(a) * r, z: this.home.z + Math.cos(a) * r };
+          if (this.ctx.nav.walkable(p.x, p.z)) { this.goal = p; this.path = null; }
+        } else if (this.walkTo(dt, this.type.walk)) { this.goal = null; this.t = T.wanderWait[0] + this.rnd() * (T.wanderWait[1] - T.wanderWait[0]); }
+        break;
+      case 'routine': this.runRoutine(dt); break;
+      case 'investigate': case 'crowd': case 'inspect':
+        if (this.goal && !this.arrived) {
+          const stop = this.state === 'inspect' ? 1.5 : this.state === 'crowd' ? 1.2 + (this.id % 4) * 0.5 : 0.6;
+          if (Math.hypot(this.goal.x - f.x, this.goal.z - f.z) < stop || this.walkTo(dt, this.speed)) { this.arrived = true; this.t = this.stay; }
+        } else {
+          this.faceTo = this.goal ? { x: this.goal.x - f.x, z: this.goal.z - f.z } : null;
+          if (this.state === 'investigate') this.walker.yaw += Math.sin(this.t * 2.5) * dt * 1.5;    // looking around
+          if (this.t <= 0) { if (this.state === 'inspect') this.say('giveUp'); this.arrived = false; this.back(); }
+        }
+        break;
+      case 'flee': if (this.walkTo(dt, this.type.run) || this.t <= 0) this.back(); break;
+      case 'shout': if (this.t <= 0) this.back(); break;
+      case 'chase': this.chase(dt); break;
+      case 'search':
+        if (this.goal && !this.arrived) { if (this.walkTo(dt, this.type.run * 0.7)) { this.arrived = true; this.t = T.searchTime; } }
+        else { this.walker.yaw += dt * 2.2; if (this.t <= 0) { this.arrived = false; this.say('giveUp'); this.back(); } }
+        break;
+      case 'carry':
+        if (this.walkTo(dt, this.type.walk * 1.2)) this.dropKid(true);
+        break;
+      case 'grab':
+        if (this.t <= 0) { const c = this.holding; if (c) { c.grabbedBy = null; c.mods = {}; } this.holding = null; this.set('stunned', T.stunnedTime); this.events.push({ type: 'wriggleFree' }); }
+        break;
+      case 'slipped': case 'stunned': if (this.t <= 0) this.back(); break;
+    }
+  }
+
+  back() { this.arrived = false; this.set(this.routine && this.clock >= (this.routine.startAt ?? 0) ? 'routine' : this.type.stays ? 'idle' : 'wander'); }
+
+  runRoutine(dt) {
+    const steps = this.routine.steps, s = steps[this.step_i];
+    if (!s) { if (this.routine.loop) this.step_i = 0; else this.set('idle'); return; }
+    if (s.go) {
+      if (!this.goal) { this.goal = { x: s.go[0], z: s.go[1] }; this.path = null; }
+      if (this.walkTo(dt, this.type.walk)) { this.goal = null; this.step_i++; this.events.push({ type: 'routine', step: this.step_i - 1, at: s.go }); }
+    } else if (s.wait !== undefined) {
+      if (!this.doing) { this.doing = s.do || 'wait'; this.t = s.wait; }
+      if (this.t <= 0) { this.doing = null; this.step_i++; this.events.push({ type: 'routine', step: this.step_i - 1, did: s.do }); }
+    } else this.step_i++;
+  }
+
+  chase(dt) {
+    const tg = this.target, f = this.feet, T = this.T;
+    // the kid got away into the coat again, or out of sight for too long
+    if (tg.kid && !tg.coat.loose.includes(tg.kid)) { this.lastSeen = null; }
+    const live = tg.kid ? (tg.coat.loose.includes(tg.kid) ? { x: tg.kid.x, z: tg.kid.z } : null) : (tg.coat.count === 1 && !tg.coat.hidden ? tg.coat.walker.feet : null);
+    this.lostT += dt;
+    if (!live || this.lostT > T.lostSightAfter) {
+      if (this.lastSeen) { this.go('search', this.lastSeen, this.type.run * 0.7); } else this.back();
+      this.target = null; return;
+    }
+    const goalP = this.lostT < 0.2 ? live : this.lastSeen;
+    this.goal = { x: goalP.x, z: goalP.z };
+    if (Math.hypot(live.x - f.x, live.z - f.z) < (this.type.grabRadius ?? 0.8)) return this.grab(tg);
+    this.walkTo(dt, this.type.run);
+  }
+
+  grab(tg) {
+    this.say('gotYou');
+    if (tg.kid) {                     // a loose kid: carried off to Lost & Found (the staff room for now)
+      tg.kid.carriedBy = this; this.carrying = tg.kid; tg.kid.waiting = true;
+      const lf = this.ctx.spots.lostAndFound || [this.home.x, this.home.z];
+      this.set('carry'); this.goal = { x: lf[0], z: lf[1] };
+      this.events.push({ type: 'grabKid', kid: tg.kid.id });
+    } else {                          // the last kid in the coat: held for a moment (Lost & Found comes later)
+      tg.coat.grabbedBy = this; tg.coat.mods = { frozen: true }; this.holding = tg.coat;
+      this.set('grab', this.T.grabHold);
+      this.events.push({ type: 'grabCoat' });
+    }
+    this.target = null;
+  }
+
+  // put the kid down: at Lost & Found it waits there; dropped on the way (slipped) it runs off again
+  dropKid(arrived) {
+    const k = this.carrying; if (!k) return;
+    k.carriedBy = null; this.carrying = null;
+    if (arrived) { k.waiting = true; k.t = 0; this.events.push({ type: 'lostAndFound', kid: k.id }); this.back(); }
+    else { k.waiting = false; k.t = 6; k.grace = 0.8; k.heading = this.rnd() * Math.PI * 2; this.events.push({ type: 'dropKid', kid: k.id }); }
+  }
+
+  // walking onto something slippery (a puddle, the freezer ice): down they go
+  checkSlip() {
+    if (this.state === 'slipped') return;
+    const f = this.feet, mess = this.ctx.mess, ice = this.ctx.ice?.some((r) => f.x >= r[0] && f.x <= r[2] && f.z >= r[1] && f.z <= r[3]);
+    const wet = (mess && mess.slipperyAt(f.x, f.z)) || ice;
+    const moving = this.walker.flatSpeed > 0.7 || (this.move && this.walker.speed > 0.7);
+    if (!wet) { this.onIce = false; return; }
+    if (this.onIce || !moving) return;
+    this.onIce = true;                       // one roll of the dice per puddle
+    if (this.rnd() < this.type.slipChance * (ice && !mess?.slipperyAt(f.x, f.z) ? 0.4 : 1)) {
+      if (this.carrying) this.dropKid(false);
+      if (this.holding) { this.holding.grabbedBy = null; this.holding.mods = {}; this.holding = null; }
+      this.slipDir = { x: this.walker.vel.x, z: this.walker.vel.z };
+      this.set('slipped', this.T.slippedTime); this.say('slip');
+      this.ctx.signals?.emit({ type: 'noise', position: f, source: this, range: 8, data: { event: 'grown-up slip' } });
+      this.events.push({ type: 'slip' });
+    }
+  }
+
+  remove() { this.unlisten?.(); }
+}
+
+function mulberry(a) { return () => { a |= 0; a = (a + 0x6D2B79F5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }

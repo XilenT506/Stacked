@@ -17,6 +17,7 @@
     { "id": "backwalk", "name": "Back walkway",    "rect": [-18, -10, 8, -6],   "floor": "#ebe2cf" },
     { "id": "bakery",   "name": "Bakery",          "rect": [8, -10, 18, -2],    "floor": "#f3dcc0", "sign": [13, -6] },
     { "id": "produce",  "name": "Fruit and veg",   "rect": [8, -2, 18, 12],     "floor": "#e3ecd0", "sign": [13, 3] },
+    { "id": "cafe",     "name": "Café corner",     "rect": [13, 8.8, 18, 12],   "floor": "#f0d9c4", "sign": [15.5, 11] },
     { "id": "staff",    "name": "Staff room",      "rect": [-14, -18, -2, -10], "floor": "#d9cdb8", "sign": [-8, -14] },
     { "id": "store",    "name": "Storeroom and back door", "rect": [-2, -18, 12, -10], "floor": "#cfc6b6", "sign": [5, -14] },
     { "id": "yard",     "name": "Loading yard",    "rect": [-6, -26, 22, -18],  "floor": "#8f8a82", "outside": true },
@@ -63,6 +64,7 @@
       [-8, -14, 2.4, 0.8, 1.2, "table"], [-11, -17.2, 3, 0.8, 1, "sofa"], [-13.4, -12.5, 0.6, 2, 4, "lockers"],
       [2, -16.6, 4, 2.2, 0.8, "rack"], [9.5, -11, 3, 2.2, 0.8, "rack"], [1, -12.5, 1.6, 1.4, 1.6, "pallet"],
       [3, -22, 1.4, 1.3, 1, "bin"], [5, -22, 1.4, 1.3, 1, "bin"], [12, -21.5, 5, 2.2, 2.2, "van"],
+      [15.6, 10.4, 0.9, 0.75, 0.9, "table"], [17, 9.4, 0.9, 0.75, 0.9, "table"],
       [-6, 16, 2, 1.4, 4.2, "car"], [1, 16.5, 2, 1.4, 4.2, "car"], [7, 15.5, 2, 1.4, 4.2, "car"], [-19.5, 16, 1, 2, 4, "trolleybay"]
     ]
   },
@@ -92,6 +94,29 @@
       { "thing": "melon", "at": [10.6, 0.8, 2] }, { "thing": "melon", "at": [11.4, 0.8, 2.1] }, { "thing": "melon", "at": [11, 0.8, 5.5] }, { "thing": "melon", "at": [12.5, 4] },
       { "thing": "box", "at": [3, -12.5] }, { "thing": "box", "at": [3.7, -12.5] }, { "thing": "box", "at": [3.35, 0.45, -12.5] }
     ]
+  },
+
+  "people": {
+    "_about": "who is in the shop at the start of a job: type from data/grownups.json, where they start, and their routine (below). No routine = they wander near where they started.",
+    "list": [
+      { "type": "guard",         "at": [-12, 10.2], "routine": "patrol" },
+      { "type": "cashier",       "at": [-7.2, 7.5],  "face": [1, 0] },
+      { "type": "cashier",       "at": [-3.2, 7.5],  "face": [1, 0] },
+      { "type": "baker",         "at": [13, -7.5],   "face": [0, 1] },
+      { "type": "shelf_stacker", "at": [-7.5, -5],   "routine": "restock" },
+      { "type": "granny",        "at": [-11.5, 2],   "routine": "cafe" },
+      { "type": "shopper",       "at": [-15.5, -3] },
+      { "type": "shopper",       "at": [0.5, 1] },
+      { "type": "shopper",       "at": [12, 4] },
+      { "type": "shopper",       "at": [-4, 5] }
+    ]
+  },
+
+  "routines": {
+    "_about": "step lists: go [x, z] (walk there), wait seconds (with an optional 'do' for the look), startAt = seconds into the job before it starts (wander until then), loop = start again at the end",
+    "patrol":  { "loop": true, "steps": [ { "go": [-12, 10.2] }, { "wait": 3 }, { "go": [-6, 5] }, { "go": [7.5, 4.6] }, { "wait": 2 }, { "go": [7.5, -8] }, { "go": [-16, -8] }, { "wait": 2 }, { "go": [-16, 5] } ] },
+    "restock": { "loop": true, "steps": [ { "go": [-7.5, -5] }, { "wait": 5, "do": "restock" }, { "go": [-7.5, 2.5] }, { "wait": 5, "do": "restock" }, { "go": [4, -8.5] }, { "go": [4, -13] }, { "wait": 4, "do": "fetch" }, { "go": [4, -8.5] } ] },
+    "cafe":    { "startAt": 180, "loop": false, "steps": [ { "go": [14.4, 10.6] }, { "wait": 99999, "do": "sit" } ] }
   },
 
   "spawns": {
@@ -159,7 +184,7 @@
   "events": {
     "_about": "named spots: where timed events and tannoy announcements send people",
     "freeSamples": [13, -3], "cleanUp": [-3.5, 0], "delivery": [6, -19.5], "tannoy": [-9, 10.8],
-    "carpark": [-2, 16], "aisle1": [-15.5, -1], "staffRoom": [-8, -12]
+    "carpark": [-2, 16], "aisle1": [-15.5, -1], "staffRoom": [-8, -12], "cafe": [14.4, 10.6], "lostAndFound": [-6, -15]
   },
 
   "map": {
