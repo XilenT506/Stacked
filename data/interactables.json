@@ -1,0 +1,101 @@
+{
+  "_about": "Every interactive thing in the game. kind = one of the six kinds from The living map. New things are a new entry here, no code. Sizes in metres, mass in kg, speeds in m/s.",
+  "kinds": {
+    "prop":     "Physics prop: pushed, stacked, toppled, rolled.",
+    "machine":  "Machine or switch: changes the room for everyone.",
+    "ride":     "Ride: fast, wobbly, hard to steer.",
+    "hide":     "Hiding spot: breaks line of sight, lets suspicion drain.",
+    "disguise": "Disguise prop: held in your hands to blend in.",
+    "food":     "Food or throwable: splats, stains, slips."
+  },
+  "things": {
+    "tin": {
+      "kind": "prop", "name": "Tin of beans", "body": "dynamic",
+      "shape": { "type": "cylinder", "radius": 0.11, "height": 0.24 },
+      "mass": 0.4, "friction": 0.6, "bounce": 0.15, "color": "#c4553d",
+      "impact": { "minSpeed": 1.2, "cooldown": 0.25, "signals": ["crash", "noise"] },
+      "sound": "tin_clang",
+      "funny": "Topple a tin pyramid onto a queue.",
+      "useful": "A falling tin is a noise that pulls a guard away from the door.",
+      "reaction": "Grown-ups turn round and tut."
+    },
+    "box": {
+      "kind": "prop", "name": "Cardboard box", "body": "dynamic",
+      "shape": { "type": "box", "size": [0.6, 0.45, 0.45] },
+      "mass": 2, "friction": 0.8, "bounce": 0.05, "color": "#c9a46b",
+      "impact": { "minSpeed": 2, "cooldown": 0.4, "signals": ["noise"] },
+      "sound": "box_thud",
+      "funny": "Stack boxes into a wobbly ramp and skid off it.",
+      "useful": "Block a door or build a ramp to a high shelf.",
+      "reaction": "The shelf stacker sighs and restacks them."
+    },
+    "light_switch": {
+      "kind": "machine", "name": "Light switch", "body": "fixed",
+      "shape": { "type": "box", "size": [0.12, 0.18, 0.04] },
+      "color": "#fff3e2",
+      "use": { "toggles": "lights", "start": "on", "signalsWhenOff": ["dark"], "signalsWhenOn": ["noise"] },
+      "sound": "switch_click",
+      "funny": "Lights off mid-announcement; everyone shrieks.",
+      "useful": "Darkness to sneak past the tills.",
+      "reaction": "\"Who turned the lights off?!\""
+    },
+    "trolley": {
+      "kind": "ride", "name": "Shopping trolley", "body": "dynamic",
+      "shape": { "type": "compound", "parts": [
+        { "type": "box", "size": [0.9, 0.5, 0.55], "offset": [0, 0.55, 0] },
+        { "type": "ball", "radius": 0.08, "offset": [0.38, 0.08, 0.22] },
+        { "type": "ball", "radius": 0.08, "offset": [0.38, 0.08, -0.22] },
+        { "type": "ball", "radius": 0.08, "offset": [-0.38, 0.08, 0.22] },
+        { "type": "ball", "radius": 0.08, "offset": [-0.38, 0.08, -0.22] }
+      ] },
+      "mass": 12, "friction": 0.02, "rolls": true, "bounce": 0.1, "color": "#9aa7b0",
+      "ride": { "seat": [0, 0.85, 0], "topSpeed": 7, "wobble": 1.6 },
+      "impact": { "minSpeed": 2.5, "cooldown": 0.5, "signals": ["crash", "noise"] },
+      "sound": "trolley_rattle",
+      "funny": "Trolley race straight through the checkout queue.",
+      "useful": "Quick getaway with heavy loot.",
+      "reaction": "\"Those are NOT for riding!\""
+    },
+    "big_box": {
+      "kind": "hide", "name": "Big delivery box", "body": "fixed",
+      "shape": { "type": "box", "size": [1.0, 1.1, 1.0] },
+      "color": "#b8915c",
+      "hide": { "radius": 0.7, "drainPerSecond": 0.25 },
+      "sound": "box_rustle",
+      "funny": "A box that tiptoes when nobody is looking.",
+      "useful": "Lose a chase and let the \"?\" meters drain.",
+      "reaction": "The guard pokes it, shrugs and walks on."
+    },
+    "mop": {
+      "kind": "disguise", "name": "Mop", "body": "dynamic",
+      "shape": { "type": "box", "size": [0.08, 1.3, 0.08] },
+      "mass": 1, "friction": 0.7, "bounce": 0.05, "color": "#7fb6c4",
+      "disguise": { "looksLike": "cleaner", "suspicionNearStaff": 0.5 },
+      "impact": { "minSpeed": 2, "cooldown": 0.4, "signals": ["noise"] },
+      "sound": "mop_clack",
+      "funny": "Wave a mop at the guard and stroll past.",
+      "useful": "Suspicion builds slower near staff.",
+      "reaction": "\"Afternoon. Missed a bit.\""
+    },
+    "cream_cake": {
+      "kind": "food", "name": "Cream cake", "body": "dynamic",
+      "shape": { "type": "cylinder", "radius": 0.16, "height": 0.12 },
+      "mass": 0.6, "friction": 0.9, "bounce": 0, "color": "#fbe3ea",
+      "impact": { "minSpeed": 1.5, "cooldown": 1, "signals": ["food", "spill", "slippery"], "breaks": true },
+      "sound": "splat",
+      "funny": "Custard pie to the face.",
+      "useful": "The splat leaves a slippery patch behind you.",
+      "reaction": "\"My good coat!\""
+    },
+    "ball": {
+      "kind": "food", "name": "Melon", "body": "dynamic",
+      "shape": { "type": "ball", "radius": 0.14 },
+      "mass": 1.5, "friction": 0.5, "bounce": 0.2, "color": "#7cb85a",
+      "impact": { "minSpeed": 3, "cooldown": 0.5, "signals": ["noise"] },
+      "sound": "melon_thump",
+      "funny": "Bowl a melon into a tin pyramid.",
+      "useful": "Rolls round corners: a noise you can send somewhere else.",
+      "reaction": "\"Who's throwing melons?\""
+    }
+  }
+}

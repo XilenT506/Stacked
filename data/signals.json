@@ -1,0 +1,13 @@
+{
+  "_about": "Signals things send out. range = how far away (metres) a listener still notices it, if the sender does not say.",
+  "types": {
+    "noise":    { "range": 8 },
+    "spill":    { "range": 2 },
+    "slippery": { "range": 1.5 },
+    "crash":    { "range": 10 },
+    "smell":    { "range": 5 },
+    "dark":     { "range": 12 },
+    "alarm":    { "range": 30 },
+    "food":     { "range": 3 }
+  }
+}
