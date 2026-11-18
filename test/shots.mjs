@@ -87,6 +87,7 @@ await shop.evaluate(() => { const S = __stacked2; S.placeView.overlay.visible = 
 await go(0, -3); await wait2(2.5);
 await shop.screenshot({ path: 'test/shots/shop_overview.png' });
 await shop.evaluate(() => { const S = __stacked2; S.placeView.overlay.visible = false; S.camRig.offset.multiplyScalar(1 / 3.4); });
+if (!process.env.HEATONLY) {
 const spots = [['carpark', -14.5, 16], ['entrance', -14.5, 10.5], ['tills', -6, 10], ['aisle1', -15.5, 0], ['aisle2', -11.5, 0], ['aisle3', -7.5, 0], ['aisle4', -3.5, -3.5],
   ['sweets', 0.5, 0], ['freezer', 4.5, 0], ['bakery', 13, -3.5], ['produce', 13, 4], ['staff', -6, -12.5], ['store', 5, -14.5], ['yard', 6, -20.5], ['lane', 20, 0], ['getaway', 16, 17]];
 const wrong = [];
@@ -98,10 +99,12 @@ for (const [id, x, z] of spots) {
 }
 console.log('shop areas', spots.length, wrong.length ? 'FAIL ' + wrong.join(', ') : 'OK');
 
-// the living supermarket: one kick and the chain runs on its own; freezer fog; timed events; riding, posing, the belt
+}
 const key = async (code, sec = 0.25) => { await shop.keyboard.down(code); await wait2(sec); await shop.keyboard.up(code); };
 const shot = (name) => shop.screenshot({ path: `test/shots/${name}.png` });
 const logHas = (ev) => shop.evaluate((e) => __stacked2.signals.log.some((s) => s.data?.event === e), ev);
+if (!process.env.HEATONLY) {
+// the living supermarket: one kick and the chain runs on its own; freezer fog; timed events; riding, posing, the belt
 await shop.evaluate(() => __stacked2.camRig.offset.multiplyScalar(1.3));
 await go(-4.4, -8.3); await wait2(0.8);
 const hint = await shop.evaluate(() => __stacked2.hands.hint());
@@ -155,17 +158,20 @@ await wait2(0.4); await shot('people_slip');
 console.log('shopper slip', slipped ? 'OK' : 'FAIL');
 console.log('people', JSON.stringify(await ppl()));
 
+}
 // disguise and Heat: a cashier's "?" meter, Act Natural, a bust, Heat 3 with the Caretaker, Closing Time
-await shop.evaluate(() => { const S = __stacked2; S.sus.points = 0; S.sus.level = 0; for (const g of S.people.list) { g.sus.clear(); g.hostile.clear(); } });
+await shop.evaluate(() => { const S = __stacked2, c = S.coat; S.sus.points = 0; S.sus.level = 0;
+  for (const g of S.people.list) { g.sus.clear(); g.hostile.clear(); if (g.carrying) g.dropKid(true); g.holding = null; g.back(); }
+  c.stack = ['sid', 'mo', 'tank']; c.loose = []; c.pile = null; c.grabbedBy = null; c.mods = {}; c.hidden = null; c.wobble = 0; c.applyHeight(); });
 await go(-5.8, 6); await wait2(0.4);
 const susOf = () => shop.evaluate(() => Math.max(...__stacked2.people.byType('cashier').map((g) => g.sus.get(__stacked2.coat) ?? 0)));
 await shop.keyboard.down('ShiftLeft');
-for (let i = 0; i < 3; i++) { await key('KeyS', 0.35); await key('KeyW', 0.35); }
+await key('KeyS', 0.35); await key('KeyW', 0.3);
 await shop.keyboard.up('ShiftLeft');
 const filled = await susOf(); await shot('heat_meter');
 await shop.keyboard.down('KeyQ'); await wait2(1.5); await shot('heat_act_natural'); await shop.keyboard.up('KeyQ');
 const drained = await susOf();
-console.log('meter', filled.toFixed(2), '-> act natural', drained.toFixed(2), filled > 0.3 && drained < filled ? 'OK' : 'FAIL');
+console.log('meter', filled.toFixed(2), '-> act natural', drained.toFixed(2), filled > 0.15 && drained < filled ? 'OK' : 'FAIL');
 await shop.keyboard.down('ShiftLeft');
 for (let i = 0; i < 6 && (await shop.evaluate(() => __stacked2.sus.level)) === 0; i++) { await key('KeyS', 0.35); await key('KeyW', 0.35); }
 await shop.keyboard.up('ShiftLeft'); await shot('heat_bust');

@@ -39,7 +39,9 @@ export class Suspicion {
     if (g.hostile.has(coat)) return;
     g.bust(coat);
     this.events.push({ type: 'bust', who: g, coat });
-    this.addHeat(this.H.bust, 'bust');
+    const same = this.time - (this.lastBust ?? -1e9) < (this.H.sameIncident ?? 0);
+    this.lastBust = this.time;
+    this.addHeat(same ? this.H.bustSameIncident ?? 0 : this.H.bust, 'bust');
   }
 
   step(dt, people, coats) {
