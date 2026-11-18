@@ -16,7 +16,7 @@
   #wobblebox { width: 220px; height: 14px; border: 3px solid #33201a; border-radius: 8px; overflow: hidden; background: #fff; }
   #wobble { height: 100%; width: 0; }
   #hint { position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%); background: #33201a; color: #fff3e2; padding: 6px 14px; border-radius: 14px; font-size: 16px; pointer-events: none; transition: opacity 0.2s; opacity: 0; }
-  #announce { position: fixed; left: 50%; top: 52px; transform: translateX(-50%); max-width: 70%; background: #fff3e2; color: #33201a; border: 3px solid #33201a; padding: 8px 16px; border-radius: 14px; font-size: 18px; pointer-events: none; transition: opacity 0.4s; opacity: 0; text-align: center; }
+  #announce { position: fixed; left: 50%; top: 66px; transform: translateX(-50%); max-width: 70%; background: #fff3e2; color: #33201a; border: 3px solid #33201a; padding: 8px 16px; border-radius: 14px; font-size: 18px; pointer-events: none; transition: opacity 0.4s; opacity: 0; text-align: center; }
   #heat, #closing { position: fixed; right: 16px; background: #fff3e2; color: #33201a; border: 3px solid #33201a; border-radius: 12px; padding: 4px 12px; font-size: 16px; pointer-events: none; display: none; }
   #heat { top: 52px; } #closing { top: 92px; }
   #closing.urgent { background: #c4553d; color: #fff3e2; animation: bob 0.5s infinite alternate; }
@@ -27,12 +27,19 @@
   #gadgets .slot span { float: right; margin-left: 12px; }
   #gadgets .charge { height: 6px; background: #fff; border-radius: 3px; margin-top: 3px; } #gadgets .charge div { height: 100%; background: #c4553d; border-radius: 3px; }
   #blind { position: fixed; inset: 0; pointer-events: none; opacity: 0; transition: opacity 0.3s; background: radial-gradient(circle at 50% 50%, transparent 8%, #1a1208 45%); }
-  #hud { position: fixed; left: 16px; top: 12px; color: #33201a; font-size: 14px; pointer-events: none; }
+  #quota { position: fixed; left: 50%; top: 12px; transform: translateX(-50%); width: 520px; color: #33201a; font-size: 14px; pointer-events: none; display: none; text-align: center; }
+  #quota .qt span { opacity: 0.7; }
+  #quota .qb { position: relative; display: flex; height: 14px; border: 3px solid #33201a; border-radius: 8px; background: #fff; overflow: hidden; margin-top: 3px; }
+  #quota .qb div { background: #f4c542; } #quota .qb div.hand { background: #f9e3a0; }
+  #results { position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 420px; background: #fff3e2; color: #33201a; border: 4px solid #33201a; border-radius: 18px; padding: 16px 24px; display: none; font-size: 16px; }
+  #results h2 { margin: 0 0 8px; } #results ul { list-style: none; padding: 0; margin: 0 0 8px; } #results li b { float: right; } #results s { opacity: 0.5; font-weight: normal; }
+  #results .ok { color: #3f8a3a; font-weight: bold; } #results .no { color: #c4553d; font-weight: bold; } #results .small { font-size: 13px; opacity: 0.7; }
+  #hud { position: fixed; left: 16px; top: 64px; max-width: 30%; color: #33201a; font-size: 14px; pointer-events: none; }
 </style>
 </head>
 <body>
 <div id="hud">STACKED, new build</div>
-<div id="blind"></div><div id="gadgets"></div><div id="heat"></div><div id="closing"></div><div id="hint"></div><div id="announce"></div>
+<div id="blind"></div><div id="quota"></div><div id="results"></div><div id="gadgets"></div><div id="heat"></div><div id="closing"></div><div id="hint"></div><div id="announce"></div>
 <div id="coathud"><div id="heads"></div><div id="wobblebox"><div id="wobble"></div></div><div id="height"></div></div>
 <script type="module" src="./main.js"></script>
 </body>

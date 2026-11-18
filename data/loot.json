@@ -1,0 +1,18 @@
+{
+  "_about": "What loot looks like and weighs. The place file says where each piece is, whether it is small (pockets) or big (carried in your arms, two players can carry together) and what it is worth in sweets. mass in kg slows the carrier and fills the wobble bar; shape and color are how it is drawn.",
+  "items": {
+    "pick_n_mix":   { "name": "Pick 'n' mix",     "shape": [0.25, 0.18, 0.2],  "color": "#ff8fb0" },
+    "lollies":      { "name": "Lollies",          "shape": [0.2, 0.2, 0.08],   "color": "#e2694f" },
+    "chocolate":    { "name": "Big chocolate bar","shape": [0.3, 0.05, 0.15],  "color": "#6b4838" },
+    "gummy_worms":  { "name": "Gummy worms",      "shape": [0.22, 0.15, 0.08], "color": "#4fc98c" },
+    "fizzy_cola":   { "name": "Fizzy cola bottles","shape": [0.2, 0.18, 0.1],  "color": "#c9852b" },
+    "giant_lolly":  { "name": "Giant lolly",      "shape": [0.5, 1.1, 0.12],   "color": "#e0392b", "mass": 4 },
+    "birthday_cake":{ "name": "Nan's birthday cake","shape": [0.6, 0.45, 0.6], "color": "#fbe3ea", "mass": 6 },
+    "coin_jar":     { "name": "Charity coin jar", "shape": [0.2, 0.28, 0.2],   "color": "#cfe6f0" },
+    "ice_lollies":  { "name": "Box of ice lollies","shape": [0.25, 0.12, 0.15],"color": "#7fc8ff" },
+    "biscuit_tin":  { "name": "Biscuit tin",      "shape": [0.3, 0.12, 0.3],   "color": "#4f6ba0" },
+    "pop_crate":    { "name": "Crate of fizzy pop","shape": [0.6, 0.4, 0.45],  "color": "#e0a83a", "mass": 9 },
+    "tin_beans":    { "name": "Fancy beans",      "shape": [0.12, 0.16, 0.12], "color": "#c4553d" },
+    "cereal_box":   { "name": "Choco cereal",     "shape": [0.2, 0.3, 0.08],   "color": "#f4c542" }
+  }
+}

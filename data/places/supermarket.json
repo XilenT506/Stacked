@@ -131,8 +131,10 @@
     "caretaker": [[9, -16]]
   },
 
+  "job": { "_about": "the job in this place: what the briefing asks for", "target": "Nan's birthday cake from the bakery", "quota": 1500 },
+
   "loot": {
-    "_about": "small fits in a pocket, big is carried (two players can carry together). value in pence.",
+    "_about": "small fits in a pocket, big is carried (two players can carry together). value in sweets. Names and looks in data/loot.json.",
     "list": [
       { "id": "pick_n_mix",   "kind": "small", "value": 120, "at": [-0.8, 1.1, -4] },
       { "id": "lollies",      "kind": "small", "value": 80,  "at": [-0.8, 1.1, -0.5] },

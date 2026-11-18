@@ -141,5 +141,19 @@
     "slippedStun": 0.9,
     "soakedTurnWobble": 0.35,
     "embarrassedStun": 1.5
+  },
+  "loot": {
+    "_about": "pockets hold this many small pieces; big loot slows you by perKg (down to minSpeed of normal); every drop loses dropLoss of the value, never below minValue of the original",
+    "pockets": 6,
+    "perKg": 0.05,
+    "minSpeed": 0.5,
+    "dropLoss": 0.15,
+    "minValue": 0.4,
+    "coCarryDistance": 2.2,
+    "reach": 1.4
+  },
+  "job": {
+    "_about": "cleanBonus: +50% for finishing at Heat 0",
+    "cleanBonus": 0.5
   }
 }

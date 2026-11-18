@@ -2,6 +2,17 @@
 
 Newest first. One entry per build session (one prompt from the Build guide in the doc "STACKED – Game Plan").
 
+## 2026-11-18 · Prompt 10 of 16 (M1-06): Loot, quota and getaway
+
+- **13 pieces of loot** in the shop (where and how much in `data/places/supermarket.json`, names and looks in `data/loot.json`), each with a gold star over it: pick 'n' mix, lollies, a big chocolate bar, gummy worms, cola bottles and ice lollies (sweet and freezer aisles), the charity coin jar (tills), a biscuit tin (staff room), fancy beans and choco cereal, and three **big** ones: the giant lolly (sweet aisle), **Nan's birthday cake** (bakery) and a crate of fizzy pop (storeroom).
+- **Small loot goes in your pockets** with E (6 pockets). **Big loot is carried** in your arms: it slows you down (by weight; the crate halves your speed), fills the wobble bar and looks suspicious. **Two coats can carry one piece together**: each carries half the weight; pull apart and you drop it (`src/systems/loot.js`).
+- **Dropped loot loses 15% of its value** each time (never below 40%): when you put it down, when a kid falls out of the coat (you drop what you carry), or when a grown-up grabs you (you also lose the last thing in your pockets).
+- **The getaway gate** in the car park: step into its ring and everything you carry is banked. Press E there to get away and end the job.
+- **The quota bar** (top middle): the job's target ("Nan's birthday cake from the bakery"), sweets banked and in hand against the quota of 1500, and the multiplier you're on.
+- **The sums** (`src/systems/job.js`): banked loot × **Clean Job +50%** if you finish at Heat 0, or × the **Chaos Bonus** for your Heat (×1.2, ×1.5, ×2). A results card shows each piece (with its old value crossed out if it was dropped), the bonus, the total and whether the quota was met. Missing it doesn't end the run (Detention cards come later).
+- **The Closing Time timer** (top right, from prompt 8) now ends the job too: when the last shutter (the front doors) comes down, the job is over with whatever you banked.
+- Tests: 67 logic tests pass (6 new): **the quota maths** (Clean Job, every Chaos Bonus, met and missed, rounding); pockets and carrying (slower); drops losing value and the 40% floor, and a kid falling out dropping the lolly; two coats carrying together and pulling apart; the gate banking and the job sums; and **a bot that plays the whole job with all ten grown-ups in the shop**: walks in, pockets three sweets, picks up the giant lolly and carries it out to the gate (about 28 seconds, 750 sweets, Clean Job ×1.5 = 1125).
+
 ## 2026-11-18 · Prompt 9 of 16 (M1-05): Gadgets
 
 - **A gadget system run entirely from data** (`data/gadgets.json`, `src/systems/gadgets.js`). A gadget is one of three modes: **projectile** (flies at what you aim at and hits the first thing in the way; can auto-fire, or charge while you hold), **thrown** (an arc that bursts and splashes everyone in a radius), or **place** (put down in front of you; whoever steps on it gets it). What a hit does is data too: an **effect** (soaked, slipped, blinded, embarrassed, with their times), a **knock**, and **signals** where it lands.

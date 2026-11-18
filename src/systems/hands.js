@@ -21,6 +21,7 @@ export class Hands {
 
   // a short line for the HUD: what E (or Q) does here
   hint() {
+    if (this.loot && !this.riding && !this.belt && !this.held && !this.coat.hidden) { const h = this.loot.hint(this.coat); if (h) return h; }
     if (this.riding) return 'E: let go of the trolley';
     if (this.belt) return 'E: hop off the belt';
     if (this.coat.hidden?.mode === 'inside') return 'E: climb out of the box';
@@ -58,6 +59,8 @@ export class Hands {
     if (this.belt) return this.offBelt(true);
     if (this.coat.hidden?.mode === 'inside') return this.unhide();
     if (this.held) return this.drop();
+    if (this.loot?.press(this.coat)) { this.events.push({ type: 'loot' }); return; }
+    if (this.loot?.carried(this.coat)) return;                       // arms full of loot: nothing else
     const t = this.target(); if (!t) return;
     if (t.kind === 'machine') { const r = this.things.use(t); this.events.push({ type: 'use', thing: t, result: r }); return; }
     if (t.kind === 'ride') return t.def.ride?.type === 'belt' ? this.onBelt(t) : this.ride(t);

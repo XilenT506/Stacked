@@ -106,7 +106,7 @@ export class Coat {
     this.time += dt; this.events = [];
     if (this.ownMess) this.mess.step(dt);
     const B = this.B.wobble, M = this.mods, slip = this.onSlippery();
-    this.walker.speed = M.speed ?? this.state.speed;
+    this.walker.speed = (M.speed ?? this.state.speed) * (this.carrySpeedMul ?? 1);      // big loot in your arms slows you down
     this.walker.grip = Math.min(slip ? this.B.slippery.grip : 1, M.grip ?? 1);
     if (this.stunned > 0) { this.stunned -= dt; move = { x: 0, z: 0 }; }
     this.effects ??= {};

@@ -197,6 +197,19 @@ await key('Digit2', 0.1); await shop.mouse.down(); await wait2(1.1); await shop.
 await key('Digit3', 0.1); await shop.mouse.down(); await wait2(0.1); await shop.mouse.up(); await wait2(0.4); await shot('gadget_banana');
 const gad = await shop.evaluate(() => ({ counts: __stacked2.gadgets.counts, bananas: __stacked2.gadgets.items.length, ammo: __stacked2.coat.gadgets.ammo }));
 console.log('gadgets', JSON.stringify(gad), gad.counts.grownup > 0 && gad.bananas === 1 ? 'OK' : 'FAIL');
+
+// loot: pocket the chocolate, carry the giant lolly out to the getaway gate, get away
+await shop.evaluate(() => { const S = __stacked2, c = S.coat; c.stack = ['sid', 'mo', 'tank']; c.loose = []; c.pile = null; c.grabbedBy = null; c.mods = {}; c.hidden = null; c.wobble = 0; c.applyHeight();
+  S.job.over = false; S.job.result = null;      // (Closing Time already ended the job above)
+  for (const g of S.people.list) { g.hostile.clear(); g.sus.clear(); if (g.typeName === 'caretaker' || g.typeName === 'guard') g.walker.body.setTranslation({ x: -8, y: 0.9, z: -15 }, true); } });
+await go(-0.3, 2.6); await wait2(0.6); await shot('loot_sweets');
+await key('KeyE', 0.1); await wait2(0.2); await key('KeyE', 0.1); await wait2(0.4);
+await shop.keyboard.down('KeyS'); await wait2(0.5); await shop.keyboard.up('KeyS'); await wait2(0.3); await shot('loot_carry');
+const carrying = await shop.evaluate(() => __stacked2.loot.items.filter((i) => i.state !== 'lying').map((i) => i.id + ':' + i.state));
+await go(16, 16.4); await shop.keyboard.down('KeyS'); await wait2(0.6); await shop.keyboard.up('KeyS'); await wait2(0.4);
+await key('KeyE', 0.1); await wait2(0.6); await shot('loot_results');
+const res = await shop.evaluate(() => __stacked2.job.result && { banked: __stacked2.job.result.banked, total: __stacked2.job.result.total, met: __stacked2.job.result.met });
+console.log('loot', JSON.stringify(carrying), JSON.stringify(res), res && res.banked > 0 ? 'OK' : 'FAIL');
 console.log(errors.length ? 'ERRORS ' + errors.join(' | ') : 'no errors');
 await browser.close(); server.close();
 if (errors.length) process.exit(1);

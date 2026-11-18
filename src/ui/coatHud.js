@@ -36,6 +36,30 @@ export class CoatHud {
     this.blindEl.style.opacity = (coat.effects?.blinded ?? 0) > 0 ? 0.85 : 0;
   }
 
+  // the quota bar, top middle: banked loot (gold) and loot in hand (pale), against the quota
+  quota(job, loot, sus) {
+    const el = this.quotaEl ??= document.getElementById('quota');
+    if (!job) { el.style.display = 'none'; return; }
+    el.style.display = 'block';
+    const banked = loot.bankedValue, hand = loot.inHand(), q = job.quota || 1, mult = sus?.level ? sus.chaosBonus : 1.5;
+    const w1 = Math.min(100, banked * mult / q * 100), w2 = Math.min(100 - w1, hand * mult / q * 100);
+    const html = `<div class="qt">${job.target} · <b>${Math.round(banked * mult)}</b> / ${q} sweets${hand ? ` <span>(+${Math.round(hand * mult)} in hand)</span>` : ''} · ${sus?.level ? `Chaos Bonus ×${sus.chaosBonus}` : 'Clean Job +50%'}</div><div class="qb"><div style="width:${w1}%"></div><div class="hand" style="width:${w2}%"></div><i></i></div>`;
+    if (html !== this.lastQ) { el.innerHTML = html; this.lastQ = html; }
+  }
+
+  // the end of a job: what came out, the bonus, the total against the quota
+  results(r) {
+    const el = this.resEl ??= document.getElementById('results');
+    if (!r) { el.style.display = 'none'; return; }
+    if (el.style.display === 'block') return;
+    el.style.display = 'block';
+    el.innerHTML = `<h2>${r.why === 'got away' ? 'You got away!' : 'Shut in at Closing Time!'}</h2>
+      <ul>${r.items.map((i) => `<li>${i.name}<b>${i.value}${i.value < i.base ? ` <s>${i.base}</s>` : ''}</b></li>`).join('') || '<li>Nothing at all...</li>'}</ul>
+      <p>Loot <b>${r.banked}</b> × ${r.mult} ${r.bonusName ? `(${r.bonusName}${r.clean ? '' : `, Heat ${r.heat}`})` : ''} = <b>${r.total}</b> sweets</p>
+      <p class="${r.met ? 'ok' : 'no'}">${r.met ? `Quota met! (${r.quota})` : `Quota missed by ${r.short} (needed ${r.quota}). Detention cards come later.`}</p>
+      <p class="small">Backspace: play again</p>`;
+  }
+
   top(text) { this.topEl.textContent = text; }
 
   announce(text, title = 'Tannoy') {

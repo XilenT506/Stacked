@@ -37,6 +37,10 @@ import { ShutterView } from './render/shutterView.js';
 import { Gadgets } from './systems/gadgets.js';
 import { GadgetView } from './render/gadgetView.js';
 import GADGETS from '../data/gadgets.json';
+import { Loot } from './systems/loot.js';
+import { Job } from './systems/job.js';
+import { LootView } from './render/lootView.js';
+import LOOT from '../data/loot.json';
 import SUPERMARKET from '../data/places/supermarket.json';
 import SHOP_EVENTS from '../data/places/supermarket/events.json';
 import THINGS from '../data/interactables.json';
@@ -63,7 +67,7 @@ const sfx = new Sfx(SOUNDS.sounds), voices = new Voices();
 const hud = new CoatHud();
 
 const R = await initPhysics();
-let gadgets = null, gadgetView = null, people = null, peopleView = null, sus = null, closing = null, security = null, shutterView = null, scene, world, place, placeView, areaNow = null, signals, mess, things, thingsView, jobEvents, hands, pg, rings, lights, coat, coatView, fade, aimMark, aimNow = null, events = [];
+let loot = null, job = null, lootView = null, gadgets = null, gadgetView = null, people = null, peopleView = null, sus = null, closing = null, security = null, shutterView = null, scene, world, place, placeView, areaNow = null, signals, mess, things, thingsView, jobEvents, hands, pg, rings, lights, coat, coatView, fade, aimMark, aimNow = null, events = [];
 
 function reset() {
   scene = new T.Scene(); scene.background = new T.Color(0xfff3e2);
@@ -78,7 +82,7 @@ function reset() {
   things.announce = (text) => hud.announce(text);
   fade = new WallFade();
   if (placeName === 'playground') {
-    pg = buildPlayground(R, world, things); place = null; placeView = null; jobEvents = null; people = null; peopleView = null; sus = closing = security = shutterView = null;
+    pg = buildPlayground(R, world, things); place = null; placeView = null; jobEvents = null; people = null; peopleView = null; sus = closing = security = shutterView = loot = job = lootView = null;
     for (const s of pg.statics) { const m = staticMesh(s); scene.add(m); if (s.fade) fade.add(m); }
     coat = new Coat(R, world, signals, BALANCE, [0, 0, 4], undefined, { mess });
     coat.bounds = { x0: -7.5, x1: 7.5, z0: -5.5, z1: 5.5 };         // loose kids stay inside the room
@@ -94,9 +98,11 @@ function reset() {
     sus = new Suspicion(BALANCE); closing = new ClosingTime(R, world, place, BALANCE, { nav: people.nav });
     security = new Security({ people, closing, suspicion: sus, place, balance: BALANCE });
     shutterView = new ShutterView(scene, closing, fade);
+    loot = new Loot(place, LOOT, BALANCE); job = new Job(place, BALANCE); lootView = new LootView(scene, loot);
     jobEvents = new JobEvents(SHOP_EVENTS.events, { signals, things, spots, say: (text, name) => { hud.announce(text, name); sfx.play('tannoy_ding'); } }, BALANCE.events);
   }
   hands = new Hands(coat, things, BALANCE);
+  hands.loot = loot; hud.results(null);
   gadgets = new Gadgets(GADGETS, { R, world, signals, things, people, sus, balance: BALANCE }); gadgets.arm(coat);
   gadgetView = new GadgetView(scene, gadgets);
   thingsView = new ThingsView(scene, things, mess);
@@ -151,6 +157,8 @@ function frame(now) {
   const move = camRig.moveToWorld(input.move);
   if (input.pressed('stack')) { coat.toggleStack(); events.push(...coat.events); }
   let grab = input.pressed('grab'), throwIt = input.pressed('throw');
+  // at the getaway gate, E ends the job (the loot is already banked when you step in)
+  if (grab && coat.atGate && job && !job.over) { job.finish('got away', loot, sus); grab = false; }
   for (let i = 0; i < steps; i++) {
     people?.step(STEP, [coat]);
     // the gadget in hand: left click fires it (unless you hold a ketchup bottle to squirt), 1 2 3 or the wheel picks
@@ -160,6 +168,8 @@ function frame(now) {
     coat.step(STEP, move, input.down('run'), aimNow, input.down('natural')); events.push(...coat.events);
     if (sus) { sus.step(STEP, people, [coat]); for (const e of hands.events) if (e.type === 'throw') sus.instant(people, coat, BALANCE.suspicion.throw); }
     closing?.step(STEP); security?.step(); gadgets.step(STEP, [coat]);
+    loot?.step(STEP, [coat]); job?.step(STEP);
+    if (closing && job && !job.over && !closing.endedJob && closing.next >= closing.sections.length) { closing.endedJob = true; job.finish('shut in', loot, sus); }
     hands.carry();
     world.step(); coat.events = []; coat.checkHits(world); events.push(...coat.events);
     things.step(STEP); signals.flush(STEP); mess.step(STEP); jobEvents?.step(STEP);
@@ -181,12 +191,18 @@ function frame(now) {
   }
   shutterView?.update(dt); hud.status(sus, closing);
   gadgetView.update(); hud.gadgets(coat, GADGETS);
+  lootView?.update(dt); hud.quota(job, loot, sus); hud.results(job?.result);
+  for (const e of loot?.take() || []) {
+    if (e.type === 'pocket' || e.type === 'carry' || e.type === 'coCarry') sfx.play('paper_flap', e.coat.walker.feet);
+    if (e.type === 'bank') sfx.play('pose_ding', e.coat.walker.feet);
+    if (e.type === 'drop') sfx.play('box_thud', { x: e.item.x, z: e.item.z });
+  }
   for (const e of gadgets.take()) {
     if (e.type === 'fire' && e.sound) sfx.play(e.sound, e.at);
     if (e.type === 'hit') sfx.play('bonk', e.at);
     if (e.type === 'trigger') sfx.play('slip_whee', e.at);
   }
-  coatView.update(dt, events); hud.update(dt, coat, events, areaNow, hands.hint()); events = [];
+  coatView.update(dt, events); hud.update(dt, coat, events, areaNow, coat.atGate && job && !job.over ? `E: get away! (${loot.bankedValue} sweets banked; this ends the job)` : hands.hint()); events = [];
   aimMark.visible = !!aimNow;
   if (aimNow) aimMark.position.set(wp.x + aimNow.x * 1.6, 0.03, wp.z + aimNow.z * 1.6);
   camRig.update(dt, wp, aimNow);
@@ -209,4 +225,4 @@ requestAnimationFrame(frame);
 addEventListener('resize', () => { renderer.setSize(innerWidth, innerHeight); camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix(); });
 globalThis.__stacked2 = { get world() { return world; }, get pg() { return pg; }, get walker() { return coat.walker; }, get coat() { return coat; }, get coatView() { return coatView; },
   get place() { return place; }, get placeView() { return placeView; }, get area() { return areaNow; }, get things() { return things; }, get hands() { return hands; }, get mess() { return mess; },
-  get jobEvents() { return jobEvents; }, get people() { return people; }, get sus() { return sus; }, get gadgets() { return gadgets; }, get closing() { return closing; }, get security() { return security; }, get peopleView() { return peopleView; }, camRig, get fade() { return fade; }, input, get aim() { return aimNow; }, get signals() { return signals; }, clock, quality, renderer, get fps() { return fps; }, bowl };
+  get jobEvents() { return jobEvents; }, get people() { return people; }, get sus() { return sus; }, get gadgets() { return gadgets; }, get loot() { return loot; }, get job() { return job; }, get closing() { return closing; }, get security() { return security; }, get peopleView() { return peopleView; }, camRig, get fade() { return fade; }, input, get aim() { return aimNow; }, get signals() { return signals; }, clock, quality, renderer, get fps() { return fps; }, bowl };
