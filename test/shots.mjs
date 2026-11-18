@@ -50,7 +50,8 @@ await tab.screenshot({ path: 'test/shots/wall_fade.png' });
 console.log('wall fade', JSON.stringify(shelf), shelf.some((s) => s.blocking && s.k < 0.4) ? 'OK' : 'FAIL');
 
 // the coat: all three heights, loose kids, and the coat lying on the floor like laundry (closer camera)
-await tab.evaluate(() => { const S = __stacked2; S.walker.body.setTranslation({ x: -7.5, y: 1.2, z: 1.5 }, true); S.camRig.offset.multiplyScalar(0.5); });
+// (the grown-ups look away for this part: a lone kid in the shop gets chased and caught, which is tested further on)
+await tab.evaluate(() => { const S = __stacked2; for (const g of S.people.list) g.effects.blinded = 1e6; S.walker.body.setTranslation({ x: -7.5, y: 1.2, z: 1.5 }, true); S.camRig.offset.multiplyScalar(0.5); });
 await tab.mouse.move(640, 600); await waitGame(1.2);
 const coatState = () => tab.evaluate(() => { const c = __stacked2.coat; return { count: c.count, speed: c.walker.speed, loose: c.loose.length, pile: !!c.pile, wobble: +c.wobble.toFixed(2), model: !!__stacked2.coatView.U }; });
 let cs = await coatState(); await tab.screenshot({ path: 'test/shots/coat_3_kids.png' });
@@ -180,7 +181,7 @@ await shop.evaluate(() => { const S = __stacked2, c = S.coat; S.sus.points = 0; 
 await go(-5.8, 6); await wait2(0.4);
 const susOf = () => shop.evaluate(() => Math.max(...__stacked2.people.byType('cashier').map((g) => g.sus.get(__stacked2.coat) ?? 0)));
 await shop.keyboard.down('ShiftLeft');
-await key('KeyS', 0.35); await key('KeyW', 0.35); await key('KeyS', 0.35);
+for (let i = 0; i < 10 && (await susOf()) < 0.3; i++) { await key('KeyS', 0.2); await key('KeyW', 0.2); }
 await shop.keyboard.up('ShiftLeft');
 const filled = await susOf(); await shot('heat_meter');
 await shop.keyboard.down('KeyQ'); await wait2(1.5); await shot('heat_act_natural'); await shop.keyboard.up('KeyQ');
