@@ -1,0 +1,23 @@
+{
+  "_about": "Timed events for the supermarket. A job plays 2 or 3 of them, the first at balance.events.firstAt seconds and then every balance.events.gap seconds. Actions: say (an announcement on the tannoy), signal (type, at = a spot name from the place's events or [x, z], points = several [x, z], range, repeat, every), spawn (thing, at = list of [x, z] or [x, y, z]). Nothing else happens on its own: grown-ups and things react to the signals.",
+  "events": [
+    {
+      "id": "freeSamples", "name": "Free samples at the bakery",
+      "say": "Free samples at the bakery! Come and get them while they last!",
+      "actions": [
+        { "spawn": "cream_cake", "at": [[12.5, 1, -5], [13.5, 1, -5], [14.5, 1, -5]] },
+        { "signal": "food",  "at": "freeSamples", "range": 45, "repeat": 6, "every": 10 },
+        { "signal": "smell", "at": "freeSamples", "range": 12, "repeat": 6, "every": 10 }
+      ]
+    },
+    {
+      "id": "cleanUp", "name": "Clean-up on aisle 4",
+      "say": "Clean-up on aisle 4. Clean-up on aisle 4.",
+      "actions": [
+        { "signal": "slippery", "points": [[-3.5, -4.6], [-3.5, -3.2], [-3.9, -1.2], [-3.2, 0.2]], "range": 1.1, "color": "#dff3ff" },
+        { "spawn": "wet_floor_sign", "at": [[-4.6, -5.6], [-2.4, -0.4]] },
+        { "spawn": "mop", "at": [[-2.6, -3.8]] }
+      ]
+    }
+  ]
+}

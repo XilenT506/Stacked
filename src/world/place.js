@@ -40,3 +40,15 @@ export function buildPlace(R, world, data) {
   const center = (id) => { const r = rectsOf(areas.find((a) => a.id === id))[0]; return [(r[0] + r[2]) / 2, (r[1] + r[3]) / 2]; };
   return { data, statics, areas, areaAt, center, slippery: data.slippery.list, bounds: data.bounds };
 }
+
+// put the place's interactive things (and its hiding spots) into the world
+export function spawnThings(place, things) {
+  const D = place.data, out = [];
+  const at = (a) => (a.length === 2 ? [a[0], 0, a[1]] : a);
+  for (const e of D.things?.list || []) {
+    const p = at(e.at), opts = { yaw: (e.yaw || 0) * Math.PI / 180, rows: e.rows };
+    out.push(things.spawn(e.thing, p, opts));
+  }
+  for (const h of D.hiding.list) if (things.defs[h.thing]) out.push(things.spawn(h.thing, [h.at[0], 0, h.at[1]], { yaw: h.yaw ? h.yaw * Math.PI / 180 : 0 }));
+  return out;
+}

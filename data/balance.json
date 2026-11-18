@@ -1,11 +1,31 @@
 {
   "_about": "Every gameplay number lives here. Speeds in m/s, times in seconds, wobble from 0 (steady) to 1 (a kid falls out).",
   "heights": {
-    "3": { "label": "A tall grown-up",  "speed": 4.2, "disguise": 1.0,   "suspicionRate": 1.0, "height": 2.2 },
-    "2": { "label": "A short grown-up", "speed": 4.8, "disguise": 0.625, "suspicionRate": 1.6, "height": 1.6 },
-    "1": { "label": "Just a kid",       "speed": 6.0, "disguise": 0,     "suspicionRate": null, "height": 0.9 }
+    "3": {
+      "label": "A tall grown-up",
+      "speed": 4.2,
+      "disguise": 1.0,
+      "suspicionRate": 1.0,
+      "height": 2.2
+    },
+    "2": {
+      "label": "A short grown-up",
+      "speed": 4.8,
+      "disguise": 0.625,
+      "suspicionRate": 1.6,
+      "height": 1.6
+    },
+    "1": {
+      "label": "Just a kid",
+      "speed": 6.0,
+      "disguise": 0,
+      "suspicionRate": null,
+      "height": 0.9
+    }
   },
-  "run": { "speedMultiplier": 1.4 },
+  "run": {
+    "speedMultiplier": 1.4
+  },
   "wobble": {
     "calmDrain": 0.35,
     "runFill": 0.22,
@@ -17,7 +37,32 @@
     "afterSpill": 0.35,
     "actNaturalDrain": 0.9
   },
-  "slippery": { "patchSeconds": 20, "grip": 0.12 },
-  "looseKid": { "seconds": 10, "speed": 2.6, "pickupRadius": 0.75, "spillSpeed": 3.5 },
-  "unstack": { "restackRadius": 1.3 }
+  "slippery": {
+    "_about": "patchSeconds null = the mess stays for the whole job",
+    "patchSeconds": null,
+    "grip": 0.12
+  },
+  "looseKid": {
+    "seconds": 10,
+    "speed": 2.6,
+    "pickupRadius": 0.75,
+    "spillSpeed": 3.5
+  },
+  "unstack": {
+    "restackRadius": 1.3
+  },
+  "things": {
+    "_about": "how things behave on the mess and in your hands",
+    "slipBoost": 1.5,
+    "slipMinSpeed": 0.6,
+    "reach": 1.4,
+    "throwSpeed": 9,
+    "throwUp": 2.5,
+    "slipKick": 4.5
+  },
+  "events": {
+    "_about": "timed events per job (seconds after the start)",
+    "firstAt": 60,
+    "gap": 75
+  }
 }

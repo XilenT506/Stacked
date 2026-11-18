@@ -2,6 +2,22 @@
 
 Newest first. One entry per build session (one prompt from the Build guide in the doc "STACKED – Game Plan").
 
+## 2026-11-18 · Prompt 6 of 16 (M1-02): The living supermarket
+
+- **20 kinds of interactive thing** in `data/interactables.json`, about 45 placed in the shop (`things` in `data/places/supermarket.json`), all six kinds: tin pyramids, cans, boxes, wet-floor signs (props); vending machine, tannoy microphone, light switch, freezer doors (machines); trolleys and the till conveyor belts (rides); big boxes, the mannequin row, a coat rack, a giant inflatable banana (hiding spots); mop and clipboard (disguises); cream cakes, ketchup bottles, melons (food). Every one has a funny use, a useful use, a grown-up reaction and a placeholder sound (`data/sounds.json`, made by the browser, no files).
+- **What you can do** (`src/systems/hands.js`): **E** picks up, drops, kicks, flips, opens, rides and hides; **right click** throws what you hold; **left click** squirts the ketchup (a slippery trail behind you); **hold Q** by the mannequins to freeze in a pose. A hint at the bottom of the screen says what E does where you stand.
+  - Vending machine: kick it and five cans shoot out down aisle 4.
+  - Tannoy: four announcements ("Free cake at the bakery!" and more); each sends a signal to where it sends the crowd.
+  - Freezer doors: open one and fog rolls out and the floor in front ices over, again every 5 seconds.
+  - Trolley: fast and wobbly; let go and it rolls on into whatever is ahead.
+  - Till belt: lie on it like shopping and it carries you through the tills.
+  - Light switch (back walkway, by the staff room): the whole shop goes dark.
+- **Nothing is scripted.** Things only send signals; the chain in aisle 4 happens by itself: one kick, cans roll out, smash the ketchup display, skid on the ketchup and bring down the 28-tin pyramid. Any moving thing that reaches a slippery patch loses its grip and shoots off (a slip), and a tin pyramid comes down with a crash as soon as one tin is knocked out of place.
+- **The mess stays** for the whole job (`src/systems/mess.js`): ketchup, cream and ice puddles in their own colours, fallen tins and cans.
+- **Two timed events** (`data/places/supermarket/events.json`, `src/systems/jobEvents.js`): "Free samples at the bakery" (at 60 s: an announcement, three cakes, and the smell and the news reach the whole shop) and "Clean-up on aisle 4" (at 135 s: wet patches, two more wet-floor signs and a mop). **T** starts the next one now. The top line counts down to the next event.
+- Tests: 38 logic tests pass (10 new): every thing has its sound and uses; the shop has every thing the plan lists; **one kick makes the chain cans → ketchup splat → slip → pyramid crash on its own** (it works whenever the kick happens); the mess stays ten minutes later; both timed events; freezer fog and ice; the tannoy reaching the far end; riding and letting go of a trolley; picking up and throwing a cake; posing, hiding in a box and riding the belt. The browser checks do the same with real keys, and High-quality screenshots show each one.
+- The melon's name in the data is now `melon` (was `ball`).
+
 ## 2026-11-18 · Prompt 5 of 16 (M1-01): The supermarket layout
 
 - **Bargain Bonanza** (`data/places/supermarket.json`, hand-made): car park, entrance with automatic doors, four tills, aisles 1 to 4 (tins, cereal, loo roll, pop), the sweet aisle (pink shelves), the freezer aisle (icy floor: you slide and wobble), the bakery with its counter and ovens, fruit and veg, a back walkway, the staff room, the storeroom with the back door, a loading yard, a service lane round the side and the getaway gate in the car park. About 44 by 46 metres; walking the whole tour takes about a minute.

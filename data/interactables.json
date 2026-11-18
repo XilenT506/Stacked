@@ -1,5 +1,5 @@
 {
-  "_about": "Every interactive thing in the game. kind = one of the six kinds from The living map. New things are a new entry here, no code. Sizes in metres, mass in kg, speeds in m/s.",
+  "_about": "Every interactive thing in the game. kind = one of the six kinds from The living map. New things are a new entry here, no code. Sizes in metres, mass in kg, speeds in m/s. verb = what the E hint says. sound = a name in data/sounds.json. splat = the colour a thing leaves on the floor when it breaks.",
   "kinds": {
     "prop":     "Physics prop: pushed, stacked, toppled, rolled.",
     "machine":  "Machine or switch: changes the room for everyone.",
@@ -13,11 +13,28 @@
       "kind": "prop", "name": "Tin of beans", "body": "dynamic",
       "shape": { "type": "cylinder", "radius": 0.11, "height": 0.24 },
       "mass": 0.4, "friction": 0.6, "bounce": 0.15, "color": "#c4553d",
-      "impact": { "minSpeed": 1.2, "cooldown": 0.25, "signals": ["crash", "noise"] },
+      "impact": { "minSpeed": 1.2, "cooldown": 0.25, "signals": ["crash", "noise"], "event": "topple" },
       "sound": "tin_clang",
       "funny": "Topple a tin pyramid onto a queue.",
       "useful": "A falling tin is a noise that pulls a guard away from the door.",
       "reaction": "Grown-ups turn round and tut."
+    },
+    "tin_pyramid": {
+      "kind": "prop", "name": "Tin pyramid", "pyramid": { "of": "tin", "rows": 4, "collapseAt": 0.03, "range": 12 },
+      "sound": "tin_clang",
+      "funny": "Bowl a melon into it and watch forty tins go everywhere.",
+      "useful": "The crash is the loudest noise in the shop: everyone runs to look.",
+      "reaction": "\"I spent all MORNING on that!\""
+    },
+    "can": {
+      "kind": "prop", "name": "Can of fizzy pop", "body": "dynamic",
+      "shape": { "type": "cylinder", "radius": 0.07, "height": 0.2 },
+      "mass": 0.35, "friction": 0.5, "bounce": 0.2, "color": "#e2694f",
+      "impact": { "minSpeed": 1.5, "cooldown": 0.3, "signals": ["noise"], "event": "clatter" },
+      "sound": "can_rattle",
+      "funny": "Cans roll out of the vending machine and under everyone's feet.",
+      "useful": "Roll a can down an aisle to make a noise far away.",
+      "reaction": "\"Who's dropping cans?\""
     },
     "box": {
       "kind": "prop", "name": "Cardboard box", "body": "dynamic",
@@ -29,18 +46,70 @@
       "useful": "Block a door or build a ramp to a high shelf.",
       "reaction": "The shelf stacker sighs and restacks them."
     },
+    "wet_floor_sign": {
+      "kind": "prop", "name": "Wet floor sign", "body": "dynamic",
+      "shape": { "type": "box", "size": [0.45, 0.65, 0.3] },
+      "mass": 1.2, "friction": 0.7, "bounce": 0.05, "color": "#f4c542",
+      "impact": { "minSpeed": 1.5, "cooldown": 0.4, "signals": ["noise"] },
+      "sound": "plastic_clack",
+      "funny": "Kick it over and it says CAUTION on its back, like a turtle.",
+      "useful": "Grown-ups walk the long way round a wet floor sign: put one in a doorway.",
+      "reaction": "\"Careful, it's... oh. It's not even wet.\""
+    },
     "light_switch": {
-      "kind": "machine", "name": "Light switch", "body": "fixed",
+      "kind": "machine", "name": "Light switch", "body": "fixed", "verb": "flip the lights",
       "shape": { "type": "box", "size": [0.12, 0.18, 0.04] },
       "color": "#fff3e2",
-      "use": { "toggles": "lights", "start": "on", "signalsWhenOff": ["dark"], "signalsWhenOn": ["noise"] },
+      "use": { "type": "toggle", "toggles": "lights", "start": "on", "signalsWhenOff": ["dark"], "signalsWhenOn": ["noise"] },
       "sound": "switch_click",
       "funny": "Lights off mid-announcement; everyone shrieks.",
       "useful": "Darkness to sneak past the tills.",
       "reaction": "\"Who turned the lights off?!\""
     },
+    "vending_machine": {
+      "kind": "machine", "name": "Vending machine", "body": "fixed", "verb": "kick the vending machine",
+      "shape": { "type": "compound", "parts": [
+        { "type": "box", "size": [1.0, 1.9, 0.8], "offset": [0, 0.95, 0] },
+        { "type": "box", "size": [0.7, 1.1, 0.04], "offset": [0, 1.15, 0.41] }
+      ] },
+      "color": "#c4553d",
+      "use": { "type": "kick", "cooldown": 4, "spawn": "can", "count": 5, "gap": 0.42, "speed": 7, "spread": 0.03, "out": [0, 0, 0.6], "signals": ["noise"], "event": "kicked" },
+      "sound": "machine_clunk",
+      "funny": "Kick it and it coughs cans at everyone like a cannon.",
+      "useful": "A pile of rolling cans in an aisle trips up anyone chasing you.",
+      "reaction": "\"Oi! Stop kicking the machine!\""
+    },
+    "tannoy": {
+      "kind": "machine", "name": "Tannoy microphone", "body": "fixed", "verb": "make an announcement",
+      "shape": { "type": "compound", "parts": [
+        { "type": "cylinder", "radius": 0.04, "height": 1.2, "offset": [0, 0.6, 0] },
+        { "type": "box", "size": [0.18, 0.25, 0.14], "offset": [0, 1.3, 0] }
+      ] },
+      "color": "#33201a",
+      "use": { "type": "tannoy", "cooldown": 6, "announcements": [
+        { "text": "Free cake at the bakery!", "signal": "food", "at": "freeSamples", "range": 45 },
+        { "text": "Would the owner of a red car please come to the car park. It's on fire. A bit.", "signal": "alarm", "at": "carpark", "range": 45 },
+        { "text": "Clean-up on aisle 1, someone has been sick in the cereal.", "signal": "smell", "at": "aisle1", "range": 45 },
+        { "text": "Security to the staff room please, security to the staff room.", "signal": "noise", "at": "staffRoom", "range": 45 }
+      ] },
+      "sound": "tannoy_ding",
+      "funny": "Announce \"Free cake at the bakery!\" and watch the stampede.",
+      "useful": "Send the whole crowd, guard included, to the other end of the shop.",
+      "reaction": "\"Who was that? That's not Brenda's voice.\""
+    },
+    "freezer_door": {
+      "kind": "machine", "name": "Freezer door", "body": "fixed", "verb": "open the freezer door",
+      "shape": { "type": "box", "size": [1.2, 1.8, 0.06] },
+      "color": "#d8f0fa",
+      "use": { "type": "toggle", "start": "off", "signalsWhenOn": ["noise"], "signalsWhenOff": ["noise"],
+               "whileOn": { "signals": ["slippery"], "every": 5, "offset": [0, 0.9], "range": 1.2, "color": "#e8f6ff", "fog": true } },
+      "sound": "freezer_whoosh",
+      "funny": "Open all the freezer doors: the aisle fills with fog and turns into an ice rink.",
+      "useful": "Fog hides you; the ice makes anyone chasing you skid past.",
+      "reaction": "\"Brrr! Who left these open?\""
+    },
     "trolley": {
-      "kind": "ride", "name": "Shopping trolley", "body": "dynamic",
+      "kind": "ride", "name": "Shopping trolley", "body": "dynamic", "verb": "ride the trolley",
       "shape": { "type": "compound", "parts": [
         { "type": "box", "size": [0.9, 0.5, 0.55], "offset": [0, 0.55, 0] },
         { "type": "ball", "radius": 0.08, "offset": [0.38, 0.08, 0.22] },
@@ -49,25 +118,73 @@
         { "type": "ball", "radius": 0.08, "offset": [-0.38, 0.08, -0.22] }
       ] },
       "mass": 12, "friction": 0.02, "rolls": true, "bounce": 0.1, "color": "#9aa7b0",
-      "ride": { "seat": [0, 0.85, 0], "topSpeed": 7, "wobble": 1.6 },
-      "impact": { "minSpeed": 2.5, "cooldown": 0.5, "signals": ["crash", "noise"] },
+      "ride": { "type": "trolley", "topSpeed": 7.5, "grip": 0.3, "wobble": 0.35, "letGoBoost": 1.2 },
+      "impact": { "minSpeed": 2.5, "cooldown": 0.5, "signals": ["crash", "noise"], "event": "trolley crash" },
       "sound": "trolley_rattle",
       "funny": "Trolley race straight through the checkout queue.",
-      "useful": "Quick getaway with heavy loot.",
+      "useful": "Quick getaway with heavy loot; let go and it keeps rolling into whatever is ahead.",
       "reaction": "\"Those are NOT for riding!\""
     },
+    "conveyor": {
+      "kind": "ride", "name": "Till conveyor belt", "body": "fixed", "verb": "lie on the belt like shopping",
+      "shape": { "type": "box", "size": [0.6, 0.06, 2.6] },
+      "color": "#2d2a33",
+      "ride": { "type": "belt", "dir": [0, 1], "speed": 1.2, "length": 2.6 },
+      "sound": "belt_hum",
+      "funny": "Ride the belt past the cashier and get scanned: BEEP. \"Er... one coat?\"",
+      "useful": "The quickest way through the tills, and nobody looks twice at shopping.",
+      "reaction": "\"Unexpected item in the bagging area.\""
+    },
     "big_box": {
-      "kind": "hide", "name": "Big delivery box", "body": "fixed",
+      "kind": "hide", "name": "Big delivery box", "body": "fixed", "verb": "hide in the box",
       "shape": { "type": "box", "size": [1.0, 1.1, 1.0] },
       "color": "#b8915c",
-      "hide": { "radius": 0.7, "drainPerSecond": 0.25 },
+      "hide": { "mode": "inside", "radius": 1.3, "drainPerSecond": 0.25 },
       "sound": "box_rustle",
       "funny": "A box that tiptoes when nobody is looking.",
       "useful": "Lose a chase and let the \"?\" meters drain.",
       "reaction": "The guard pokes it, shrugs and walks on."
     },
+    "mannequin": {
+      "kind": "hide", "name": "Mannequin", "body": "fixed", "verb": "hold Q to strike a pose",
+      "shape": { "type": "compound", "parts": [
+        { "type": "cylinder", "radius": 0.2, "height": 1.5, "offset": [0, 0.75, 0] },
+        { "type": "ball", "radius": 0.16, "offset": [0, 1.7, 0] }
+      ] },
+      "color": "#f2e6d8",
+      "hide": { "mode": "pose", "radius": 1.0, "drainPerSecond": 0.35 },
+      "sound": "pose_ding",
+      "funny": "Stand in the mannequin row and freeze in a pose while the guard inspects you.",
+      "useful": "Hidden in plain sight, as long as you don't move.",
+      "reaction": "\"Was that one there before? ...Was it holding a lolly?\""
+    },
+    "coat_rack": {
+      "kind": "hide", "name": "Coat rack", "body": "fixed", "verb": "stand still among the coats",
+      "shape": { "type": "compound", "parts": [
+        { "type": "cylinder", "radius": 0.05, "height": 1.8, "offset": [0, 0.9, 0] },
+        { "type": "box", "size": [0.9, 1.1, 0.5], "offset": [0, 1.1, 0] }
+      ] },
+      "color": "#6b4838",
+      "hide": { "mode": "stand", "radius": 1.0, "drainPerSecond": 0.3 },
+      "sound": "coat_rustle",
+      "funny": "A trench coat on a coat rack. Perfect camouflage.",
+      "useful": "Stand still here and nobody sees you.",
+      "reaction": "\"Funny, I don't remember hanging up a coat with legs.\""
+    },
+    "inflatable": {
+      "kind": "hide", "name": "Inflatable banana display", "body": "fixed", "verb": "duck behind the banana",
+      "shape": { "type": "compound", "parts": [
+        { "type": "cylinder", "radius": 0.6, "height": 2.4, "offset": [0, 1.2, 0] }
+      ] },
+      "color": "#f4d03f",
+      "hide": { "mode": "stand", "radius": 1.1, "drainPerSecond": 0.25 },
+      "sound": "squeak",
+      "funny": "Bump it and the giant banana wobbles and squeaks for ages.",
+      "useful": "Stand still behind it near the entrance and nobody sees you.",
+      "reaction": "\"I hate that banana.\""
+    },
     "mop": {
-      "kind": "disguise", "name": "Mop", "body": "dynamic",
+      "kind": "disguise", "name": "Mop", "body": "dynamic", "verb": "pick up the mop",
       "shape": { "type": "box", "size": [0.08, 1.3, 0.08] },
       "mass": 1, "friction": 0.7, "bounce": 0.05, "color": "#7fb6c4",
       "disguise": { "looksLike": "cleaner", "suspicionNearStaff": 0.5 },
@@ -77,21 +194,43 @@
       "useful": "Suspicion builds slower near staff.",
       "reaction": "\"Afternoon. Missed a bit.\""
     },
+    "clipboard": {
+      "kind": "disguise", "name": "Clipboard", "body": "dynamic", "verb": "pick up the clipboard",
+      "shape": { "type": "box", "size": [0.3, 0.02, 0.4] },
+      "mass": 0.3, "friction": 0.7, "bounce": 0.05, "color": "#d9b38c",
+      "disguise": { "looksLike": "manager", "suspicionNearStaff": 0.4 },
+      "impact": { "minSpeed": 2.5, "cooldown": 0.4, "signals": ["noise"] },
+      "sound": "paper_flap",
+      "funny": "Walk around with a clipboard nodding at things: grown-ups straighten up when you pass.",
+      "useful": "Nobody questions someone with a clipboard.",
+      "reaction": "\"Oh! Is this an inspection?\""
+    },
     "cream_cake": {
-      "kind": "food", "name": "Cream cake", "body": "dynamic",
+      "kind": "food", "name": "Cream cake", "body": "dynamic", "verb": "pick up the cake",
       "shape": { "type": "cylinder", "radius": 0.16, "height": 0.12 },
-      "mass": 0.6, "friction": 0.9, "bounce": 0, "color": "#fbe3ea",
-      "impact": { "minSpeed": 1.5, "cooldown": 1, "signals": ["food", "spill", "slippery"], "breaks": true },
+      "mass": 0.6, "friction": 0.9, "bounce": 0, "color": "#fbe3ea", "splat": "#fff1f4",
+      "impact": { "minSpeed": 1.5, "cooldown": 1, "signals": ["food", "spill", "slippery"], "breaks": true, "event": "splat", "range": 1.2 },
       "sound": "splat",
       "funny": "Custard pie to the face.",
       "useful": "The splat leaves a slippery patch behind you.",
       "reaction": "\"My good coat!\""
     },
-    "ball": {
-      "kind": "food", "name": "Melon", "body": "dynamic",
+    "ketchup": {
+      "kind": "food", "name": "Ketchup bottle", "body": "dynamic", "verb": "pick up the ketchup",
+      "shape": { "type": "cylinder", "radius": 0.07, "height": 0.26 },
+      "mass": 0.3, "friction": 0.6, "bounce": 0.05, "color": "#d1342a", "splat": "#c4231d",
+      "impact": { "minSpeed": 0.6, "cooldown": 1, "signals": ["spill", "slippery"], "breaks": true, "event": "splat", "range": 1.3 },
+      "squirt": { "every": 0.2, "uses": 30, "range": 0.55 },
+      "sound": "squelch",
+      "funny": "Squirt a ketchup trail and watch the guard moonwalk on it.",
+      "useful": "Hold it and click: a slippery ketchup trail behind you.",
+      "reaction": "\"Is that... blood? No. Ketchup. Ugh.\""
+    },
+    "melon": {
+      "kind": "food", "name": "Melon", "body": "dynamic", "verb": "pick up the melon",
       "shape": { "type": "ball", "radius": 0.14 },
       "mass": 1.5, "friction": 0.5, "bounce": 0.2, "color": "#7cb85a",
-      "impact": { "minSpeed": 3, "cooldown": 0.5, "signals": ["noise"] },
+      "impact": { "minSpeed": 3, "cooldown": 0.5, "signals": ["noise"], "event": "thump" },
       "sound": "melon_thump",
       "funny": "Bowl a melon into a tin pyramid.",
       "useful": "Rolls round corners: a noise you can send somewhere else.",

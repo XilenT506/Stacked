@@ -87,7 +87,7 @@ await shop.evaluate(() => { const S = __stacked2; S.placeView.overlay.visible = 
 await go(0, -3); await wait2(2.5);
 await shop.screenshot({ path: 'test/shots/shop_overview.png' });
 await shop.evaluate(() => { const S = __stacked2; S.placeView.overlay.visible = false; S.camRig.offset.multiplyScalar(1 / 3.4); });
-const spots = [['carpark', -14.5, 16], ['entrance', -14.5, 10.5], ['tills', -6, 10], ['aisle1', -15.5, 0], ['aisle2', -11.5, 0], ['aisle3', -7.5, 0], ['aisle4', -3.5, 0],
+const spots = [['carpark', -14.5, 16], ['entrance', -14.5, 10.5], ['tills', -6, 10], ['aisle1', -15.5, 0], ['aisle2', -11.5, 0], ['aisle3', -7.5, 0], ['aisle4', -3.5, -3.5],
   ['sweets', 0.5, 0], ['freezer', 4.5, 0], ['bakery', 13, -3.5], ['produce', 13, 4], ['staff', -6, -12.5], ['store', 5, -14.5], ['yard', 6, -20.5], ['lane', 20, 0], ['getaway', 16, 17]];
 const wrong = [];
 for (const [id, x, z] of spots) {
@@ -97,6 +97,34 @@ for (const [id, x, z] of spots) {
   await shop.screenshot({ path: `test/shots/shop_${id}.png` });
 }
 console.log('shop areas', spots.length, wrong.length ? 'FAIL ' + wrong.join(', ') : 'OK');
+
+// the living supermarket: one kick and the chain runs on its own; freezer fog; timed events; riding, posing, the belt
+const key = async (code, sec = 0.25) => { await shop.keyboard.down(code); await wait2(sec); await shop.keyboard.up(code); };
+const shot = (name) => shop.screenshot({ path: `test/shots/${name}.png` });
+const logHas = (ev) => shop.evaluate((e) => __stacked2.signals.log.some((s) => s.data?.event === e), ev);
+await shop.evaluate(() => __stacked2.camRig.offset.multiplyScalar(1.3));
+await go(-4.6, -8.4); await wait2(0.8);
+const hint = await shop.evaluate(() => __stacked2.hands.hint());
+await key('KeyE'); await go(-3.5, 4.2); await wait2(0.5); await shot('living_kick');
+await wait2(2.5); await shot('living_chain');
+const chain = { hint, kicked: await logHas('kicked'), splat: await logHas('splat'), slip: await logHas('slip'), crash: await logHas('pyramid crash') };
+console.log('chain', JSON.stringify(chain), chain.kicked && chain.splat && chain.slip && chain.crash ? 'OK' : 'FAIL');
+await go(4.95, -0.5); await wait2(0.6); await key('KeyE'); await wait2(2); await shot('living_freezer');
+const fog = await shop.evaluate(() => __stacked2.things.list.filter((t) => t.name === 'freezer_door' && t.state === 'on').length);
+console.log('freezer', fog, fog === 1 ? 'OK' : 'FAIL');
+await go(12.5, -2.6); await wait2(0.6); await key('KeyT'); await wait2(1.2); await shot('living_free_samples');
+await go(-3.5, 2.6); await wait2(0.6); await key('KeyT'); await wait2(1.2); await shot('living_clean_up');
+const fired = await shop.evaluate(() => __stacked2.jobEvents.fired.map((f) => f.id));
+console.log('events', JSON.stringify(fired), fired.length === 2 ? 'OK' : 'FAIL');
+await go(-9, 14); await wait2(0.6); await key('KeyE'); await shop.keyboard.down('KeyA'); await wait2(1.0); await shot('living_trolley'); await shop.keyboard.up('KeyA');
+const rode = await shop.evaluate(() => !!__stacked2.hands.riding); await key('KeyE');
+console.log('trolley', rode ? 'OK' : 'FAIL');
+await go(16, 2); await wait2(0.6); await shop.keyboard.down('KeyQ'); await wait2(0.6); await shot('living_pose');
+const posed = await shop.evaluate(() => __stacked2.coat.hidden?.mode); await shop.keyboard.up('KeyQ');
+console.log('pose', posed, posed === 'pose' ? 'OK' : 'FAIL');
+await go(-7.1, 6.5); await wait2(0.6); await key('KeyE'); await wait2(0.9); await shot('living_belt');
+const belt = await shop.evaluate(() => !!__stacked2.hands.belt);
+console.log('belt', belt ? 'OK' : 'FAIL');
 console.log(errors.length ? 'ERRORS ' + errors.join(' | ') : 'no errors');
 await browser.close(); server.close();
 if (errors.length) process.exit(1);

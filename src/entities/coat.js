@@ -6,22 +6,25 @@
 // hiding in it, and you go on as one fast kid) and, back at the pile, R stacks up again.
 // All numbers come from data/balance.json.
 import { Walker } from './walker.js';
+import { Mess } from '../systems/mess.js';
 
 let kidSeq = 0;
 
 export class Coat {
-  constructor(R, world, signals, balance, pos = [0, 0, 0], kids = ['sid', 'mo', 'tank']) {
+  constructor(R, world, signals, balance, pos = [0, 0, 0], kids = ['sid', 'mo', 'tank'], { mess } = {}) {
     this.B = balance; this.signals = signals;
     this.stack = kids.slice();            // bottom first: [bottom, middle, top]
     this.walker = new Walker(R, world, pos, { height: balance.heights['3'].height, speed: balance.heights['3'].speed, runMul: balance.run.speedMultiplier });
-    this.wobble = 0; this.loose = []; this.pile = null; this.patches = []; this.carryKg = 0;
+    this.wobble = 0; this.loose = []; this.pile = null; this.carryKg = 0;
+    this.mods = {};             // set by what you are doing: riding (speed, grip, wobble), hiding (frozen), a belt (forceMove)
     this.stunned = 0; this.events = [];                         // what happened this step (for sounds and tests)
     this.time = 0;
-    // slippery signals leave a slippery patch on the floor for a while
-    if (signals) signals.listen({ types: ['slippery'], everywhere: true, hear: (s) => this.patches.push({ x: s.position.x, z: s.position.z, r: Math.max(0.6, Math.min(3, s.range)), until: this.time + this.B.slippery.patchSeconds }) });
+    // slippery signals leave a patch on the floor (the shared mess of the place, or this coat's own one in tests)
+    this.ownMess = !mess; this.mess = mess ?? new Mess(signals, balance);
     this.applyHeight();
   }
 
+  get patches() { return this.mess.patches; }
   get count() { return this.stack.length; }
   get state() { return this.B.heights[String(this.count)]; }
   get position() { return this.walker.position; }
@@ -31,14 +34,13 @@ export class Coat {
   applyHeight() {
     const h = this.state;
     if (Math.abs(this.walker.height - h.height) > 1e-3) this.walker.setHeight(h.height);
-    this.walker.speed = h.speed;
+    this.walker.speed = this.mods.speed ?? h.speed;
   }
 
   onSlippery() {
     const f = this.walker.feet;
-    this.patches = this.patches.filter((p) => p.until > this.time);
     if (this.floorZones?.some((r) => f.x >= r[0] && f.x <= r[2] && f.z >= r[1] && f.z <= r[3])) return true;   // ice that is always there
-    return this.patches.some((p) => Math.hypot(p.x - f.x, p.z - f.z) <= p.r);
+    return this.mess.slipperyAt(f.x, f.z);
   }
 
   // a hit with a force (Newton-ish, 1 = a nudge, 6+ = a proper whack)
@@ -91,9 +93,13 @@ export class Coat {
 
   step(dt, move, run, face, actNatural = false) {
     this.time += dt; this.events = [];
-    const B = this.B.wobble, slip = this.onSlippery();
-    this.walker.grip = slip ? this.B.slippery.grip : 1;
+    if (this.ownMess) this.mess.step(dt);
+    const B = this.B.wobble, M = this.mods, slip = this.onSlippery();
+    this.walker.speed = M.speed ?? this.state.speed;
+    this.walker.grip = Math.min(slip ? this.B.slippery.grip : 1, M.grip ?? 1);
     if (this.stunned > 0) { this.stunned -= dt; move = { x: 0, z: 0 }; }
+    if (M.frozen) { move = { x: 0, z: 0 }; run = false; }
+    if (M.forceMove) { move = M.forceMove; run = false; }
     this.walker.step(dt, move, run, face);
     // wobble: fills with running, carrying, sharp turns and slippery floors; drains when calm
     const sp = this.walker.flatSpeed, moving = sp > 0.5;
@@ -102,6 +108,7 @@ export class Coat {
     if (this.carryKg && moving) fill += B.carryFillPerKg * this.carryKg;
     if (slip && moving) fill += B.slipperyFill;
     if (this.walker.turnRate > 4 && moving) fill += B.turnFill * this.walker.turnRate / 4;
+    if (M.wobble && moving) fill += M.wobble * sp / 4;
     const scale = this.count === 3 ? 1 : this.count === 2 ? 0.7 : 0.3;     // a shorter stack is steadier
     if (fill > 0) this.wobble += fill * scale * dt;
     else this.wobble -= (actNatural ? B.actNaturalDrain : B.calmDrain) * dt;

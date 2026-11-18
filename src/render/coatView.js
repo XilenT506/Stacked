@@ -81,6 +81,7 @@ export class CoatView {
     for (const e of events) if (e.type === 'spill' || e.type === 'restack' || e.type === 'unstack' || e.type === 'hit') this.pop = 1;
     this.pop = Math.max(0, this.pop - dt * 3);
     this.root.position.set(f.x, f.y, f.z);
+    this.root.visible = c.hidden?.mode !== 'inside';                    // climbed into a box: only the box shows
     this.root.rotation.y = w.yaw;
     const n = c.count;
     // 3 kids: the full coat; 2 kids: the same coat, squashed shorter; 1 kid: just a kid
@@ -137,6 +138,7 @@ export class CoatView {
       m.quaternion.setFromAxisAngle(new T.Vector3(dir.y, 0, -dir.x), q.th);
       m.rotateX(Math.sin(this.t * 9 + i * Math.PI) * Math.min(1, w.flatSpeed / 5) * 0.35);       // arms swing when walking
       m.rotateZ((i ? -1 : 1) * c.wobble * 0.5 * (1 + Math.sin(this.t * 10 + i)));               // flail when wobbly
+      if (c.hidden?.mode === 'pose') { m.rotateZ((i ? -1 : 1) * 1.2); m.rotateX(i ? -0.5 : 0.3); }   // a stiff mannequin pose
     });
   }
 }

@@ -72,6 +72,28 @@
     "list": [[3.2, -5, 5.8, -2], [3.2, 0.5, 5.8, 2.5]]
   },
 
+  "things": {
+    "_about": "interactive things placed in the shop: at = [x, z] on the floor or [x, y, z]; yaw in degrees (0 faces the entrance side, +z). Hiding spots from 'hiding' are placed too.",
+    "list": [
+      { "thing": "vending_machine", "at": [-3.5, -7.6], "yaw": 0 },
+      { "thing": "ketchup", "at": [-4.5, -0.6] }, { "thing": "ketchup", "at": [-4.1, -0.6] }, { "thing": "ketchup", "at": [-3.7, -0.6] }, { "thing": "ketchup", "at": [-3.3, -0.6] }, { "thing": "ketchup", "at": [-2.9, -0.6] }, { "thing": "ketchup", "at": [-2.5, -0.6] },
+      { "thing": "tin_pyramid", "at": [-3.5, 1], "yaw": 0, "rows": 7 },
+      { "thing": "tin_pyramid", "at": [14.5, 0.5], "yaw": 0 },
+      { "thing": "trolley", "at": [-17, 10], "yaw": 90 }, { "thing": "trolley", "at": [-16.2, 9], "yaw": 90 }, { "thing": "trolley", "at": [-9, 15], "yaw": 0 },
+      { "thing": "tannoy", "at": [-9.2, 10.8], "yaw": 0 },
+      { "thing": "light_switch", "at": [-11.5, 1.2, -9.82], "yaw": 0 },
+      { "thing": "freezer_door", "at": [5.95, -3.5], "yaw": -90 }, { "thing": "freezer_door", "at": [5.95, -0.5], "yaw": -90 }, { "thing": "freezer_door", "at": [5.95, 2.5], "yaw": -90 },
+      { "thing": "conveyor", "at": [-8, 0.9, 7.5], "yaw": 0 }, { "thing": "conveyor", "at": [-4, 0.9, 7.5], "yaw": 0 },
+      { "thing": "wet_floor_sign", "at": [-13.2, 5.2] }, { "thing": "wet_floor_sign", "at": [4.5, -5.6] },
+      { "thing": "mop", "at": [-6.8, -8.6] },
+      { "thing": "clipboard", "at": [-7.4, 0.8, -14] },
+      { "thing": "cream_cake", "at": [11.5, 1, -5] }, { "thing": "cream_cake", "at": [15.8, 1, -5] },
+      { "thing": "ketchup", "at": [-12, 0.9, 6.4] },
+      { "thing": "melon", "at": [10.6, 0.8, 2] }, { "thing": "melon", "at": [11.4, 0.8, 2.1] }, { "thing": "melon", "at": [11, 0.8, 5.5] }, { "thing": "melon", "at": [12.5, 4] },
+      { "thing": "box", "at": [3, -12.5] }, { "thing": "box", "at": [3.7, -12.5] }, { "thing": "box", "at": [3.35, 0.45, -12.5] }
+    ]
+  },
+
   "spawns": {
     "players": [[-15.5, 15], [-13.5, 15], [-15.5, 17], [-13.5, 17]],
     "guard": [[-12, 10.2]],
@@ -135,8 +157,9 @@
   "getaway": { "at": [16, 18.5], "radius": 2 },
 
   "events": {
-    "_about": "where the timed events happen (task 7 and later use them)",
-    "freeSamples": [13, -3], "cleanUp": [-3.5, 0], "delivery": [6, -19.5], "tannoy": [-9, 10.8]
+    "_about": "named spots: where timed events and tannoy announcements send people",
+    "freeSamples": [13, -3], "cleanUp": [-3.5, 0], "delivery": [6, -19.5], "tannoy": [-9, 10.8],
+    "carpark": [-2, 16], "aisle1": [-15.5, -1], "staffRoom": [-8, -12]
   },
 
   "map": {

@@ -16,6 +16,7 @@ export class Walker {
     this.vel = { x: 0, y: 0, z: 0 }; this.yaw = 0; this.height = height;
     this.speed = speed; this.runMul = runMul; this.grip = 1;      // grip 1 = normal floor, low = slippery
     this.turnRate = 0;                                             // how fast it is turning (rad/s), for wobble
+    this.ignore = new Set();                                       // collider handles to walk through (the trolley you are riding)
   }
 
   get position() { return this.body.translation(); }
@@ -35,7 +36,7 @@ export class Walker {
     const k = Math.min(1, ACCEL * this.grip * dt / Math.max(1, top));
     this.vel.x += (want.x - this.vel.x) * k; this.vel.z += (want.z - this.vel.z) * k;
     this.vel.y = this.grounded ? -1 : this.vel.y - GRAVITY * dt;
-    this.ctrl.computeColliderMovement(this.collider, { x: this.vel.x * dt, y: this.vel.y * dt, z: this.vel.z * dt });
+    this.ctrl.computeColliderMovement(this.collider, { x: this.vel.x * dt, y: this.vel.y * dt, z: this.vel.z * dt }, undefined, undefined, this.ignore.size ? (c) => !this.ignore.has(c.handle) : undefined);
     const m = this.ctrl.computedMovement(), p = this.position;
     this.body.setNextKinematicTranslation({ x: p.x + m.x, y: p.y + m.y, z: p.z + m.z });
     // bumping into a wall stops the speed in that direction
