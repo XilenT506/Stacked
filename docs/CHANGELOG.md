@@ -2,6 +2,20 @@
 
 Newest first. One entry per build session (one prompt from the Build guide in the doc "STACKED – Game Plan").
 
+## 2026-11-18 · Prompt 12 of 16 (M1-08): Multiplayer
+
+- **The game is now one simulation for 1 to 4 players** (`src/core/game.js`): the shop, grown-ups, things, loot, Heat, Closing Time and the cage, with every player's coat, hands and gadgets. It knows nothing about drawing or the network. The screen (`src/render/stage.js`) draws either that game or a mirror of it, so solo, couch, host and friend all look the same.
+- **Online with a join code** (ported from the old game's host-runs-the-game networking, `src/net/`): one player hosts (the **Online** box, top left: Host gives a 4-letter code); friends type the code and Join. Friends send what they press (about 30 times a second; button presses are counted so none get lost); the host runs everything and sends a **snapshot 20 times a second** (about 5 KB: coats, loose kids, grown-ups with their "?" meters, every thing, the mess, loot, gadgets in flight, shutters, the cage, Heat, the job, plus the sounds, voices and announcements since the last one). Friends' screens glide smoothly between snapshots.
+  - **The living map is synced:** every interactive thing (cans, toppled tins, trolleys, open freezer doors, the light switch), the mess (every puddle and splat), and the events (announcements, tannoy, shutters, bubbles, voices).
+  - Ways to connect: the claude.ai room on the published page, WebRTC on the old game's little server, or tabs of one browser on one computer (for trying it out and for the tests).
+  - **Joining between jobs:** a friend who joins in the first 20 seconds of a job comes straight in; later, they watch and come in at the next job (Backspace on the host starts the next job). A friend who leaves (or goes quiet for 10 seconds) is taken out.
+- **Couch, 2 to 4 on one screen:** player 1 uses keyboard and mouse or the first gamepad; **press A (or Start) on another gamepad to join**. Each player has a coloured ring and a P1–P4 tag; the **shared camera** follows the middle of everyone and pulls back as you spread out. Each gets their own coat colours (12 kids now).
+- With more than one player, getting caught uses the Lost & Found cage and friends (Spare Kids are for solo).
+- Tests: 74 logic tests pass (3 new): **host plus two clients play one job** over a link with 50 ms of lag (friend A walks to the vending machine and kicks it, friend B waits for the mess and walks out to the gate; every screen has exactly the same puddles and the tins within 30 cm); a late friend waits for the next job and a leaver is removed; **couch: two players play a job** (both pocket sweets and get out).
+- **The online check** (`npm run online`): a host and two friends in three tabs of one browser: both friends join, each steers only their own coat, the host kicks the vending machine, **all three screens show the same 5 puddles and the same toppled tins**, a friend ends the job at the gate and everyone gets the result.
+- **The couch check** (`npm run couch`): two gamepads; pad 2 joins with A, each pad walks its own player, both pocket a sweet with A, both walk into the getaway ring, player 1 ends the job.
+- The old playground page is gone from the build (its code and tests stay); the screenshot checks now start in the shop.
+
 ## 2026-11-18 · Prompt 11 of 16 (M1-07): Caught and rescue
 
 - **The Lost & Found cage** (`src/systems/rescue.js`, `lostAndFound` in `data/places/supermarket.json`): a barred cage with a gate in the staff room, with its own **guard** standing watch (he steps away now and then, and any noise draws him off to look).

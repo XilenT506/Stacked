@@ -6,7 +6,9 @@
     "build": "node build.mjs",
     "test": "node --test test/logic/*.test.mjs",
     "shots": "node build.mjs && node test/shots.mjs",
-    "legacy:build": "cd legacy && node build.mjs"
+    "legacy:build": "cd legacy && node build.mjs",
+    "online": "node build.mjs && node test/online.mjs",
+    "couch": "node build.mjs && node test/couch.mjs"
   },
   "keywords": [],
   "author": "",

@@ -85,9 +85,12 @@ const ALERT = new Set(['chase', 'shout', 'carry', 'grab']), CURIOUS = new Set(['
 export class PeopleView {
   constructor(scene, people, heights) {
     this.scene = scene; this.heights = heights; this.t = 0; this.watch = null;     // watch = the local player's coat (whose meters to show)
-    this.views = people.list.map((g) => this.make(g, heights[g.model]?.height ?? 1.8));
-    people.onAdd = (g) => this.views.push(this.make(g, (heights[g.model]?.height ?? 1.8) * (g.type.scale ?? 1)));
+    this.people = people; this.views = [];
+    this.sync();
   }
+
+  // anyone who has arrived since (extra guards, the Caretaker) gets a figure
+  sync() { if (this.views.length >= this.people.list.length) return; const have = new Set(this.views.map((v) => v.g)); for (const g of this.people.list) if (!have.has(g)) this.views.push(this.make(g, (this.heights[g.model]?.height ?? 1.8) * (g.type?.scale ?? 1))); }
 
   // a speech bubble over someone's head for a moment
   shout(g, text, sec = 2.5) {
@@ -126,7 +129,7 @@ export class PeopleView {
   }
 
   update(dt) {
-    this.t += dt;
+    this.t += dt; this.sync();
     for (const v of this.views) {
       const g = v.g, f = g.feet, w = g.walker, st = g.state;
       v.root.position.set(f.x, f.y, f.z); v.root.rotation.y = w.yaw;

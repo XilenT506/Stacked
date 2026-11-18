@@ -50,7 +50,7 @@ export class Gadgets {
     this.events.push({ type: 'fire', gadget: id, coat, power, sound: d.sound, at: { ...f } });
     if (d.mode === 'place') {
       const it = d.item, p = { x: f.x + dir.x * (it.ahead ?? 0.8), z: f.z + dir.z * (it.ahead ?? 0.8) };
-      this.items.push({ id, def: d, x: p.x, z: p.z, arm: it.arm ?? 0.5, uses: it.uses ?? 1, owner: coat });
+      this.items.push({ n: (this.itemSeq = (this.itemSeq ?? 0) + 1), id, def: d, x: p.x, z: p.z, arm: it.arm ?? 0.5, uses: it.uses ?? 1, owner: coat });
       this.send(d.onPlace, p, id);
       return;
     }

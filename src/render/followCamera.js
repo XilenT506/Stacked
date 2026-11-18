@@ -30,12 +30,14 @@ export class FollowCamera {
     return { x: dx / d, z: dz / d, reach: Math.min(1, d / 6) };
   }
 
-  update(dt, player, aim) {
+  // zoom > 1 pulls back (a shared couch camera keeping everyone on screen)
+  update(dt, player, aim, zoom = 1) {
+    this.zoom = (this.zoom ?? 1) + (zoom - (this.zoom ?? 1)) * Math.min(1, dt * 3);
     const ahead = aim ? this.o.lookAhead * (aim.reach ?? 1) : 0;
     const want = new T.Vector3(player.x + (aim ? aim.x * ahead : 0), 0.8, player.z + (aim ? aim.z * ahead : 0));
     if (!this.started) { this.focus.copy(want); this.started = true; }
     this.focus.lerp(want, Math.min(1, dt * this.o.follow));
-    this.cam.position.copy(this.focus).add(this.offset);
+    this.cam.position.copy(this.focus).addScaledVector(this.offset, this.zoom);
     this.cam.lookAt(this.focus);
   }
 }

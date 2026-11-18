@@ -4,7 +4,8 @@ import * as T from 'three';
 import { bubble } from './peopleView.js';
 import { loadHero, bendUniforms, bendMaterial, bendPoint, HERO_S, HEAD_Y } from './heroModel.js';
 
-export const KID_COLORS = { sid: 0xe2694f, mo: 0x4f9fc9, tank: 0x7fbf5f, pip: 0xe0a83a, spare1: 0xc9a8d8, spare2: 0x8e5bc4 };
+export const KID_COLORS = { sid: 0xe2694f, mo: 0x4f9fc9, tank: 0x7fbf5f, pip: 0xe0a83a, kit: 0xd94f8a, bo: 0x4fc9b8, ziggy: 0xf4c542, nell: 0x8a6fd1, ash: 0x9aa7b0, dot: 0xe07a3a, rex: 0x3f8a3a, flo: 0xff8fb0, spare1: 0xc9a8d8, spare2: 0x8e5bc4 };
+export const PLAYER_COLORS = [0xe2694f, 0x4f9fc9, 0xf4c542, 0x7fbf5f];
 const COAT = 0x6b4838, SKIN = 0xf0c8a0;
 const ease = (dt, r) => 1 - Math.exp(-dt * r);
 const lam = (c) => new T.MeshStandardMaterial({ color: c, roughness: 0.8 });
@@ -49,6 +50,21 @@ export class CoatView {
     loadHero().then((p) => this.useHero(p), (e) => console.warn('coat model did not load', e));
   }
 
+  // which player this is, as a coloured ring and a tag (only when more than one is playing)
+  setTag(n, show) {
+    if (!this.tag) {
+      const c = document.createElement('canvas'); c.width = c.height = 64; const g = c.getContext('2d');
+      g.fillStyle = '#' + PLAYER_COLORS[n % 4].toString(16).padStart(6, '0'); g.beginPath(); g.arc(32, 32, 28, 0, Math.PI * 2); g.fill();
+      g.fillStyle = '#fff'; g.font = 'bold 34px "Trebuchet MS", sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText('P' + (n + 1), 32, 35);
+      const tex = new T.CanvasTexture(c); tex.colorSpace = T.SRGBColorSpace;
+      this.tag = new T.Sprite(new T.SpriteMaterial({ map: tex, depthTest: false })); this.tag.scale.setScalar(0.45); this.tag.renderOrder = 12; this.root.add(this.tag);
+      this.ring = new T.Mesh(new T.RingGeometry(0.5, 0.6, 32), new T.MeshBasicMaterial({ color: PLAYER_COLORS[n % 4], transparent: true, opacity: 0.8 })); this.ring.rotation.x = -Math.PI / 2; this.ring.position.y = 0.03; this.root.add(this.ring);
+    }
+    this.tag.visible = this.ring.visible = show;
+  }
+
+  remove() { this.scene.remove(this.root); this.scene.remove(this.pileG); for (const m of this.looseG.values()) this.scene.remove(m); this.looseG.clear(); }
+
   useHero(p) {
     this.coatG.remove(this.stand);
     this.U = bendUniforms(p.shoulder);
@@ -84,6 +100,7 @@ export class CoatView {
       this.natBubble.position.set(0, c.state.height + 0.9, 0); this.root.add(this.natBubble);
     } else if (!c.actingNatural && this.natBubble) { this.root.remove(this.natBubble); this.natBubble = null; }
     if (this.natBubble) this.natBubble.position.y = c.state.height + 0.9;
+    if (this.tag) this.tag.position.y = c.state.height + 0.55;
     this.t += dt;
     for (const e of events) if (e.type === 'spill' || e.type === 'restack' || e.type === 'unstack' || e.type === 'hit') this.pop = 1;
     this.pop = Math.max(0, this.pop - dt * 3);

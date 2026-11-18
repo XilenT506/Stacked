@@ -14,13 +14,11 @@ const tab = await browser.newPage({ viewport: { width: 1280, height: 720 }, devi
 const errors = [];
 tab.on('pageerror', (e) => { errors.push(String(e)); console.log('PAGE ERROR', String(e)); });
 tab.on('console', (m) => { if (m.type() === 'error') errors.push(m.text()); });
-await tab.goto('http://localhost:8481/?q=high&place=playground');
+await tab.goto('http://localhost:8481/?q=high');
 const at = async (t, name) => { await tab.waitForFunction((x) => globalThis.__stacked2?.clock.time > x, t, { timeout: 120000 }); await tab.screenshot({ path: `test/shots/${name}.png` }); };
-await at(0.5, 'playground_start');
-await at(3.2, 'playground_crash');
-await at(7, 'playground_after');
-const state = await tab.evaluate(() => ({ fps: __stacked2.fps, trolleyX: +__stacked2.pg.trolley.position.x.toFixed(2), signals: __stacked2.signals.sent, shadows: __stacked2.renderer.shadowMap.enabled, quality: __stacked2.quality }));
-console.log('playground', JSON.stringify(state));
+await at(1, 'start');
+const state = await tab.evaluate(() => ({ fps: __stacked2.fps, shadows: __stacked2.renderer.shadowMap.enabled, quality: __stacked2.quality, mode: __stacked2.mode, players: __stacked2.game.players.length }));
+console.log('start', JSON.stringify(state), state.mode === 'solo' && state.players === 1 ? 'OK' : 'FAIL');
 
 // controls: keyboard walk and mouse aim
 const pos = () => tab.evaluate(() => { const p = __stacked2.walker.position; return { x: +p.x.toFixed(2), z: +p.z.toFixed(2) }; });
@@ -44,15 +42,15 @@ const p3 = await pos(), padState = await tab.evaluate(() => ({ device: __stacked
 await tab.screenshot({ path: 'test/shots/controls_gamepad.png' });
 console.log('gamepad', JSON.stringify({ from: p2, to: p3, ...padState }), p3.x < p2.x - 1.5 && padState.device === 'pad' && padState.aim?.z > 0.9 ? 'OK' : 'FAIL');
 
-// wall fade: stand behind the shelf unit (between it and the back wall), seen from the camera side
-await tab.evaluate(() => { __pad.axes = [0, 0, 0, 0]; __stacked2.walker.body.setTranslation({ x: -2.6, y: 0.9, z: 1.7 }, true); });
+// wall fade: stand just behind the end of a shelf row, seen from the camera side
+await tab.evaluate(() => { __pad.axes = [0, 0, 0, 0]; __stacked2.walker.body.setTranslation({ x: -13.5, y: 1.2, z: -6.9 }, true); });
 await waitGame(0.6);
 const shelf = await tab.evaluate(() => __stacked2.fade.items.map((i) => ({ blocking: i.blocking, k: +i.k.toFixed(2) })));
 await tab.screenshot({ path: 'test/shots/wall_fade.png' });
 console.log('wall fade', JSON.stringify(shelf), shelf.some((s) => s.blocking && s.k < 0.4) ? 'OK' : 'FAIL');
 
 // the coat: all three heights, loose kids, and the coat lying on the floor like laundry (closer camera)
-await tab.evaluate(() => { const S = __stacked2; S.walker.body.setTranslation({ x: 1, y: 1.2, z: 3.5 }, true); S.camRig.offset.multiplyScalar(0.5); });
+await tab.evaluate(() => { const S = __stacked2; S.walker.body.setTranslation({ x: -7.5, y: 1.2, z: 1.5 }, true); S.camRig.offset.multiplyScalar(0.5); });
 await tab.mouse.move(640, 600); await waitGame(1.2);
 const coatState = () => tab.evaluate(() => { const c = __stacked2.coat; return { count: c.count, speed: c.walker.speed, loose: c.loose.length, pile: !!c.pile, wobble: +c.wobble.toFixed(2), model: !!__stacked2.coatView.U }; });
 let cs = await coatState(); await tab.screenshot({ path: 'test/shots/coat_3_kids.png' });

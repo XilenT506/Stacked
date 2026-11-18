@@ -33,3 +33,10 @@ export class Bot {
 
   next(what) { this.log.push(`${this.i}: ${what}`); this.i++; this.path = null; }
 }
+
+// turn a bot's output into a Game input (presses are counters that only go up)
+export function botInput(out, counters) {
+  if (out.grab) counters.grab = (counters.grab ?? 0) + 1;
+  if (out.select !== undefined && out.select !== null && !counters._sel) { const k = 'slot' + (out.select + 1); counters[k] = (counters[k] ?? 0) + 1; counters._sel = true; }
+  return { move: out.move, aim: out.aim ?? null, run: false, use: !!out.fire, natural: !!out.natural, presses: { ...counters } };
+}

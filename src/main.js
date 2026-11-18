@@ -1,48 +1,24 @@
-// STACKED, new build. M1-04: disguise, suspicion and Heat, Closing Time and the Caretaker, with grown-ups (src/ai/) in the living supermarket. The shop (data/places/supermarket.json) is full of
-// interactive things (data/interactables.json) that talk to each other through signals; timed events
-// (data/places/supermarket/events.json) shake things up, and the mess stays for the whole job.
-// ?place=playground opens the old physics playground instead.
-// Keys: WASD walk, mouse aim, Shift run, E grab/use/ride/hide, right click throw, left click squirt,
-// Q act natural (hold by the mannequins to pose), R unstack/restack, O planning overlay.
-// Test keys: T next timed event, Space bowls a melon, J slippery puddle, K whack the coat, V signal rings, Backspace reset.
+// STACKED, new build. M1-08: 1 to 4 players. Solo, couch (up to 4 on one screen with gamepads: press A on
+// a pad to join), or online with a join code (one player hosts and runs the game, friends send what they
+// press and get snapshots 20 times a second). The job itself lives in src/core/game.js; the screen in
+// src/render/stage.js. Page options: ?host=CODE, ?join=CODE, ?net=local (tabs of one browser), ?q=low|high.
+// Keys: WASD walk, mouse aim, Shift run, left click gadget (1 2 3 pick), E grab/use, right click throw,
+// Q act natural, R unstack. Test keys (solo/host): T next event, H Heat+1, C Closing Time, Space melon,
+// J puddle, K whack, O plan overlay, Backspace new job.
 import * as T from 'three';
 import { Clock, STEP } from './core/clock.js';
 import { initPhysics, makeWorld } from './physics/world.js';
-import { Signals } from './systems/signals.js';
-import { Mess } from './systems/mess.js';
-import { JobEvents } from './systems/jobEvents.js';
-import { Hands } from './systems/hands.js';
-import { Things } from './world/interact/loader.js';
-import { buildPlayground } from './world/playground.js';
-import { buildPlace, spawnThings } from './world/place.js';
-import { PlaceView } from './render/placeView.js';
-import { ThingsView } from './render/thingsView.js';
-import { staticMesh } from './render/meshes.js';
-import { SignalRings } from './render/signalRings.js';
+import { buildPlace } from './world/place.js';
 import { Input } from './core/input.js';
-import { Coat } from './entities/coat.js';
-import { CoatView } from './render/coatView.js';
+import { Game } from './core/game.js';
+import { Mirror } from './net/snapshot.js';
+import { HostSession, ClientSession } from './net/session.js';
+import { findOnline, makeCode } from './net/links.js';
+import { Stage } from './render/stage.js';
 import { CoatHud } from './ui/coatHud.js';
 import { FollowCamera } from './render/followCamera.js';
-import { WallFade } from './render/wallFade.js';
 import { Sfx } from './audio/sfx.js';
 import { Voices } from './audio/voices.js';
-import { People } from './ai/people.js';
-import { PeopleView } from './render/peopleView.js';
-import GROWNUPS from '../data/grownups.json';
-import { Suspicion } from './systems/suspicion.js';
-import { ClosingTime } from './systems/closingTime.js';
-import { Security } from './systems/security.js';
-import { ShutterView } from './render/shutterView.js';
-import { Gadgets } from './systems/gadgets.js';
-import { GadgetView } from './render/gadgetView.js';
-import GADGETS from '../data/gadgets.json';
-import { Loot } from './systems/loot.js';
-import { Job } from './systems/job.js';
-import { LootView } from './render/lootView.js';
-import LOOT from '../data/loot.json';
-import { Rescue } from './systems/rescue.js';
-import { CageView } from './render/cageView.js';
 import SUPERMARKET from '../data/places/supermarket.json';
 import SHOP_EVENTS from '../data/places/supermarket/events.json';
 import THINGS from '../data/interactables.json';
@@ -50,10 +26,14 @@ import CONTROLS from '../data/controls.json';
 import SIGNALS from '../data/signals.json';
 import BALANCE from '../data/balance.json';
 import SOUNDS from '../data/sounds.json';
+import GROWNUPS from '../data/grownups.json';
+import GADGETS from '../data/gadgets.json';
+import LOOT from '../data/loot.json';
 
+const DATA = { place: SUPERMARKET, events: SHOP_EVENTS, things: THINGS, signals: SIGNALS, balance: BALANCE, grownups: GROWNUPS, gadgets: GADGETS, loot: LOOT };
 const params = new URLSearchParams(location.search);
 const quality = params.get('q') || 'high';                       // chosen, never switched behind the player's back
-const placeName = params.get('place') || 'supermarket';
+const PRESS = ['grab', 'throw', 'stack', 'slot1', 'slot2', 'slot3', 'switch'];
 
 const renderer = new T.WebGLRenderer({ antialias: quality !== 'low' });
 renderer.setPixelRatio(Math.min(devicePixelRatio, quality === 'high' ? 2 : 1));
@@ -61,180 +41,138 @@ renderer.setSize(innerWidth, innerHeight);
 renderer.shadowMap.enabled = quality !== 'low';
 renderer.shadowMap.type = T.PCFSoftShadowMap;
 document.body.appendChild(renderer.domElement);
-
 const camera = new T.PerspectiveCamera(42, innerWidth / innerHeight, 0.1, 200);
 const camRig = new FollowCamera(camera);
-const input = new Input(CONTROLS).attach();
-const sfx = new Sfx(SOUNDS.sounds), voices = new Voices();
-const hud = new CoatHud();
+const sfx = new Sfx(SOUNDS.sounds), voices = new Voices(), hud = new CoatHud();
 
 const R = await initPhysics();
-let rescue = null, cageView = null, loot = null, job = null, lootView = null, gadgets = null, gadgetView = null, people = null, peopleView = null, sus = null, closing = null, security = null, shutterView = null, scene, world, place, placeView, areaNow = null, signals, mess, things, thingsView, jobEvents, hands, pg, rings, lights, coat, coatView, fade, aimMark, aimNow = null, events = [];
+const place = buildPlace(R, makeWorld(R), SUPERMARKET);          // for drawing the shop (the game has its own)
+const stage = new Stage({ place, data: DATA, hud, sfx, voices });
 
-function reset() {
-  scene = new T.Scene(); scene.background = new T.Color(0xfff3e2);
-  const hemi = new T.HemisphereLight(0xfde9dc, 0xd9906a, 1.2), sun = new T.DirectionalLight(0xffe2b8, 2.2);
-  sun.position.set(-6, 12, 6); sun.castShadow = true; sun.shadow.mapSize.set(2048, 2048);
-  Object.assign(sun.shadow.camera, { left: -14, right: 14, top: 14, bottom: -14 });
-  scene.add(hemi, sun, sun.target); lights = { hemi, sun };
-  world = makeWorld(R); signals = new Signals(SIGNALS.types); mess = new Mess(signals, BALANCE);
-  const spots = placeName === 'playground' ? {} : SUPERMARKET.events;
-  things = new Things(R, world, signals, THINGS, { mess, spots, balance: BALANCE });
-  things.onSound = (name, p) => sfx.play(name, p);
-  things.announce = (text) => hud.announce(text);
-  fade = new WallFade();
-  if (placeName === 'playground') {
-    pg = buildPlayground(R, world, things); place = null; placeView = null; jobEvents = null; people = null; peopleView = null; sus = closing = security = shutterView = loot = job = lootView = rescue = cageView = null;
-    for (const s of pg.statics) { const m = staticMesh(s); scene.add(m); if (s.fade) fade.add(m); }
-    coat = new Coat(R, world, signals, BALANCE, [0, 0, 4], undefined, { mess });
-    coat.bounds = { x0: -7.5, x1: 7.5, z0: -5.5, z1: 5.5 };         // loose kids stay inside the room
-  } else {
-    pg = null; place = buildPlace(R, world, SUPERMARKET); placeView = new PlaceView(scene, place, fade);
-    spawnThings(place, things);
-    const D = place.data, [sx, sz] = D.spawns.players[0];
-    coat = new Coat(R, world, signals, BALANCE, [sx, 0, sz], undefined, { mess });
-    coat.floorZones = place.slippery;
-    coat.bounds = { x0: D.bounds[0] + 1, z0: D.bounds[1] + 1, x1: D.bounds[2] - 1, z1: D.bounds[3] - 1 };
-    people = new People(R, world, place, GROWNUPS, { signals, mess, things: things.list });
-    peopleView = new PeopleView(scene, people, GROWNUPS.models);
-    sus = new Suspicion(BALANCE); closing = new ClosingTime(R, world, place, BALANCE, { nav: people.nav });
-    security = new Security({ people, closing, suspicion: sus, place, balance: BALANCE });
-    shutterView = new ShutterView(scene, closing, fade);
-    rescue = new Rescue({ R, world, place, people, balance: BALANCE, solo: true, suspicion: sus }); cageView = new CageView(scene, rescue);
-    loot = new Loot(place, LOOT, BALANCE); job = new Job(place, BALANCE); lootView = new LootView(scene, loot);
-    jobEvents = new JobEvents(SHOP_EVENTS.events, { signals, things, spots, say: (text, name) => { hud.announce(text, name); sfx.play('tannoy_ding'); } }, BALANCE.events);
+// ---- who plays on this screen: player 1 on keyboard + mouse (or the first pad); more pads join with A ----
+const keyboard = new Input(CONTROLS, 0).attach();
+const locals = [{ id: 'p1', input: keyboard, pad: 0, counters: {} }];
+let mode = 'solo', game = null, mirror = null, host = null, client = null, roomCode = '';
+
+function startLocal() { game = new Game(R, DATA); for (const l of locals) game.addPlayer(l.id); stage.build(game); }
+startLocal();
+
+// couch: a pad nobody uses yet joins when its A or Start button is pressed
+function checkPads() {
+  if (mode === 'client') return;
+  const pads = navigator.getGamepads?.() || [];
+  for (let i = 1; i < Math.min(4, pads.length); i++) {
+    const p = pads[i]; if (!p || locals.some((l) => l.pad === i)) continue;
+    if (p.buttons?.[0]?.pressed || p.buttons?.[9]?.pressed) {
+      const id = 'p' + (locals.length + 1), input = new Input(CONTROLS, i); input.readPads = () => (navigator.getGamepads?.() || [])[i] || null;
+      locals.push({ id, input, pad: i, counters: {} });
+      const r = game.addPlayer(id);
+      hud.announce(r === 'playing' ? `Player ${locals.length} is in!` : `Player ${locals.length} joins at the next job.`, 'Couch');
+    }
   }
-  hands = new Hands(coat, things, BALANCE);
-  hands.loot = loot; hands.rescue = rescue; hud.results(null);
-  gadgets = new Gadgets(GADGETS, { R, world, signals, things, people, sus, balance: BALANCE }); gadgets.arm(coat);
-  gadgetView = new GadgetView(scene, gadgets);
-  thingsView = new ThingsView(scene, things, mess);
-  coatView = new CoatView(scene, coat, BALANCE.suspicion.actNaturalLines);
-  if (peopleView) peopleView.watch = coat;
-  aimMark = new T.Mesh(new T.RingGeometry(0.18, 0.26, 24), new T.MeshBasicMaterial({ color: 0xc4553d, transparent: true, opacity: 0.8 }));
-  aimMark.rotation.x = -Math.PI / 2; scene.add(aimMark);
-  rings = new SignalRings(scene);
-  signals.onDeliver = (s) => rings.add(s);
 }
-reset();
 
-function bowl() {
-  const p = place ? coat.position : { x: -1, z: 0 }, a = place ? (aimNow || { x: 0, z: -1 }) : { x: 1, z: 0 }, off = place ? 1 : 0;
-  const m = things.spawn('melon', [p.x + a.x * off, 0.3, p.z + a.z * off + (place ? 0 : (Math.random() - 0.5) * 0.4)]);
-  m.body.setLinvel({ x: 7 * a.x, y: 0, z: 7 * a.z }, true);
+// one local player's input for the game (presses are counters, so none get lost on the way)
+function readInput(l, coat) {
+  const inp = l.input; inp.update();
+  const pos = coat ? coat.walker.position : { x: 0, z: 0 };
+  const aim = l === locals[0] ? camRig.aimToWorld(inp.aim, pos, innerWidth, innerHeight) : (inp.aim?.mode === 'stick' ? camRig.aimToWorld(inp.aim, pos) : null);
+  for (const n of PRESS) if (inp.pressed(n)) l.counters[n] = (l.counters[n] ?? 0) + 1;
+  return { move: camRig.moveToWorld(inp.move), aim, run: inp.down('run'), use: inp.down('use'), natural: inp.down('natural'), presses: { ...l.counters } };
 }
-// a slippery puddle where you aim (stands in for spilled cream, oil, a banana skin)
-function spillAt() {
-  const p = coat.position, a = aimNow || { x: 0, z: 1 };
-  signals.emit({ type: 'slippery', position: { x: p.x + a.x * 2, y: 0, z: p.z + a.z * 2 }, range: 1.4 });
+
+// ---- online: host or join ----
+const net = document.getElementById('net'), netStatus = (t, bad = false) => { net.querySelector('.status').textContent = t; net.querySelector('.status').style.color = bad ? '#c4553d' : ''; };
+let online = null;
+findOnline(params.get('net')).then((o) => { online = o; net.querySelector('.kind').textContent = o ? `(${o.kind === 'room' ? 'claude.ai room' : o.kind === 'webrtc' ? 'internet' : 'this computer only'})` : '(not available here)'; });
+async function hostGame(code = makeCode()) {
+  online ??= await findOnline(params.get('net')); if (!online) return netStatus('Online play is not available here.', true);
+  const link = online.make(); netStatus('Opening a room...');
+  try { await link.host(code); } catch (e) { return netStatus(e.message, true); }
+  mode = 'host'; roomCode = code; host = new HostSession(game, link);
+  netStatus(`Hosting. Room code: ${code}. Friends open this page and join with it.`); net.classList.add('on');
 }
+async function joinGame(code) {
+  online ??= await findOnline(params.get('net')); if (!online) return netStatus('Online play is not available here.', true);
+  code = code.toUpperCase().trim(); const link = online.make(); netStatus('Joining...');
+  try { await link.join(code); } catch (e) { return netStatus(e.message, true); }
+  mode = 'client'; roomCode = code; game = null; locals.length = 1;
+  mirror = new Mirror(DATA); client = new ClientSession(mirror, link); stage.build(mirror);
+  netStatus(`In room ${code}. Waiting for the host...`); net.classList.add('on');
+}
+net.querySelector('.host').onclick = () => hostGame();
+net.querySelector('.join').onclick = () => joinGame(net.querySelector('input').value);
+if (params.get('host')) hostGame(params.get('host').toUpperCase());
+if (params.get('join')) joinGame(params.get('join'));
+
+// ---- test keys (solo and host only) ----
 addEventListener('keydown', (e) => {
-  if (e.code === 'Space') bowl();
-  if (e.code === 'KeyJ') spillAt();
-  if (e.code === 'KeyK') coat.hit(8);
-  if (e.code === 'KeyT' && jobEvents?.upcoming) jobEvents.fire(jobEvents.upcoming.id);
-  if (e.code === 'KeyH' && sus) sus.addHeat(1, 'test key');
-  if (e.code === 'KeyC' && closing) closing.start();
-  if (e.code === 'Backspace') reset();
-  if (e.code === 'KeyV') rings.on = !rings.on;
-  if (e.code === 'KeyO' && placeView) placeView.overlay.visible = !placeView.overlay.visible;
-  if (e.code === 'KeyL' && pg) things.use(pg.lightSwitch);
+  if (!game || e.target.tagName === 'INPUT') return;
+  const k = { Space: 'melon', KeyJ: 'puddle', KeyK: 'whack', KeyT: 'event', KeyH: 'heat', KeyC: 'closing' }[e.code];
+  if (k) game.test(k, 'p1');
+  if (e.code === 'Backspace') { game.reset(); }
+  if (e.code === 'KeyO') stage.placeView.overlay.visible = !stage.placeView.overlay.visible;
 });
 
-// the lights follow every light switch in the place: one off and it is dark
-function updateLights(dt) {
-  const off = things.list.some((t) => t.def.use?.toggles === 'lights' && t.state === 'off');
-  const k = off ? 0.12 : 1;
-  lights.sun.intensity += (2.2 * k - lights.sun.intensity) * Math.min(1, dt * 6);
-  lights.hemi.intensity += (1.2 * Math.max(k, 0.2) - lights.hemi.intensity) * Math.min(1, dt * 6);
-}
-
 const clock = new Clock();
-let last = performance.now(), fpsT = 0, frames = 0, fps = 0;
+let lastAim = null, last = performance.now(), fpsT = 0, frames = 0, fps = 0, areaNow = null;
 function frame(now) {
-  const dt = (now - last) / 1000; last = now;
-  const steps = clock.advance(dt);
-  input.update();
-  const wp = coat.position;
-  aimNow = camRig.aimToWorld(input.aim, wp, innerWidth, innerHeight);
-  const move = camRig.moveToWorld(input.move);
-  if (input.pressed('stack')) { coat.toggleStack(); events.push(...coat.events); }
-  let grab = input.pressed('grab'), throwIt = input.pressed('throw');
-  // at the getaway gate, E ends the job (the loot is already banked when you step in)
-  if (grab && coat.atGate && job && !job.over) { job.finish('got away', loot, sus); grab = false; }
-  for (let i = 0; i < steps; i++) {
-    rescue?.step([coat]);
-    people?.step(STEP, [coat]);
-    // the gadget in hand: left click fires it (unless you hold a ketchup bottle to squirt), 1 2 3 or the wheel picks
-    const sel = input.pressed('slot1') ? 0 : input.pressed('slot2') ? 1 : input.pressed('slot3') ? 2 : null;
-    gadgets.use(coat, STEP, { fire: input.down('use') && !hands.held?.def.squirt && !hands.held, select: i === 0 ? sel : null, cycle: i === 0 && input.pressed('switch') ? 1 : 0, aim: aimNow });
-    hands.step(STEP, { grab, throwIt, use: input.down('use'), natural: input.down('natural'), aim: aimNow }); grab = throwIt = false;
-    coat.step(STEP, move, input.down('run'), aimNow, input.down('natural')); events.push(...coat.events);
-    if (sus) { sus.step(STEP, people, [coat]); for (const e of hands.events) if (e.type === 'throw') sus.instant(people, coat, BALANCE.suspicion.throw); }
-    closing?.step(STEP); security?.step(); gadgets.step(STEP, [coat]);
-    loot?.step(STEP, [coat]); job?.step(STEP);
-    if (closing && job && !job.over && !closing.endedJob && closing.next >= closing.sections.length) { closing.endedJob = true; job.finish('shut in', loot, sus); }
-    hands.carry();
-    world.step(); coat.events = []; coat.checkHits(world); events.push(...coat.events);
-    things.step(STEP); signals.flush(STEP); mess.step(STEP); jobEvents?.step(STEP);
+  const dt = Math.min(0.25, (now - last) / 1000); last = now;
+  const model = game ?? mirror;
+  const myId = mode === 'client' ? client.id : 'p1';
+  checkPads();
+  const coatOf = (id) => model.coats.find((c) => c.pid === id);
+  const inputs = locals.map((l) => ({ l, I: readInput(l, coatOf(mode === 'client' ? myId : l.id)) }));
+  lastAim = inputs[0].I.aim;
+  let events = [];
+  if (game) {
+    const steps = clock.advance(dt);
+    for (let i = 0; i < steps; i++) { for (const { l, I } of inputs) game.setInput(l.id, I); game.step(STEP); }
+    events = game.take();
+    if (host) { host.share(events); host.tick(dt); }
+  } else {
+    client.send(inputs[0].I); client.tick(dt); mirror.update(dt); events = client.take();
+    if (mirror.got && mirror.order) netStatus(mirror.coatMap.has(myId) ? `In room ${roomCode}: ${mirror.coats.length} playing.` : `In room ${roomCode}: you join at the next job (${mirror.coats.length} playing).`);
+    if (client.hostGone) netStatus('The host left the game.', true);
   }
-  thingsView.update(dt); peopleView?.update(dt);
-  for (const e of people?.take() || []) {
-    if (e.type === 'say' && e.clip) voices.say(e.who.id, e.clip, e.who.feet);
-    if (e.type === 'slip') sfx.play('slip_whee', e.who.feet);
+  // the camera: one coat, or everyone on this screen (pulled back to keep them all in)
+  const mine = (mode === 'client' ? [coatOf(myId)] : locals.map((l) => coatOf(l.id))).filter(Boolean);
+  const watch = mine[0] ?? model.coats[0];
+  const pts = mine.length ? mine.map((c) => c.walker.feet) : model.coats.map((c) => c.walker.feet);
+  const focus = pts.length ? { x: pts.reduce((a, p) => a + p.x, 0) / pts.length, z: pts.reduce((a, p) => a + p.z, 0) / pts.length } : { x: -14, z: 14 };
+  const spread = pts.reduce((m, p) => Math.max(m, Math.hypot(p.x - focus.x, p.z - focus.z)), 0);
+  camRig.update(dt, focus, mine.length === 1 ? inputs[0].I.aim : null, Math.min(2.2, 1 + Math.max(0, spread - 3) / 9));
+  stage.update(dt, { watch, focus, camera, events, aims: inputs.map(({ l, I }) => ({ aim: I.aim, at: coatOf(mode === 'client' ? myId : l.id)?.walker.feet ?? focus })) });
+  // the HUD shows player 1 of this screen
+  if (watch) {
+    areaNow = place.areaAt(watch.walker.feet.x, watch.walker.feet.z);
+    hud.update(dt, watch, [], areaNow, game ? game.hint(watch.pid) : watch.hint ?? '');
+    hud.gadgets(watch, GADGETS);
   }
-  for (const e of sus?.take() || []) {
-    if (e.type === 'bust') peopleView.shout(e.who, "THAT'S NOT A GROWN-UP!");
-    if (e.type === 'heat') hud.announce(['', 'People are starting to stare.', 'Security has been called!', 'PANIC! The front doors are locked!'][e.level], `Heat ${e.level}: ${BALANCE.heat.names[e.level]}`);
-  }
-  for (const e of security?.take() || []) {
-    if (e.type === 'caretaker') { hud.announce(e.why === 'closing' ? 'The Caretaker is doing his rounds. Get out!' : 'Someone has called the Caretaker!', 'Uh oh'); peopleView.shout(security.caretaker, 'Right. Who\'s still in here?', 3); }
-    if (e.type === 'start') { hud.announce('Closing Time! The shutters are coming down, section by section.', 'Tannoy'); sfx.play('tannoy_ding'); }
-    if (e.type === 'warn') hud.announce(`${e.section.name} closes in ${BALANCE.closingTime.warn} seconds!`, 'Tannoy');
-    if (e.type === 'shut') sfx.play('machine_clunk');
-  }
-  shutterView?.update(dt); hud.status(sus, closing, rescue);
-  gadgetView.update(); hud.gadgets(coat, GADGETS);
-  lootView?.update(dt); hud.quota(job, loot, sus); hud.results(job?.result);
-  cageView?.update(dt);
-  for (const e of rescue?.take() || []) {
-    if (e.type === 'spareKid') hud.announce(`Caught! A Spare Kid comes in at the entrance (${e.left} left). Your kid is in the Lost & Found in the staff room.`, 'Got you!');
-    if (e.type === 'caught') hud.announce('Caught! You are being carried off to the Lost & Found.', 'Got you!');
-    if (e.type === 'locked') sfx.play('machine_clunk', rescue.gateAt);
-    if (e.type === 'gateOpen') { sfx.play('switch_click', rescue.gateAt); hud.announce('The Lost & Found is open: everyone out!', 'Rescue'); }
-    if (e.type === 'allCaught' && job && !job.over) job.finish('all caught', loot, sus);
-  }
-  for (const e of loot?.take() || []) {
-    if (e.type === 'pocket' || e.type === 'carry' || e.type === 'coCarry') sfx.play('paper_flap', e.coat.walker.feet);
-    if (e.type === 'bank') sfx.play('pose_ding', e.coat.walker.feet);
-    if (e.type === 'drop') sfx.play('box_thud', { x: e.item.x, z: e.item.z });
-  }
-  for (const e of gadgets.take()) {
-    if (e.type === 'fire' && e.sound) sfx.play(e.sound, e.at);
-    if (e.type === 'hit') sfx.play('bonk', e.at);
-    if (e.type === 'trigger') sfx.play('slip_whee', e.at);
-  }
-  coatView.update(dt, events); hud.update(dt, coat, events, areaNow, coat.atGate && job && !job.over ? `E: get away! (${loot.bankedValue} sweets banked; this ends the job)` : hands.hint()); events = [];
-  aimMark.visible = !!aimNow;
-  if (aimNow) aimMark.position.set(wp.x + aimNow.x * 1.6, 0.03, wp.z + aimNow.z * 1.6);
-  camRig.update(dt, wp, aimNow);
-  lights.sun.position.set(wp.x - 6, 12, wp.z + 6); lights.sun.target.position.set(wp.x, 0, wp.z);   // the shadows follow you around the shop
-  updateLights(dt);
-  sfx.listener = voices.listener = { x: wp.x, z: wp.z };
-  areaNow = place?.areaAt(wp.x, wp.z) ?? null;
-  fade.update(dt, camera.position, [coat.walker.feet]);
-  rings.update(dt);
-  renderer.render(scene, camera);
+  hud.status(model.sus, model.closing, model.rescue); hud.quota(model.job, model.loot, model.sus); hud.results(model.job?.result);
+  sfx.listener = voices.listener = { x: focus.x, z: focus.z };
+  renderer.render(stage.scene, camera);
   frames++; fpsT += dt;
   if (fpsT >= 0.5) {
     fps = Math.round(frames / fpsT); frames = 0; fpsT = 0;
-    const next = jobEvents?.upcoming ? ` · next event in ${Math.max(0, Math.ceil(jobEvents.nextAt - jobEvents.time))} s (T: now)` : '';
-    hud.top(`STACKED ${place ? place.data.name : 'playground'} · ${fps} fps · ${input.device === 'pad' ? 'gamepad' : 'keyboard and mouse'}${next}  |  WASD walk, mouse aim, Shift run, left click gadget (1 2 3 pick), E grab/use, right click throw, Q act natural, R unstack  ·  O plan  Space melon  J puddle  K whack  V rings  Backspace reset`);
+    const who = mode === 'client' ? 'online (joined)' : mode === 'host' ? `online host, room ${roomCode}` : locals.length > 1 ? `couch, ${locals.length} players` : 'solo';
+    const next = game?.jobEvents.upcoming ? ` · next event in ${Math.max(0, Math.ceil(game.jobEvents.nextAt - game.jobEvents.time))} s` : '';
+    hud.top(`STACKED ${SUPERMARKET.name} · ${fps} fps · ${who}${next}  |  WASD walk, mouse aim, Shift run, left click gadget (1 2 3), E grab/use, right click throw, Q act natural, R unstack · gamepad: A on a 2nd pad joins${game ? '  ·  T event H heat C closing Space melon J puddle K whack O plan Backspace new job' : ''}`);
   }
   requestAnimationFrame(frame);
 }
 requestAnimationFrame(frame);
 addEventListener('resize', () => { renderer.setSize(innerWidth, innerHeight); camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix(); });
-globalThis.__stacked2 = { get world() { return world; }, get pg() { return pg; }, get walker() { return coat.walker; }, get coat() { return coat; }, get coatView() { return coatView; },
-  get place() { return place; }, get placeView() { return placeView; }, get area() { return areaNow; }, get things() { return things; }, get hands() { return hands; }, get mess() { return mess; },
-  get jobEvents() { return jobEvents; }, get people() { return people; }, get sus() { return sus; }, get gadgets() { return gadgets; }, get loot() { return loot; }, get rescue() { return rescue; }, get job() { return job; }, get closing() { return closing; }, get security() { return security; }, get peopleView() { return peopleView; }, camRig, get fade() { return fade; }, input, get aim() { return aimNow; }, get signals() { return signals; }, clock, quality, renderer, get fps() { return fps; }, bowl };
+
+// for the tests: the same names as before, now pointing into the game (or the mirror on a client)
+const P1 = () => (game ? game.player(locals[0].id) : null);
+globalThis.__stacked2 = {
+  get game() { return game; }, get mirror() { return mirror; }, get model() { return game ?? mirror; }, get mode() { return mode; }, get locals() { return locals; },
+  get world() { return game?.world; }, get coat() { return P1()?.coat ?? mirror?.coats[0]; }, get walker() { return this.coat.walker; }, get hands() { return P1()?.hands; },
+  get things() { return game?.things ?? mirror?.things; }, get mess() { return (game ?? mirror).mess; }, get people() { return (game ?? mirror).people; }, get sus() { return (game ?? mirror).sus; },
+  get closing() { return (game ?? mirror).closing; }, get security() { return game?.security; }, get rescue() { return (game ?? mirror).rescue; }, get loot() { return (game ?? mirror).loot; }, get job() { return (game ?? mirror).job; },
+  get gadgets() { return (game ?? mirror).gadgets; }, get jobEvents() { return game?.jobEvents; }, get signals() { return game?.signals; },
+  get coatView() { return stage.coatViews.get(this.coat); }, get peopleView() { return stage.peopleView; }, get placeView() { return stage.placeView; }, get fade() { return stage.fade; },
+  get place() { return place; }, get area() { return areaNow; }, get host() { return host; }, get client() { return client; },
+  get aim() { return lastAim; }, camRig, input: keyboard, clock, quality, renderer, get fps() { return fps; }, hostGame, joinGame,
+};

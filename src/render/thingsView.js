@@ -22,6 +22,7 @@ export class ThingsView {
 
   update(dt) {
     this.t += dt;
+    if (this.meshes.size < this.things.list.length) for (const t of this.things.list) if (!t.gone && !this.meshes.has(t)) this.add(t);   // things that arrived since (a client's mirror)
     for (const [t, m] of this.meshes) {
       if (t.gone) { this.scene.remove(m); this.meshes.delete(t); continue; }
       if (t.def.body !== 'fixed' || !m.userData.placed) { follow(m, t.body); m.userData.placed = true; }
