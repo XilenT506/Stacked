@@ -2,6 +2,16 @@
 
 Newest first. One entry per build session (one prompt from the Build guide in the doc "STACKED – Game Plan").
 
+## 2026-11-18 · Prompt 11 of 16 (M1-07): Caught and rescue
+
+- **The Lost & Found cage** (`src/systems/rescue.js`, `lostAndFound` in `data/places/supermarket.json`): a barred cage with a gate in the staff room, with its own **guard** standing watch (he steps away now and then, and any noise draws him off to look).
+- **Caught:** when a grown-up grabs your last kid, he carries you off and locks you in the cage (grabbed loose kids go in there too, and wait). If he slips on the way, you're free again on the spot.
+- **Rescue:** a friend lures the cage guard away (a slingshot stone into the corner, a kicked can, anything noisy), walks up to the gate and presses **E**. The gate swings open and everyone inside comes out, caught players as one kid, caged kids waiting by the gate to be picked up. If the guard sees you open it, he knows you're not a grown-up.
+- **Solo: Spare Kids.** Playing alone you get **2 Spare Kids** per run (shown next to the Heat). When you're caught, a Spare Kid walks in at the entrance as a one-kid coat, and your caught kid waits in the cage for you to come and fetch (open the gate, walk over them). With no Spare Kids left you go in the cage yourself.
+- **The run ends only when every player is caught at the same time.** Then the job ends with what was banked, and the results card says "Everyone got caught!".
+- Places without a cage still use the old rule (held for 2 seconds, then you wriggle free).
+- Tests: 71 logic tests pass (4 new): **solo uses a Spare Kid** (the caught kid ends up in the cage); with no Spare Kids you're carried off, locked in, the bars hold, and the run is over; **a 2-player bot test frees a caught friend**: player A is caught and locked up, the bot B walks to the staff room door, fires a slingshot stone into the far corner, waits for the guard to go and look, opens the gate, and A walks out as one kid; and the run ends only when both players are caught.
+
 ## 2026-11-18 · Prompt 10 of 16 (M1-06): Loot, quota and getaway
 
 - **13 pieces of loot** in the shop (where and how much in `data/places/supermarket.json`, names and looks in `data/loot.json`), each with a gold star over it: pick 'n' mix, lollies, a big chocolate bar, gummy worms, cola bottles and ice lollies (sweet and freezer aisles), the charity coin jar (tills), a biscuit tin (staff room), fancy beans and choco cereal, and three **big** ones: the giant lolly (sweet aisle), **Nan's birthday cake** (bakery) and a crate of fizzy pop (storeroom).

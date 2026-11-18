@@ -5,6 +5,7 @@ import { NavGrid } from './navgrid.js';
 
 export class People {
   constructor(R, world, place, data, { signals, mess, things = [] } = {}) {
+    // (ctx.rescue is set by the Rescue system when the place has a Lost & Found cage)
     const D = place.data, voices = {};
     for (const [m, v] of Object.entries(data.models)) if (!m.startsWith('_')) voices[m] = v.voice;
     this.nav = NavGrid.fromPlace(place, things);

@@ -12,11 +12,11 @@ export class CoatHud {
   }
 
   // Heat (0 Calm .. 3 Panic) and the Closing Time clock, top right
-  status(sus, closing) {
+  status(sus, closing, rescue = null) {
     if (!sus) { this.heatEl.style.display = this.closeEl.style.display = 'none'; return; }
     this.heatEl.style.display = this.closeEl.style.display = 'block';
     const colors = ['#7fbf5f', '#e0a83a', '#e07a3a', '#c4553d'];
-    this.heatEl.innerHTML = `<b>HEAT</b> ${[0, 1, 2].map((i) => `<span class="pip" style="background:${i < sus.level ? colors[sus.level] : '#fff'}"></span>`).join('')} <span style="color:${colors[sus.level]}">${sus.name}</span>`;
+    this.heatEl.innerHTML = `<b>HEAT</b> ${[0, 1, 2].map((i) => `<span class="pip" style="background:${i < sus.level ? colors[sus.level] : '#fff'}"></span>`).join('')} <span style="color:${colors[sus.level]}">${sus.name}</span>${rescue?.solo ? ` · Spare Kids ${'●'.repeat(rescue.spares)}${'○'.repeat(Math.max(0, rescue.B.spareKids - rescue.spares))}` : ''}`;
     const t = closing.startsIn, mm = Math.floor(t / 60), ss = String(Math.floor(t % 60)).padStart(2, '0');
     const left = closing.sections.length - closing.next;
     this.closeEl.textContent = !closing.started ? `Closing Time in ${mm}:${ss}` : left > 0 ? `CLOSING TIME! ${left} section${left > 1 ? 's' : ''} still open` : 'CLOSING TIME! The shop is shut';
@@ -53,7 +53,7 @@ export class CoatHud {
     if (!r) { el.style.display = 'none'; return; }
     if (el.style.display === 'block') return;
     el.style.display = 'block';
-    el.innerHTML = `<h2>${r.why === 'got away' ? 'You got away!' : 'Shut in at Closing Time!'}</h2>
+    el.innerHTML = `<h2>${r.why === 'got away' ? 'You got away!' : r.why === 'all caught' ? 'Everyone got caught!' : 'Shut in at Closing Time!'}</h2>
       <ul>${r.items.map((i) => `<li>${i.name}<b>${i.value}${i.value < i.base ? ` <s>${i.base}</s>` : ''}</b></li>`).join('') || '<li>Nothing at all...</li>'}</ul>
       <p>Loot <b>${r.banked}</b> × ${r.mult} ${r.bonusName ? `(${r.bonusName}${r.clean ? '' : `, Heat ${r.heat}`})` : ''} = <b>${r.total}</b> sweets</p>
       <p class="${r.met ? 'ok' : 'no'}">${r.met ? `Quota met! (${r.quota})` : `Quota missed by ${r.short} (needed ${r.quota}). Detention cards come later.`}</p>

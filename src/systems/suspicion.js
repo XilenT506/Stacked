@@ -64,7 +64,7 @@ export class Suspicion {
           for (const o of people.list) if (o !== g && o.sees(cf)) this.bump(o, c, S.bumpSeenByOthers);
           this.events.push({ type: 'bump', who: g, coat: c });
         }
-        if (c.count <= 1 || g.hostile.has(c)) continue;        // a lone kid is not suspicious, it is obvious (grown-up.js)
+        if (c.count <= 1 || g.hostile.has(c) || c.inCage || c.caught) continue;        // a lone kid is not suspicious, it is obvious (grown-up.js)
         let v = g.sus.get(c) ?? 0;
         const seen = !c.hidden && !c.grabbedBy && g.sees(cf);
         if (seen) {

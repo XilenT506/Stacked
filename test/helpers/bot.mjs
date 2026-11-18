@@ -22,6 +22,11 @@ export class Bot {
       this.stuck = (this.stuck ?? 0) + (this.coat.walker.flatSpeed < 0.2 ? dt : -this.stuck);
       if (this.stuck > 1.5) { this.path = null; this.stuck = 0; }           // bumped into something: find a new way
     } else if (g.press) { out.grab = true; this.next('press E'); }
+    else if (g.fire) {                                       // hold the gadget button, then let go
+      this.fireT = (this.fireT ?? 0) + dt; out.select = g.fire.select; out.aim = g.fire.aim;
+      if (this.fireT < (g.fire.hold ?? 0.1)) out.fire = true; else { this.fireT = 0; this.next('fired'); }
+    }
+    else if (g.until) { if (g.until()) this.next('until'); }
     else if (g.wait !== undefined) { this.waitT += dt; out.natural = !!g.natural; if (this.waitT >= g.wait) { this.waitT = 0; this.next('waited'); } }
     return out;
   }

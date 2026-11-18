@@ -142,7 +142,7 @@ export class Coat {
     const p = this.walker.feet, L = this.B.looseKid;
     for (const k of this.loose) {
       k.grace = Math.max(0, k.grace - dt);
-      if (k.carriedBy) continue;                                        // a grown-up has got this one
+      if (k.carriedBy || k.caged) continue;                             // a grown-up has got this one, or it is in the cage
       if (!k.waiting) {
         k.t -= dt;
         k.heading += Math.sin(this.time * 3 + k.x) * dt * 3;          // zig-zag
@@ -154,7 +154,7 @@ export class Coat {
       if (this.bounds) { k.x = Math.max(this.bounds.x0, Math.min(this.bounds.x1, k.x)); k.z = Math.max(this.bounds.z0, Math.min(this.bounds.z1, k.z)); }
     }
     if (this.count < 3 && !this.pile) {
-      const got = this.loose.find((k) => k.grace <= 0 && !k.carriedBy && Math.hypot(k.x - p.x, k.z - p.z) <= L.pickupRadius);
+      const got = this.loose.find((k) => k.grace <= 0 && !k.carriedBy && !k.caged && Math.hypot(k.x - p.x, k.z - p.z) <= L.pickupRadius);
       if (got) {
         this.loose = this.loose.filter((k) => k !== got);
         this.stack.push(got.id); this.applyHeight();

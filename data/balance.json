@@ -155,5 +155,12 @@
   "job": {
     "_about": "cleanBonus: +50% for finishing at Heat 0",
     "cleanBonus": 0.5
+  },
+  "rescue": {
+    "_about": "solo players get spareKids per run instead of friends; a Spare Kid comes in at the player spawn as one kid. gateReach = how close you must be to open the cage.",
+    "spareKids": 2,
+    "gateReach": 1.3,
+    "warden": "guard",
+    "openSeen": 1.0
   }
 }

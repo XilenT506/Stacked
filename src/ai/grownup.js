@@ -94,9 +94,10 @@ export class GrownUp {
     for (const c of coats) {
       const kids = [];
       // a lone kid, or a coat this grown-up knows is not a grown-up (the Caretaker treats every coat that way)
+      if (c.caught || c.inCage) continue;                               // already on their way to (or in) the cage
       const knows = this.hostile.has(c) || this.type.hunts;
       if ((c.count === 1 || knows) && !c.hidden && !c.grabbedBy) kids.push({ coat: c, kid: null, p: c.walker.feet });
-      for (const k of c.loose) if (!k.carriedBy) kids.push({ coat: c, kid: k, p: { x: k.x, z: k.z } });
+      for (const k of c.loose) if (!k.carriedBy && !k.caged) kids.push({ coat: c, kid: k, p: { x: k.x, z: k.z } });
       for (const k of kids) {
         if (!this.sees(k.p)) continue;
         if (this.state === 'chase') { if (this.target.kid === k.kid && this.target.coat === k.coat) { this.lastSeen = { ...k.p }; this.lostT = 0; } continue; }
@@ -196,13 +197,16 @@ export class GrownUp {
     this.say('gotYou');
     if (tg.kid) {                     // a loose kid: carried off to Lost & Found (the staff room for now)
       tg.kid.carriedBy = this; this.carrying = tg.kid; tg.kid.waiting = true;
-      const lf = this.ctx.spots.lostAndFound || [this.home.x, this.home.z];
+      const lf = this.ctx.rescue?.drop ?? this.ctx.spots.lostAndFound ?? [this.home.x, this.home.z];
       this.set('carry'); this.goal = { x: lf[0], z: lf[1] };
       this.events.push({ type: 'grabKid', kid: tg.kid.id });
     } else if (tg.coat.count > 1) {    // a whole coat: yank the top kid out and carry that one off
       const kid = tg.coat.spill();
       if (kid) { this.target = { coat: tg.coat, kid }; return this.grab(this.target); }
-    } else {                          // the last kid in the coat: held for a moment (Lost & Found comes later)
+    } else if (this.ctx.rescue) {     // the last kid in the coat: off to the Lost & Found cage (or a Spare Kid steps in)
+      this.ctx.rescue.caught(tg.coat, this);
+      this.events.push({ type: 'grabCoat' });
+    } else {                          // no cage in this place: held for a moment, then you wriggle free
       tg.coat.grabbedBy = this; tg.coat.mods = { frozen: true }; this.holding = tg.coat;
       this.set('grab', this.T.grabHold);
       this.events.push({ type: 'grabCoat' });
@@ -227,6 +231,11 @@ export class GrownUp {
   dropKid(arrived) {
     const k = this.carrying; if (!k) return;
     k.carriedBy = null; this.carrying = null;
+    if (this.ctx.rescue) {             // the cage takes it from here (a kid, or a whole caught player)
+      if (arrived) { this.ctx.rescue.lockUp(k, this); this.events.push({ type: 'lostAndFound', kid: k.id }); this.back(); }
+      else { this.ctx.rescue.escape(k, this); this.events.push({ type: 'dropKid', kid: k.id }); }
+      return;
+    }
     if (arrived) { k.waiting = true; k.t = 0; this.events.push({ type: 'lostAndFound', kid: k.id }); this.back(); }
     else { k.waiting = false; k.t = 6; k.grace = 0.8; k.heading = this.rnd() * Math.PI * 2; this.events.push({ type: 'dropKid', kid: k.id }); }
   }

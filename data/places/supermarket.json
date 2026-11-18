@@ -116,6 +116,7 @@
     "_about": "step lists: go [x, z] (walk there), wait seconds (with an optional 'do' for the look), startAt = seconds into the job before it starts (wander until then), loop = start again at the end",
     "patrol":  { "loop": true, "steps": [ { "go": [-12, 10.2] }, { "wait": 3 }, { "go": [-6, 5] }, { "go": [7.5, 4.6] }, { "wait": 2 }, { "go": [7.5, -8] }, { "go": [-16, -8] }, { "wait": 2 }, { "go": [-16, 5] } ] },
     "restock": { "loop": true, "steps": [ { "go": [-7.5, -5] }, { "wait": 5, "do": "restock" }, { "go": [-7.5, 2.5] }, { "wait": 5, "do": "restock" }, { "go": [4, -8.5] }, { "go": [4, -13] }, { "wait": 4, "do": "fetch" }, { "go": [4, -8.5] } ] },
+    "cageWatch": { "loop": true, "steps": [ { "go": [-4.9, -14.2] }, { "wait": 6, "do": "watch" }, { "go": [-7.5, -13] }, { "wait": 2 } ] },
     "cafe":    { "startAt": 180, "loop": false, "steps": [ { "go": [14.4, 10.6] }, { "wait": 99999, "do": "sit" } ] }
   },
 
@@ -129,6 +130,12 @@
     "toddler": [[10, 9]],
     "staffRoom": [[-8, -12]],
     "caretaker": [[9, -16]]
+  },
+
+  "lostAndFound": {
+    "_about": "the Lost & Found cage in the staff room: rect [x0, z0, x1, z1], bar height, the gate (a gap on one side, [x0, z0, x1, z1]), where the grown-up stands guard, and where caught kids are handed in",
+    "rect": [-6.4, -17.4, -3.4, -15.2], "height": 2.6, "gate": [-5.6, -15.2, -4.2, -15.2],
+    "guard": [-4.9, -14.2], "drop": [-4.9, -14.6]
   },
 
   "job": { "_about": "the job in this place: what the briefing asks for", "target": "Nan's birthday cake from the bakery", "quota": 1500 },
