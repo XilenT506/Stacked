@@ -161,6 +161,48 @@
       "f1": 200,
       "dur": 0.08,
       "vol": 0.35
+    },
+    "burp": {
+      "wave": "sawtooth",
+      "f0": 110,
+      "f1": 60,
+      "dur": 0.7,
+      "vol": 0.5
+    },
+    "fizz": {
+      "wave": "noise",
+      "f0": 3000,
+      "f1": 5000,
+      "dur": 0.5,
+      "vol": 0.2
+    },
+    "gulp": {
+      "wave": "sine",
+      "f0": 300,
+      "f1": 120,
+      "dur": 0.18,
+      "vol": 0.4
+    },
+    "kaching": {
+      "wave": "triangle",
+      "f0": 1500,
+      "f1": 2200,
+      "dur": 0.25,
+      "vol": 0.3
+    },
+    "whoopee": {
+      "wave": "sawtooth",
+      "f0": 220,
+      "f1": 90,
+      "dur": 0.6,
+      "vol": 0.4
+    },
+    "pop_pop": {
+      "wave": "noise",
+      "f0": 2500,
+      "f1": 1200,
+      "dur": 0.15,
+      "vol": 0.4
     }
   }
 }

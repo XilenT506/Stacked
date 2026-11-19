@@ -31,7 +31,9 @@ export class CoatHud {
     const html = G.slots.map((id, i) => { const d = data.gadgets[id], cur = i === G.i;
       const charge = cur && d.charge ? `<div class="charge"><div style="width:${Math.min(100, G.charge / d.charge.full * 100)}%"></div></div>` : '';
       return `<div class="slot${cur ? ' cur' : ''}"><b>${i + 1}</b> ${d.name} <span>${G.ammo[id]}</span>${charge}</div>`; }).join('');
-    if (html !== this.lastGad) { el.innerHTML = html; this.lastGad = html; }
+    const drinks = (coat.drinks || []).map((id) => data.drinks?.[id]?.name ?? id);
+    const all = html + (drinks.length ? `<div class="slot drink"><b>F</b> ${drinks.join(', ')}</div>` : '');
+    if (all !== this.lastGad) { el.innerHTML = all; this.lastGad = all; }
     this.blindEl ??= document.getElementById('blind');
     this.blindEl.style.opacity = (coat.effects?.blinded ?? 0) > 0 ? 0.85 : 0;
   }
@@ -48,16 +50,17 @@ export class CoatHud {
   }
 
   // the end of a job: what came out, the bonus, the total against the quota
-  results(r) {
+  results(r, jar = null) {
     const el = this.resEl ??= document.getElementById('results');
     if (!r) { el.style.display = 'none'; return; }
     if (el.style.display === 'block') return;
+    const next = r.why === 'all caught' ? 'The run is over: a new run starts in a moment.' : `Next: Dodgy Del's stall in the alley. Sweet jar: <b>${jar ?? r.total}</b>`;
     el.style.display = 'block';
     el.innerHTML = `<h2>${r.why === 'got away' ? 'You got away!' : r.why === 'all caught' ? 'Everyone got caught!' : 'Shut in at Closing Time!'}</h2>
       <ul>${r.items.map((i) => `<li>${i.name}<b>${i.value}${i.value < i.base ? ` <s>${i.base}</s>` : ''}</b></li>`).join('') || '<li>Nothing at all...</li>'}</ul>
       <p>Loot <b>${r.banked}</b> × ${r.mult} ${r.bonusName ? `(${r.bonusName}${r.clean ? '' : `, Heat ${r.heat}`})` : ''} = <b>${r.total}</b> sweets</p>
       <p class="${r.met ? 'ok' : 'no'}">${r.met ? `Quota met! (${r.quota})` : `Quota missed by ${r.short} (needed ${r.quota}). Detention cards come later.`}</p>
-      <p class="small">Backspace: play again</p>`;
+      <p class="small">${next}</p>`;
   }
 
   top(text) { this.topEl.textContent = text; }

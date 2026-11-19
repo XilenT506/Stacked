@@ -1,0 +1,44 @@
+{
+  "_about": "Dodgy Del: a 12-year-old in sunglasses with a stall made of a pram. Names and blurbs for what he sells (prices live in balance.json shop.prices), and his bad jokes (one per visit).",
+  "drinks": {
+    "sugar_rush": {
+      "name": "Sugar Rush",
+      "blurb": "1.5x speed for 10 seconds. More wobble.",
+      "color": "#e2557a",
+      "sound": "fizz"
+    },
+    "burp_blaster": {
+      "name": "Burp Blaster",
+      "blurb": "A burp so big it knocks everyone near you over.",
+      "color": "#7fbf5f",
+      "sound": "burp"
+    }
+  },
+  "jokes": [
+    "Why did the cake go to the doctor? It was feeling crummy. ...No refunds.",
+    "Everything's legit. Mostly. Don't ask where the pram's from.",
+    "What do you call a sleeping supermarket guard? A security blanket. Heh.",
+    "Water balloons! Guaranteed wet or your sweets back. Not really.",
+    "I'd tell you a joke about the tills, but it wouldn't check out.",
+    "Three kids in a coat. Classic. My nan does that.",
+    "Buy two, get... two. That's maths."
+  ],
+  "lines": {
+    "buy": [
+      "Pleasure doing business.",
+      "Sold! No receipts.",
+      "Lovely. Don't tell your mum."
+    ],
+    "poor": [
+      "Not enough sweets, mate.",
+      "Come back richer."
+    ],
+    "reroll": [
+      "Let me check under the pram...",
+      "New stock! Fell off a lorry."
+    ],
+    "got": [
+      "You've got loads of those."
+    ]
+  }
+}

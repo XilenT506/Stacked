@@ -4,6 +4,7 @@
 //     Heat, the job, and the presentation events since the last snapshot (sounds, voices, announcements).
 //   new Mirror(data) .apply(snapshot) .update(dt): objects shaped like the real ones, so the same views
 //   draw them; positions glide towards each new snapshot instead of jumping.
+import { runState, MirrorRun, MirrorShop } from './shopState.js';
 const r2 = (v) => Math.round(v * 100) / 100, r3 = (v) => Math.round(v * 1000) / 1000;
 const STATES = ['idle', 'wander', 'routine', 'investigate', 'crowd', 'flee', 'inspect', 'shout', 'chase', 'search', 'carry', 'grab', 'slipped', 'stunned', 'blinded', 'embarrassed'];
 const LOOT = ['lying', 'pocket', 'carried', 'banked'];
@@ -14,7 +15,7 @@ export function snapshot(game, events = [], { withScribbles = true } = {}) {
     const c = p.coat, f = c.walker.feet, G = c.gadgets;
     return {
       id: p.id, s: c.slot, x: r2(f.x), y: r2(f.y), z: r2(f.z), yaw: r2(c.walker.yaw), vx: r2(c.walker.vel.x), vz: r2(c.walker.vel.z),
-      st: c.stack, wb: r2(c.wobble), an: c.actingNatural ? 1 : 0, mo: c.mapOpen ? 1 : 0, hd: c.hidden?.mode ?? null, gr: c.grabbedBy ? 1 : 0, cg: c.inCage ? 1 : 0, gate: c.atGate ? 1 : 0,
+      st: c.stack, wb: r2(c.wobble), an: c.actingNatural ? 1 : 0, mo: c.mapOpen ? 1 : 0, sg: r2(c.sugar ?? 0), hd: c.hidden?.mode ?? null, gr: c.grabbedBy ? 1 : 0, cg: c.inCage ? 1 : 0, gate: c.atGate ? 1 : 0,
       pile: c.pile ? [r2(c.pile.x), r2(c.pile.z), r2(c.pile.yaw), c.pile.kids] : null,
       loose: c.loose.map((k) => [k.id, r2(k.x), r2(k.z), r2(k.vx), r2(k.vz), (k.waiting ? 1 : 0) | (k.caged ? 2 : 0) | (k.carriedBy ? 4 : 0)]),
       eff: { blinded: r2(c.effects?.blinded ?? 0), soaked: r2(c.effects?.soaked ?? 0) },
@@ -42,7 +43,7 @@ export function snapshot(game, events = [], { withScribbles = true } = {}) {
     heat: [game.sus.level], close: [r2(game.closing.time), game.closing.started ? 1 : 0, game.closing.next, r2(game.closing.warnT), game.closing.shut.map((s) => { const si = game.closing.sections.findIndex((x) => x.id === s.section); return [si, game.closing.sections[si].shutters.indexOf(s.seg), r2(s.k)]; })],
     cage: [game.rescue.open ? 1 : 0, game.rescue.spares, game.rescue.solo ? 1 : 0],
     jobState: [r2(game.job.time), game.job.over ? 1 : 0], result: game.job.result, banked: game.loot.bankedValue, inHand: game.loot.inHand(),
-    lights: game.lightsOff ? 1 : 0, map: mapState(game.map, withScribbles), ev: events,
+    lights: game.lightsOff ? 1 : 0, map: mapState(game.map, withScribbles), ...runState(game), ev: events,
   };
 }
 
@@ -90,7 +91,7 @@ export class MCoat {
     w.to = { x: s.x, y: s.y, z: s.z }; w.toYaw = s.yaw; w.vel = { x: s.vx, z: s.vz };
     if (this.first) { Object.assign(w, w.to); w.yaw = s.yaw; this.first = false; }
     this.stack = s.st; w.height = this.state.height; this.wobble = s.wb; this.actingNatural = !!s.an;
-    this.mapOpen = !!s.mo; this.hidden = s.hd ? { mode: s.hd } : null; this.grabbedBy = s.gr ? true : null; this.inCage = !!s.cg; this.atGate = !!s.gate;
+    this.mapOpen = !!s.mo; this.sugar = s.sg ?? 0; this.hidden = s.hd ? { mode: s.hd } : null; this.grabbedBy = s.gr ? true : null; this.inCage = !!s.cg; this.atGate = !!s.gate;
     this.pile = s.pile ? { x: s.pile[0], z: s.pile[1], yaw: s.pile[2], kids: s.pile[3] } : null;
     const old = new Map(this.loose.map((k) => [k.id, k]));
     this.loose = s.loose.map(([id, x, z, vx, vz, f]) => { const k = old.get(id) || { id, x, z }; k.to = { x, z }; k.vx = vx; k.vz = vz; k.waiting = !!(f & 1); k.caged = !!(f & 2); k.carriedBy = f & 4 ? true : null; return k; });
@@ -150,6 +151,7 @@ export class Mirror {
     this.sus = { level: 0, get name() { return data.balance.heat.names[this.level]; }, get chaosBonus() { return data.balance.heat.chaosBonus[this.level]; } };
     this.job = { quota: data.place.job.quota, target: data.place.job.target, over: false, result: null, time: 0 };
     this.lightsOff = false; this.jobNo = 0; this.got = 0; this.map = new MirrorMap();
+    this.phase = 'job'; this.run = new MirrorRun(data); this.shop = null;
   }
 
   apply(S) {
@@ -197,6 +199,9 @@ export class Mirror {
     this.job.time = S.jobState[0]; this.job.over = !!S.jobState[1]; this.job.result = S.result;
     this.lightsOff = !!S.lights;
     this.map.apply(S.map);
+    this.phase = S.ph ?? 'job'; if (S.run) this.run.apply(S);
+    if (S.shop) (this.shop ??= new MirrorShop(this.data)).apply(S.shop); else this.shop = null;
+    for (const c of this.coats) c.drinks = this.run.of(c.pid).drinks;
     return S.ev || [];
   }
 

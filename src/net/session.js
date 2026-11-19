@@ -6,8 +6,8 @@
 import { snapshot } from './snapshot.js';
 
 // sc = crayon scribbles the host has not acknowledged yet (they repeat until it has, so none get lost)
-export const packInput = (I) => ({ m: [+I.move.x.toFixed(3), +I.move.z.toFixed(3)], a: I.aim ? [+I.aim.x.toFixed(3), +I.aim.z.toFixed(3)] : null, r: I.run ? 1 : 0, u: I.use ? 1 : 0, n: I.natural ? 1 : 0, p: I.presses, mp: I.map ? 1 : 0, ...(I.sc?.length ? { sc: I.sc } : {}) });
-export const unpackInput = (P) => ({ move: { x: P.m?.[0] ?? 0, z: P.m?.[1] ?? 0 }, aim: P.a ? { x: P.a[0], z: P.a[1] } : null, run: !!P.r, use: !!P.u, natural: !!P.n, presses: P.p || {}, map: !!P.mp, sc: Array.isArray(P.sc) ? P.sc.slice(0, 8) : [] });
+export const packInput = (I) => ({ m: [+I.move.x.toFixed(3), +I.move.z.toFixed(3)], a: I.aim ? [+I.aim.x.toFixed(3), +I.aim.z.toFixed(3)] : null, r: I.run ? 1 : 0, u: I.use ? 1 : 0, n: I.natural ? 1 : 0, p: I.presses, mp: I.map ? 1 : 0, ...(I.sc?.length ? { sc: I.sc } : {}), ...(I.shop?.length ? { sh: I.shop } : {}) });
+export const unpackInput = (P) => ({ move: { x: P.m?.[0] ?? 0, z: P.m?.[1] ?? 0 }, aim: P.a ? { x: P.a[0], z: P.a[1] } : null, run: !!P.r, use: !!P.u, natural: !!P.n, presses: P.p || {}, map: !!P.mp, sc: Array.isArray(P.sc) ? P.sc.slice(0, 8) : [], shop: Array.isArray(P.sh) ? P.sh.slice(0, 8) : [] });
 
 export class HostSession {
   constructor(game, link, { rate = 20 } = {}) {

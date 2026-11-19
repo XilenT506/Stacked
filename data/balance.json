@@ -163,5 +163,52 @@
     "gateReach": 1.3,
     "warden": "guard",
     "openSeen": 1.0
+  },
+  "shop": {
+    "_about": "Dodgy Del's stall in the alley, between jobs. Sweets banked in a job (with the Clean Job / Chaos bonus) go in the team's sweet jar; Del takes them. Prices in sweets. Buying a gadget you already have doubles up its ammo. A run ends when everyone is caught: the jar empties and everyone starts again with the starter gadgets.",
+    "prices": {
+      "water_pistol": 40,
+      "slingshot": 45,
+      "banana_peel": 30,
+      "water_balloon": 50,
+      "whoopee_cushion": 45,
+      "bubble_wrap": 35,
+      "stink_bomb": 55,
+      "sugar_rush": 30,
+      "burp_blaster": 35
+    },
+    "stock": {
+      "gadgets": 4,
+      "drinks": [
+        "sugar_rush",
+        "burp_blaster"
+      ],
+      "drinksEach": 3
+    },
+    "reroll": {
+      "base": 15,
+      "step": 10
+    },
+    "maxGadgets": 5,
+    "maxDrinks": 3,
+    "maxCopies": 3,
+    "resultsSeconds": 8,
+    "startSweets": 0
+  },
+  "drinks": {
+    "_about": "Fizzy drinks, F (right bumper) to drink the first one you're carrying.",
+    "sugar_rush": {
+      "seconds": 10,
+      "speed": 1.5,
+      "wobble": 0.6
+    },
+    "burp_blaster": {
+      "radius": 4.5,
+      "slipRadius": 2.2,
+      "knock": 7,
+      "coatKnock": 3,
+      "thingKnock": 4,
+      "noise": 14
+    }
   }
 }

@@ -3,6 +3,8 @@
 // couch game) owns one of these, feeds it each player's input and asks it for presentation events.
 //   const game = new Game(R, DATA); game.addPlayer('p1'); every step: game.setInput(id, input); game.step();
 // Players joining after the first 20 seconds of a job wait for the next one (game.reset()).
+// Between jobs (M1-10): the results, then Dodgy Del's stall in the alley (phase 'shop') until everyone
+// presses Next. The run (sweet jar, gadgets and drinks each player carries) lives across jobs.
 import { STEP } from './clock.js';
 import { makeWorld } from '../physics/world.js';
 import { Signals } from '../systems/signals.js';
@@ -21,16 +23,19 @@ import { Loot } from '../systems/loot.js';
 import { Job } from '../systems/job.js';
 import { Rescue } from '../systems/rescue.js';
 import { TeamMap } from '../systems/teamMap.js';
+import { Run, Shop } from '../systems/shop.js';
+import { Drinks } from '../systems/drinks.js';
 
 export const KIDS = [['sid', 'mo', 'tank'], ['pip', 'kit', 'bo'], ['ziggy', 'nell', 'ash'], ['dot', 'rex', 'flo']];
-const NO_INPUT = { move: { x: 0, z: 0 }, aim: null, run: false, use: false, natural: false, presses: {}, map: false, sc: [] };
+const NO_INPUT = { move: { x: 0, z: 0 }, aim: null, run: false, use: false, natural: false, presses: {}, map: false, sc: [], shop: [] };
 const STILL = { x: 0, z: 0 };
 
 export class Game {
-  // D = { place, events, things, controls?, signals, balance, grownups, gadgets, loot, crayonmap }
+  // D = { place, events, things, controls?, signals, balance, grownups, gadgets, loot, crayonmap, shop }
   constructor(R, D, { joinWindow = 20 } = {}) {
     this.R = R; this.D = D; this.joinWindow = joinWindow;
-    this.order = []; this.waiting = []; this.out = []; this.jobNo = 0;
+    this.order = []; this.waiting = []; this.out = []; this.jobNo = 0; this.players = [];
+    this.run = new Run(D); this.seed = 1;
     this.reset();
   }
 
@@ -40,7 +45,9 @@ export class Game {
   // a new job: rebuild the shop and put everyone (including people who were waiting) at the entrance
   reset() {
     const { R, D } = this, B = D.balance;
-    this.jobNo++; this.time = 0;
+    this.jobNo++; this.time = 0; this.phase = 'job'; this.shop = null; this.after = 0;
+    // presses made between jobs (in the shop) are used up, so they don't fire in the new job
+    this.carried = new Map((this.players ?? []).map((p) => [p.id, { ...p.input.presses }]));
     this.order = [...this.order, ...this.waiting.filter((id) => !this.order.includes(id))].slice(0, 4); this.waiting = [];
     this.world = makeWorld(R); this.signals = new Signals(D.signals.types); this.mess = new Mess(this.signals, B);
     this.place = buildPlace(R, this.world, D.place);
@@ -57,6 +64,7 @@ export class Game {
     this.gadgets = new Gadgets(D.gadgets, { R, world: this.world, signals: this.signals, things: this.things, people: this.people, sus: this.sus, balance: B });
     this.jobEvents = new JobEvents(D.events.events, { signals: this.signals, things: this.things, spots: D.place.events, say: (text, title) => { this.emit({ k: 'announce', text, title }); this.emit({ k: 'sound', name: 'tannoy_ding' }); } }, B.events);
     this.map = new TeamMap(this.place, D.crayonmap);
+    this.drinks = new Drinks(B, { people: this.people, things: this.things, signals: this.signals });
     this.jobEvents.onFire = (e, at) => this.map.note(e.name, at);
     this.players = [];
     for (const id of this.order) this.spawnPlayer(id);
@@ -69,8 +77,9 @@ export class Game {
     coat.floorZones = this.place.slippery; coat.pid = id; coat.slot = i;
     coat.bounds = { x0: D.bounds[0] + 1, z0: D.bounds[1] + 1, x1: D.bounds[2] - 1, z1: D.bounds[3] - 1 };
     const hands = new Hands(coat, this.things, B); hands.loot = this.loot; hands.rescue = this.rescue;
-    this.gadgets.arm(coat);
-    const p = { id, coat, hands, input: NO_INPUT, seen: {}, events: [] };
+    const kit = this.run.of(id);
+    this.gadgets.arm(coat, kit.gadgets); coat.drinks = kit.drinks;            // what this player bought at Del's (drinks used up stay used up)
+    const p = { id, coat, hands, input: NO_INPUT, seen: this.carried?.get(id) ?? {}, events: [] };
     this.players.push(p);
     return p;
   }
@@ -93,7 +102,8 @@ export class Game {
   }
 
   // input: { move: {x, z} world, aim: {x, z} | null, run, use, natural, presses: { grab, throw, stack, slot1, slot2, slot3, switch } counters,
-  //         map: the crayon map is open, sc: scribbles not yet acknowledged (each with the player's own sid) }
+  //         map: the crayon map is open, sc: scribbles not yet acknowledged (each with the player's own sid),
+  //         shop: orders at Del's not yet acknowledged ({ sid, a: 'buy' | 'reroll' | 'ready', i }) }
   // presses are counters (they only ever go up), so a press is never lost between network packets
   setInput(id, input) { const p = this.player(id); if (p) p.input = input; }
   pressed(p, name) { const n = p.input.presses?.[name] ?? 0, was = p.seen[name] ?? 0; if (n > was) { p.seen[name] = n; return true; } return false; }
@@ -103,7 +113,10 @@ export class Game {
 
   step(dt = STEP) {
     const B = this.D.balance, coats = this.coats;
+    if (this.phase === 'shop') return this.stepShop();
     this.time += dt;
+    // after the results: Del's shop, or (everyone caught) a fresh run
+    if (this.job.over && (this.after += dt) >= B.shop.resultsSeconds) return this.job.why === 'all caught' ? this.newRun() : this.openShop();
     this.rescue.step(coats);
     this.people.step(dt, coats);
     for (const p of this.players) {
@@ -114,15 +127,16 @@ export class Game {
       if (this.pressed(p, 'stack')) c.toggleStack();
       let grab = this.pressed(p, 'grab');
       if (grab && c.atGate && !this.job.over) { this.finish('got away'); grab = false; }
-      const sel = this.pressed(p, 'slot1') ? 0 : this.pressed(p, 'slot2') ? 1 : this.pressed(p, 'slot3') ? 2 : null;
-      this.gadgets.use(c, dt, { fire: I.use && !h.held && !c.mapOpen, select: sel, cycle: this.pressed(p, 'switch') ? 1 : 0, aim: I.aim });
+      const sel = ['slot1', 'slot2', 'slot3', 'slot4', 'slot5'].findIndex((n) => this.pressed(p, n));
+      if (this.pressed(p, 'drink') && !c.mapOpen) this.drinks.drink(c, coats);
+      this.gadgets.use(c, dt, { fire: I.use && !h.held && !c.mapOpen, select: sel < 0 ? null : sel, cycle: this.pressed(p, 'switch') ? 1 : 0, aim: I.aim });
       h.step(dt, { grab, throwIt: this.pressed(p, 'throw'), use: I.use, natural: I.natural, aim: I.aim });
       c.step(dt, c.mapOpen ? STILL : I.move, I.run && !c.mapOpen, I.aim, I.natural);
       p.events.push(...c.events);
       for (const e of h.events) if (e.type === 'throw') this.sus.instant(this.people, c, B.suspicion.throw);
     }
     this.sus.step(dt, this.people, coats);
-    this.closing.step(dt); this.security.step(); this.gadgets.step(dt, coats);
+    this.closing.step(dt); this.security.step(); this.gadgets.step(dt, coats); this.drinks.step(dt, coats);
     this.loot.step(dt, coats); this.job.step(dt);
     this.map.step(dt, { coats: coats.filter((c) => !c.inCage), people: this.people, nav: this.people.nav, solo: this.order.length <= 1, closing: this.closing, caretaker: this.security.caretaker });
     if (!this.job.over && !this.closing.endedJob && this.closing.next >= this.closing.sections.length) { this.closing.endedJob = true; this.finish('shut in'); }
@@ -133,7 +147,26 @@ export class Game {
     this.present();
   }
 
-  finish(why) { if (!this.job.over) { this.job.finish(why, this.loot, this.sus); this.emit({ k: 'result', result: this.job.result }); } }
+  finish(why) { if (!this.job.over) { this.job.finish(why, this.loot, this.sus); this.run.earn(this.job.result); this.emit({ k: 'result', result: this.job.result }); } }
+
+  // Dodgy Del's stall in the alley: the shop world stands still while everyone shops
+  openShop() {
+    this.phase = 'shop'; this.shop = new Shop(this.D, this.run, { seed: this.seed++ });
+    this.emit({ k: 'shop' }); this.emit({ k: 'sound', name: 'kaching' });
+  }
+
+  stepShop() {
+    for (const p of this.players) for (const o of p.input.shop || []) {
+      const r = this.shop.order(p.id, o); if (!r) continue;
+      this.emit({ k: 'sound', name: r.ok ? (r.a === 'ready' ? 'pose_ding' : 'kaching') : 'squeak' });
+      if (r.a === 'buy' && r.ok) this.emit({ k: 'bought', pid: p.id, id: r.id });
+    }
+    if (this.shop.allReady(this.players.map((p) => p.id))) this.reset();
+    this.present();
+  }
+
+  // everyone caught: the run is over. Empty sweet jar, starter gadgets, a new shop
+  newRun() { this.run.start(); this.reset(); this.emit({ k: 'announce', text: 'Everyone got caught. New run: empty sweet jar, starter gadgets.', title: 'Run over' }); }
 
   // turn what happened into things to see and hear (the same list goes to every screen)
   present() {
@@ -167,10 +200,14 @@ export class Game {
       if (e.type === 'bank') this.emit({ k: 'sound', name: 'pose_ding', x: at.x, z: at.z });
       if (e.type === 'drop') this.emit({ k: 'sound', name: 'box_thud', x: at.x, z: at.z });
     }
+    for (const e of this.drinks?.take() ?? []) {
+      this.emit({ k: 'sound', name: 'gulp', x: e.at.x, z: e.at.z }); this.emit({ k: 'sound', name: this.D.shop.drinks[e.id].sound, x: e.at.x, z: e.at.z });
+      this.emit({ k: 'coat', pid: e.coat.pid, type: e.id === 'burp_blaster' ? 'burp' : 'sugar' });
+    }
     for (const e of this.gadgets.take()) {
       if (e.type === 'fire' && e.sound) this.emit({ k: 'sound', name: e.sound, x: e.at.x, z: e.at.z });
       if (e.type === 'hit') this.emit({ k: 'sound', name: 'bonk', x: e.at.x, z: e.at.z });
-      if (e.type === 'trigger') this.emit({ k: 'sound', name: 'slip_whee', x: e.at.x, z: e.at.z });
+      if (e.type === 'trigger') this.emit({ k: 'sound', name: this.D.gadgets.gadgets[e.gadget]?.triggerSound ?? 'slip_whee', x: e.at.x, z: e.at.z });
     }
   }
 
@@ -193,5 +230,6 @@ export class Game {
     if (key === 'event' && this.jobEvents.upcoming) this.jobEvents.fire(this.jobEvents.upcoming.id);
     if (key === 'heat') this.sus.addHeat(1, 'test key');
     if (key === 'closing') this.closing.start();
+    if (key === 'shop') { this.finish('test key'); this.openShop(); }
   }
 }

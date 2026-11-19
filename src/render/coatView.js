@@ -3,6 +3,7 @@
 import * as T from 'three';
 import { bubble } from './peopleView.js';
 import { makeMapSheet, updateMapSheet } from './mapSheet.js';
+import { DrinkFx } from './drinkFx.js';
 import { loadHero, bendUniforms, bendMaterial, bendPoint, HERO_S, HEAD_Y } from './heroModel.js';
 
 export const KID_COLORS = { sid: 0xe2694f, mo: 0x4f9fc9, tank: 0x7fbf5f, pip: 0xe0a83a, kit: 0xd94f8a, bo: 0x4fc9b8, ziggy: 0xf4c542, nell: 0x8a6fd1, ash: 0x9aa7b0, dot: 0xe07a3a, rex: 0x3f8a3a, flo: 0xff8fb0, spare1: 0xc9a8d8, spare2: 0x8e5bc4 };
@@ -46,7 +47,8 @@ export class CoatView {
     this.pileG = new T.Group(); scene.add(this.pileG); this.pileG.visible = false;
     this.sway = 0; this.pop = 0; this.lean = new T.Vector2(); this.scale = new T.Vector3(1, 1, 1); this.t = 0;
     this.lastCount = coat.count;
-    this.sheet = makeMapSheet(); this.root.add(this.sheet);              // the crayon map, held up while it is open
+    this.sheet = makeMapSheet(); this.root.add(this.sheet);
+    this.drinkFx = new DrinkFx(this.root);                                 // Sugar Rush sparks, Burp Blaster shockwave              // the crayon map, held up while it is open
     // a plain stand-in until the model is ready
     this.stand = new T.Mesh(new T.CapsuleGeometry(0.4, 1.4, 4, 12), lam(COAT)); this.stand.position.y = 1.1; this.stand.castShadow = true; this.coatG.add(this.stand);
     loadHero().then((p) => this.useHero(p), (e) => console.warn('coat model did not load', e));
@@ -104,7 +106,11 @@ export class CoatView {
     if (this.natBubble) this.natBubble.position.y = c.state.height + 0.9;
     if (this.tag) this.tag.position.y = c.state.height + 0.55;
     this.t += dt;
-    for (const e of events) if (e.type === 'spill' || e.type === 'restack' || e.type === 'unstack' || e.type === 'hit') this.pop = 1;
+    for (const e of events) if (e.type === 'spill' || e.type === 'restack' || e.type === 'unstack' || e.type === 'hit' || e.type === 'burp') this.pop = 1;
+    if (events.some((e) => e.type === 'burp')) { this.drinkFx.burp(); this.burpBubble = 2.2; }
+    this.drinkFx.update(dt, c, c.state.height);
+    if (this.burpBubble > 0 && !this.burpB) { this.burpB = bubble('BUUUURP!'); this.root.add(this.burpB); }
+    if (this.burpB) { this.burpBubble -= dt; this.burpB.position.set(0, c.state.height + 1.2, 0); if (this.burpBubble <= 0) { this.root.remove(this.burpB); this.burpB = null; } }
     this.pop = Math.max(0, this.pop - dt * 3);
     this.root.position.set(f.x, f.y, f.z);
     this.root.visible = c.hidden?.mode !== 'inside' && !c.grabbedBy;     // in a box, or held up by a grown-up (drawn in their arms)                    // climbed into a box: only the box shows

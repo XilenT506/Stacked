@@ -106,7 +106,8 @@ export class Coat {
     this.time += dt; this.events = [];
     if (this.ownMess) this.mess.step(dt);
     const B = this.B.wobble, M = this.mods, slip = this.onSlippery();
-    this.walker.speed = (M.speed ?? this.state.speed) * (this.carrySpeedMul ?? 1);      // big loot in your arms slows you down
+    const sugar = this.sugar > 0 ? this.B.drinks?.sugar_rush : null;          // a Sugar Rush drink: faster, wobblier
+    this.walker.speed = (M.speed ?? this.state.speed) * (this.carrySpeedMul ?? 1) * (sugar?.speed ?? 1);      // big loot in your arms slows you down
     this.walker.grip = Math.min(slip ? this.B.slippery.grip : 1, M.grip ?? 1);
     if (this.stunned > 0) { this.stunned -= dt; move = { x: 0, z: 0 }; }
     this.effects ??= {};
@@ -128,6 +129,7 @@ export class Coat {
     if (slip && moving) fill += B.slipperyFill;
     if (this.walker.turnRate > 4 && moving) fill += B.turnFill * this.walker.turnRate / 4;
     if (M.wobble && moving) fill += M.wobble * sp / 4;
+    if (sugar && moving) fill += sugar.wobble * sp / 8;
     if (this.effects.soaked > 0 && moving && this.walker.turnRate > 4) { this.effects.soaked = 0; this.wobble += this.B.gadgetsOnCoat.soakedTurnWobble; this.events.push({ type: 'stumble' }); }
     const scale = this.count === 3 ? 1 : this.count === 2 ? 0.7 : 0.3;     // a shorter stack is steadier
     if (fill > 0) this.wobble += fill * scale * dt;

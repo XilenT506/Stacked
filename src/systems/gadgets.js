@@ -17,9 +17,10 @@ export class Gadgets {
   rnd() { this.seed = (this.seed * 16807) % 2147483647; return this.seed / 2147483647; }
   def(id) { const d = this.data.gadgets[id]; if (!d) throw new Error(`no gadget "${id}" in data/gadgets.json`); return d; }
 
-  // give a coat its gadgets (full ammo)
+  // give a coat its gadgets (full ammo): ids, or { id, copies } from the run (a second copy doubles the ammo)
   arm(coat, slots = this.data.loadout.slots) {
-    coat.gadgets = { slots: [...slots], i: 0, ammo: Object.fromEntries(slots.map((id) => [id, this.def(id).ammo])), charge: 0, cool: 0, wasDown: false };
+    const kit = slots.map((s) => (typeof s === 'string' ? { id: s, copies: 1 } : s)).filter((s) => this.data.gadgets[s.id]);
+    coat.gadgets = { slots: kit.map((s) => s.id), i: 0, ammo: Object.fromEntries(kit.map((s) => [s.id, this.def(s.id).ammo * s.copies])), charge: 0, cool: 0, wasDown: false };
     return coat.gadgets;
   }
 

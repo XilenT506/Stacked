@@ -2,6 +2,22 @@
 
 Newest first. One entry per build session (one prompt from the Build guide in the doc "STACKED – Game Plan").
 
+## 2026-11-19 · Prompt 14 of 16 (M1-10): Dodgy Del's mini shop
+
+- **Between two jobs you go to Dodgy Del's stall in the alley** (`src/ui/shop/`): after the results (8 seconds), a full-screen crayon drawing of a brick alley, **Del** (a 12-year-old in sunglasses and a red cap) behind **a pram full of stock**, his speech bubble (a new bad joke each visit, and a reply to everything you do), and **the team's sweet jar**.
+- **6 things on the pram: 4 gadgets** picked at random from the pool, **plus the 2 fizzy drinks, Sugar Rush and Burp Blaster** (3 cans of each). Each card has a little crayon picture, what it does, and its price in sweets.
+- **Sweets are the money:** the job's total (banked loot with the Clean Job / Chaos bonus) goes into one sweet jar the whole team shares. Buying takes sweets out of the jar; too few sweets and Del says "Come back richer."
+- **Reroll:** new gadgets for 15 sweets, then 25, 35... (drinks stay as they are). **Next job!** when everyone has pressed it (Enter / Start, or the button).
+- **All prices are in `data/balance.json` (`shop.prices`, `shop.reroll`)**, and so are the stock sizes and limits. Gadget prices moved out of `gadgets.json` so there is only one place to change them. Del's jokes, lines and drink names are in `data/shop.json`.
+- **What you buy comes with you:** a new gadget goes in your next slot (keys 1 to 5, the mouse wheel / Y cycles); buying one you already have doubles its ammo (up to ×3); drinks are carried until you drink them. Everyone caught at once ends the run: an empty jar and the starter gadgets again.
+- **Fizzy drinks (F, right bumper on a pad), from the plan's table:**
+  - **Sugar Rush:** 1.5× speed for 10 seconds, more wobble. Pink and yellow sparks whizz round your coat.
+  - **Burp Blaster:** "BUUUURP!" A green shockwave: grown-ups close to you fall flat, further away they stagger red-faced, friends' coats get a shove, loose stuff goes flying, and the whole shop hears it.
+- **4 new gadgets for Del's pool, all data only:** **Water balloon** (throw it, hold to throw further: soaks everyone in the splash and leaves a slide), **Whoopee cushion** (place it: whoever steps on it stands there embarrassed), **Bubble wrap** (a noise trap: POP-POP-POP, every grown-up comes to look), **Stink bomb** (throw it: grown-ups flee holding their noses). New placeholder sounds: burp, fizz, gulp, ka-ching, whoopee, pop-pop.
+- **Online:** your clicks at Del's go to the host and repeat until it has them (none lost or doubled); everyone sees the stall, the jar and each other's ready ticks; what a friend bought goes with them into the next job.
+- Tests: 84 logic tests pass (5 new): after the results Del opens with 4 different gadgets and the 2 drinks at balance.json prices (change a price in the data and the shop follows); buying, too poor, the reroll getting dearer, Next; **what you bought works in the next job** (the water balloon soaks the cashier, Sugar Rush makes you faster, Burp Blaster knocks granny over, a drink you drank is gone); everyone caught starts a new run; online, a friend's purchase reaches the host and goes with them into the next job.
+- Screenshots: `shop_del`, `shop_bought`, `balloon_flying`, `balloon_splash`, `drink_sugar`, `drink_burp`; online `online_shop_b`.
+
 ## 2026-11-18 · Prompt 13 of 16 (M1-09): The crayon map
 
 - **Tab (Back on a gamepad) opens the crayon map** (`src/ui/crayonmap/`): a big sheet of exercise-book paper over the game with a live floor plan of Bargain Bonanza drawn like a kid would: wobbly crayon lines in a few passes, grainy crayon texture, coloured-in zigzag scribbles, and kid handwriting (the free **Gaegu** font, OFL licence, bundled in `assets/fonts`, cost EUR 0).

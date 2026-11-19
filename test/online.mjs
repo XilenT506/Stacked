@@ -80,6 +80,19 @@ await hostWait(0.6); await b.keyboard.down('KeyE'); await hostWait(0.3); await b
 ok('a friend ended the job at the gate', await until(host, () => __stacked2.game.job.over));
 ok('everyone sees the result', await until(a, () => __stacked2.mirror.job.result?.why === 'got away') && await until(b, () => __stacked2.mirror.job.result?.why === 'got away'));
 await b.screenshot({ path: 'test/shots/online_result.png' });
+
+// Dodgy Del's: after the results everyone is at the stall; friend A buys a Sugar Rush, everyone presses Next,
+// and friend A carries it into the next job
+await host.evaluate(() => { __stacked2.game.run.sweets = 200; });
+ok('everyone is at Del\'s', await until(a, () => __stacked2.mirror.phase === 'shop' && !!__stacked2.mirror.shop, null, 60000) && await until(b, () => __stacked2.mirror.phase === 'shop', null, 30000));
+const sugarAt = await a.evaluate(() => { const i = __stacked2.mirror.shop.stock.findIndex((s) => s.id === 'sugar_rush'), b = __stacked2.delShop.boxes.find((q) => q.i === i); return [b.x + b.w / 2, b.y + b.h / 2]; });
+await a.mouse.click(...sugarAt);
+ok('friend A bought a Sugar Rush', await until(host, (id) => __stacked2.game.run.of(id).drinks.includes('sugar_rush'), ids.a, 20000));
+ok('friend B sees the sweet jar go down', await until(b, () => __stacked2.mirror.run.sweets < 200, null, 20000));
+await b.screenshot({ path: 'test/shots/online_shop_b.png' });
+for (const p of [host, a, b]) { await p.keyboard.down('Enter'); await p.waitForTimeout(150); await p.keyboard.up('Enter'); }
+ok('the next job starts when everyone pressed Next', await until(host, () => __stacked2.game.phase === 'job' && __stacked2.game.jobNo > 1, null, 30000));
+ok('friend A has the Sugar Rush in the next job', await until(a, (id) => (__stacked2.mirror.coats.find((c) => c.pid === id)?.drinks ?? []).includes('sugar_rush'), ids.a, 20000));
 const net = await host.evaluate(() => ({ snaps: __stacked2.host.sent, bytes: JSON.stringify(__stacked2.game && (globalThis.__lastSnap ?? {})).length }));
 console.log('snapshots sent', net.snaps);
 console.log(errors.length ? 'ERRORS ' + errors.join(' | ') : 'no errors');

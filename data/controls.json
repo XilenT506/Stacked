@@ -139,6 +139,27 @@
       "keys": [
         "Digit3"
       ]
+    },
+    "slot4": {
+      "label": "Gadget 4",
+      "keys": [
+        "Digit4"
+      ]
+    },
+    "slot5": {
+      "label": "Gadget 5",
+      "keys": [
+        "Digit5"
+      ]
+    },
+    "shopNext": {
+      "label": "Next (shop)",
+      "keys": [
+        "Enter"
+      ],
+      "pad": [
+        9
+      ]
     }
   }
 }

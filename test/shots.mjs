@@ -79,6 +79,8 @@ shop.on('pageerror', (e) => { errors.push(String(e)); console.log('PAGE ERROR', 
 shop.on('console', (m) => { if (m.type() === 'error') errors.push(m.text()); });
 await shop.goto('http://localhost:8481/?q=high');
 await shop.waitForFunction(() => globalThis.__stacked2?.clock.time > 1, null, { timeout: 120000 });
+// the screenshot tour ends jobs on purpose along the way (caught, shut in): don't go off to Del's by itself (the shop section opens it)
+await shop.evaluate(() => { __stacked2.game.D.balance.shop.resultsSeconds = 1e9; });
 const wait2 = (sec) => shop.evaluate((s) => new Promise((res) => { const t0 = __stacked2.clock.time; const f = () => (__stacked2.clock.time - t0 >= s ? res() : requestAnimationFrame(f)); f(); }), sec);
 await shop.mouse.move(640, 300);
 const go = (x, z) => shop.evaluate(([x, z]) => { const w = __stacked2.walker; w.body.setTranslation({ x, y: 1.2, z }, true); w.body.setNextKinematicTranslation({ x, y: 1.2, z }); }, [x, z]);
@@ -105,6 +107,7 @@ const logHas = (ev) => shop.evaluate((e) => __stacked2.signals.log.some((s) => s
 if (!process.env.HEATONLY) {
 // the living supermarket: one kick and the chain runs on its own; freezer fog; timed events; riding, posing, the belt
 await shop.evaluate(() => __stacked2.camRig.offset.multiplyScalar(1.3));
+await shop.evaluate(() => { for (const t of __stacked2.things.list) if (t.name === 'mop' && Math.hypot(t.position.x + 4, t.position.z + 8) < 3) t.body.setTranslation({ x: 9, y: 0.5, z: 14 }, true); });   // the clean-up event may have left the mop by the vending machine
 await go(-4.4, -8.3); await wait2(0.8);
 const hint = await shop.evaluate(() => __stacked2.hands.hint());
 await key('KeyE'); await go(-3.5, 4.2); await wait2(0.5); await shot('living_kick');
@@ -215,7 +218,7 @@ console.log('gadgets', JSON.stringify(gad), gad.counts.grownup > 0 && gad.banana
 
 // loot: pocket the chocolate, carry the giant lolly out to the getaway gate, get away
 await shop.evaluate(() => { const S = __stacked2, c = S.coat; c.stack = ['sid', 'mo', 'tank']; c.loose = []; c.pile = null; c.grabbedBy = null; c.mods = {}; c.hidden = null; c.wobble = 0; c.applyHeight();
-  S.job.over = false; S.job.result = null;      // (Closing Time already ended the job above)
+  S.job.over = false; S.job.result = null; S.game.phase = 'job'; S.game.shop = null; S.game.after = 0;      // (Closing Time already ended the job above, and the game went on to Del's)
   S.sus.level = 0; for (const g of S.people.list) { g.hostile.clear(); g.sus.clear(); if (g.typeName === 'caretaker' || g.typeName === 'guard') { g.walker.body.setTranslation({ x: -8, y: 0.9, z: -15 }, true); g.type = { ...g.type, hunts: false }; g.set('idle'); } } });
 await go(-0.3, 2.6); await wait2(0.6); await shot('loot_sweets');
 await key('KeyE', 0.1); await wait2(0.2); await key('KeyE', 0.1); await wait2(0.4);
@@ -255,6 +258,34 @@ await key('Tab', 0.1); await wait2(0.4); await shot('map_caretaker');
 const route = await shop.evaluate(() => __stacked2.map.route);
 console.log('caretaker route', JSON.stringify(route), route?.length >= 3 ? 'OK' : 'FAIL');
 await key('Tab', 0.1);
+
+// Dodgy Del's shop: Y ends the job and opens the stall; buy the water balloon and both drinks with the mouse; Next; then use them
+await shop.evaluate(() => { __stacked2.game.run.sweets = 220; __stacked2.game.test('shop'); __stacked2.game.shop.stock[0] = { id: 'water_balloon', kind: 'gadget', left: 1 }; });
+await wait2(0.6); await shot('shop_del');
+const DB = await shop.evaluate(() => __stacked2.delShop.boxes.map((b) => [b.x + b.w / 2, b.y + b.h / 2]));
+for (const i of [0, 4, 5]) { await shop.mouse.click(...DB[i]); await wait2(0.3); }
+await shot('shop_bought');
+const bought = await shop.evaluate(() => ({ sweets: __stacked2.run.sweets, kit: __stacked2.run.of('p1') }));
+const P = JSON.parse(await (await import('node:fs/promises')).readFile('data/balance.json', 'utf8')).shop.prices;
+console.log('shop buy', JSON.stringify(bought), bought.sweets === 220 - P.water_balloon - P.sugar_rush - P.burp_blaster && bought.kit.drinks.length === 2 ? 'OK' : 'FAIL');
+await key('Enter', 0.1); await wait2(1);
+const nextJob = await shop.evaluate(() => ({ phase: __stacked2.game.phase, slots: __stacked2.coat.gadgets.slots, drinks: __stacked2.coat.drinks }));
+console.log('next job kit', JSON.stringify(nextJob), nextJob.phase === 'job' && nextJob.slots.includes('water_balloon') && nextJob.drinks.length === 2 ? 'OK' : 'FAIL');
+// the balloon at the tills, then a Sugar Rush, then a burp next to granny
+await go(-5.2, 10); await wait2(0.5);
+await shop.evaluate(() => { const g = __stacked2.game, c = __stacked2.coat; c.gadgets.i = c.gadgets.slots.indexOf('water_balloon'); g.gadgets.fire(c, 'water_balloon', 0.45, { x: 0, z: -1 }); });
+await wait2(0.45); await shot('balloon_flying'); await wait2(1.2); await shot('balloon_splash');
+const soaked = await shop.evaluate(() => __stacked2.game.people.list.filter((p) => p.effects?.soaked > 0).map((p) => p.typeName));
+console.log('balloon soaked', JSON.stringify(soaked), soaked.length ? 'OK' : 'FAIL');
+await key('KeyF', 0.1); await wait2(0.2);
+await shop.keyboard.down('KeyA'); await wait2(0.6); await shot('drink_sugar'); await shop.keyboard.up('KeyA');
+const sugar = await shop.evaluate(() => __stacked2.coat.sugar);
+console.log('sugar rush', sugar.toFixed(1), sugar > 0 ? 'OK' : 'FAIL');
+await shop.evaluate(() => { const g = __stacked2.game, gr = g.people.list.find((p) => p.typeName === 'granny'); gr.walker.body.setTranslation({ x: -11, y: 0.9, z: 4 }, true); for (const p of g.people.list) p.sus.clear(); });
+await go(-12.2, 4.2); await wait2(0.4);
+await key('KeyF', 0.1); await wait2(0.25); await shot('drink_burp');
+const burp = await shop.evaluate(() => { const gr = __stacked2.game.people.list.find((p) => p.typeName === 'granny'); return { state: gr.state, drinks: __stacked2.coat.drinks }; });
+console.log('burp', JSON.stringify(burp), ['slipped', 'stunned'].includes(burp.state) && burp.drinks.length === 0 ? 'OK' : 'FAIL');
 
 console.log(errors.length ? 'ERRORS ' + errors.join(' | ') : 'no errors');
 await browser.close(); server.close();
