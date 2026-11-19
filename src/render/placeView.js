@@ -80,7 +80,7 @@ export class PlaceView {
     const ring = (x, z, r, color) => { const m = new T.Mesh(new T.RingGeometry(r - 0.08, r, 28), new T.MeshBasicMaterial({ color })); m.rotation.x = -Math.PI / 2; m.position.set(x, 0.03, z); o.add(m); };
     for (const h of D.hiding.list) ring(h.at[0], h.at[1], 0.7, 0x4fc98c);
     const spawnColor = { players: 0x4f9fc9, guard: 0x33201a, caretaker: 0x8e5bc4 };
-    for (const [k, list] of Object.entries(D.spawns)) for (const [x, z] of list) ring(x, z, 0.35, spawnColor[k] ?? 0xe2694f);
+    for (const [k, list] of Object.entries(D.spawns)) if (Array.isArray(list)) for (const [x, z] of list) ring(x, z, 0.35, spawnColor[k] ?? 0xe2694f);
     // the Closing Time shutters: red lines on the floor, numbered in the order they close
     D.closingTime.sections.forEach((s, i) => {
       for (const [x0, z0, x1, z1] of s.shutters) {

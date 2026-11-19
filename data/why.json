@@ -1,0 +1,20 @@
+{
+  "_about": "Why a grown-up's \"?\" goes up: the bubble over them (bubble) and the reason in the HUD line when Heat rises (heat, after the grown-up's name: 'A Shelf stacker saw you running'). One reason per kind of suspicious thing the suspicion system knows (src/systems/suspicion.js).",
+  "reasons": {
+    "near":    { "bubble": "Why is that grown-up so... short?",  "heat": "got a good look at you" },
+    "run":     { "bubble": "Running in a shop?!",                 "heat": "saw you running" },
+    "wobbly":  { "bubble": "Is that coat... wobbling?",           "heat": "saw your coat wobbling" },
+    "carry":   { "bubble": "What on earth is he carrying?",       "heat": "saw what you were carrying" },
+    "ride":    { "bubble": "Is he RIDING that trolley?",          "heat": "saw you riding a trolley" },
+    "map":     { "bubble": "Who reads a map in a supermarket?",   "heat": "saw you hiding behind a map" },
+    "unstack": { "bubble": "Did that coat just... come apart?",   "heat": "saw your coat come apart" },
+    "spill":   { "bubble": "Was that a CHILD falling out?!",      "heat": "saw a kid fall out of your coat" },
+    "bump":    { "bubble": "Oi! Watch where you're going!",       "heat": "got bumped into" },
+    "throw":   { "bubble": "Did he just THROW that?",             "heat": "saw you throw something" },
+    "gadget":  { "bubble": "Hey! Who did that?!",                 "heat": "saw you prank someone" },
+    "cage":    { "bubble": "Oi! Leave that cage alone!",          "heat": "saw you open the cage" },
+    "kids":    { "bubble": "There's kids running about!",         "heat": "spotted a loose kid" }
+  },
+  "heatLevels": ["", "People are starting to stare.", "Security has been called!", "PANIC! The front doors are locked: the back door by the yard still works."],
+  "testKey": "pressed the test key"
+}

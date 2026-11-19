@@ -1,5 +1,7 @@
 // Draws one Coat (src/entities/coat.js): the bending trench coat for 3 and 2 kids, a single kid in a far
 // too big hat for 1, the loose kids running around, and the coat lying on the floor like laundry after R.
+// M1-F2: each loose kid gets a bobbing marker in their colour (seen through shelves), and when grown-ups
+// pile on a coat (or carry it off) its outline shows through them, so you never lose yourself.
 import * as T from 'three';
 import { bubble } from './peopleView.js';
 import { makeMapSheet, updateMapSheet } from './mapSheet.js';
@@ -28,6 +30,17 @@ export function kidFigure(color) {
   return g;
 }
 
+// the marker over a loose kid: a fat down-arrow in their colour with a dark rim, always facing the camera
+// and drawn on top of everything
+function kidMarker(color) {
+  const c = document.createElement('canvas'); c.width = c.height = 64; const g = c.getContext('2d');
+  g.beginPath(); g.moveTo(8, 10); g.lineTo(56, 10); g.lineTo(32, 56); g.closePath();
+  g.fillStyle = '#' + color.toString(16).padStart(6, '0'); g.strokeStyle = '#33201a'; g.lineWidth = 6; g.lineJoin = 'round'; g.fill(); g.stroke();
+  const t = new T.CanvasTexture(c); t.colorSpace = T.SRGBColorSpace;
+  const s = new T.Sprite(new T.SpriteMaterial({ map: t, depthTest: false })); s.scale.setScalar(0.55); s.renderOrder = 9;
+  return s;
+}
+
 // run or wave the kid's arms and legs; phase in seconds
 function animateKid(k, t, running, waving) {
   const { legs, arms, torso, hat } = k.userData, s = running ? Math.sin(t * 16) : 0;
@@ -47,6 +60,11 @@ export class CoatView {
     this.pileG = new T.Group(); scene.add(this.pileG); this.pileG.visible = false;
     this.sway = 0; this.pop = 0; this.lean = new T.Vector2(); this.scale = new T.Vector3(1, 1, 1); this.t = 0;
     this.lastCount = coat.count;
+    // the see-through outline: a dark rim and a coloured ghost, drawn only where something stands in front of the coat
+    this.ghost = new T.Group(); scene.add(this.ghost); this.ghost.visible = false;
+    const rim = new T.Mesh(new T.CapsuleGeometry(0.5, 1.2, 4, 14), new T.MeshBasicMaterial({ color: 0x33201a, side: T.BackSide, depthFunc: T.GreaterDepth, depthWrite: false, transparent: true, opacity: 0.9 }));
+    const fill = new T.Mesh(new T.CapsuleGeometry(0.43, 1.2, 4, 14), new T.MeshBasicMaterial({ color: PLAYER_COLORS[(coat.slot ?? 0) % 4], depthFunc: T.GreaterDepth, depthWrite: false, transparent: true, opacity: 0.6 }));
+    rim.renderOrder = 6; fill.renderOrder = 7; this.ghost.add(rim, fill); this.ghostParts = [rim, fill];
     this.sheet = makeMapSheet(); this.root.add(this.sheet);
     this.drinkFx = new DrinkFx(this.root);                                 // Sugar Rush sparks, Burp Blaster shockwave              // the crayon map, held up while it is open
     // a plain stand-in until the model is ready
@@ -67,7 +85,7 @@ export class CoatView {
     this.tag.visible = this.ring.visible = show;
   }
 
-  remove() { this.scene.remove(this.root); this.scene.remove(this.pileG); for (const m of this.looseG.values()) this.scene.remove(m); this.looseG.clear(); }
+  remove() { this.scene.remove(this.root); this.scene.remove(this.pileG); this.scene.remove(this.ghost); for (const m of this.looseG.values()) this.scene.remove(m, m.userData.marker); this.looseG.clear(); }
 
   useHero(p) {
     this.coatG.remove(this.stand);
@@ -96,7 +114,7 @@ export class CoatView {
   }
 
   // events: what the coat reported since the last frame (spill, restack, unstack, hit...)
-  update(dt, events = []) {
+  update(dt, events = [], { crowd = 0, mine = false } = {}) {
     const c = this.coat, w = c.walker, f = w.feet;
     // Act Natural: a grown-up remark in a bubble, a new one each time you start
     if (c.actingNatural && !this.natBubble && this.lines?.length) {
@@ -134,13 +152,22 @@ export class CoatView {
     const seen = new Set();
     for (const k of c.loose) {
       if (k.carriedBy) continue;                                          // drawn in the grown-up's arms
-      let m = this.looseG.get(k); if (!m) { m = kidFigure(KID_COLORS[k.id] ?? 0xffffff); this.scene.add(m); this.looseG.set(k, m); }
+      let m = this.looseG.get(k); if (!m) { m = kidFigure(KID_COLORS[k.id] ?? 0xffffff); m.userData.marker = kidMarker(KID_COLORS[k.id] ?? 0xffffff); this.scene.add(m, m.userData.marker); this.looseG.set(k, m); }
+      const mk = m.userData.marker; mk.visible = !k.caged; mk.position.set(k.x, f.y + 1.55 + Math.abs(Math.sin(this.t * 4 + k.x)) * 0.25, k.z); 
       seen.add(k);
       m.position.set(k.x, f.y + (k.waiting ? 0 : Math.abs(Math.sin(this.t * 16)) * 0.05), k.z);
       if (!k.waiting) m.rotation.y = Math.atan2(k.vx, k.vz);
       animateKid(m, this.t + k.x, !k.waiting, k.waiting);
     }
-    for (const [k, m] of this.looseG) if (!seen.has(k)) { this.scene.remove(m); this.looseG.delete(k); }
+    for (const [k, m] of this.looseG) if (!seen.has(k)) { this.scene.remove(m, m.userData.marker); this.looseG.delete(k); }
+    // the outline through a pile-on (two or more grown-ups on you, or being carried off)
+    const h = c.count === 1 ? 1 : c.state.height, on = c.count > 0 && !c.inCage && (crowd >= 2 || !!c.caught || (!!c.grabbedBy && mine));
+    this.ghost.visible = on;
+    if (on) {
+      const s = h / 2.2, pulse = 0.55 + Math.sin(this.t * 6) * 0.15;
+      this.ghost.position.set(f.x, f.y + h / 2, f.z); this.ghost.scale.set(s, s, s); this.ghostParts[1].material.opacity = pulse;
+      this.ghostParts[1].material.color.setHex(PLAYER_COLORS[(c.slot ?? 0) % 4]);
+    }
     // the laundry pile
     this.pileG.visible = !!c.pile;
     if (c.pile) {

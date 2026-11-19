@@ -121,7 +121,9 @@
   },
 
   "spawns": {
+    "_about": "players: where coats start; backDoor: where a Spare Kid comes in when Panic has locked the front doors (the yard, just outside the back door); the rest: where the grown-ups start",
     "players": [[-15.5, 15], [-13.5, 15], [-15.5, 17], [-13.5, 17]],
+    "backDoor": [[6, -19.6]],
     "guard": [[-12, 10.2]],
     "cashiers": [[-11.2, 7.5], [-7.2, 7.5], [-3.2, 7.5], [0.8, 7.5]],
     "shoppers": [[-15.5, -3], [-11.5, 2], [-7.5, -4], [0.5, 1], [4.5, -1], [12, 4], [-4, 5], [-10, -8]],

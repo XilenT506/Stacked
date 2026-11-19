@@ -106,6 +106,57 @@ console.log('pile', JSON.stringify(cs), cs.count === 1 && cs.pile ? 'OK' : 'FAIL
   if (process.env.FIRSTONLY) { console.log(errors.length ? 'ERRORS ' + errors.join(' | ') : 'no page errors'); await browser.close(); server.close(); process.exit(0); }
 }
 
+// M1-F2, getting caught: a "why" bubble when a grown-up sees you run, loose kids with markers (in the shop,
+// at the screen edge and on the crayon map), your coat's outline through a pile-on, and the Spare Kid
+// coming in through the back door when Panic has locked the front.
+if (!process.env.FIRSTONLY) {
+  const f = await browser.newPage({ viewport: { width: 1280, height: 720 }, deviceScaleFactor: 1 });
+  f.on('pageerror', (e) => { errors.push(String(e)); console.log('PAGE ERROR', String(e)); });
+  await f.goto('http://localhost:8481/?q=high&dev=1');
+  await f.waitForFunction(() => globalThis.__stacked2?.clock.time > 1, null, { timeout: 120000 });
+  const fw = (sec) => f.evaluate((s) => new Promise((res) => { const t0 = __stacked2.clock.time; const g = () => (__stacked2.clock.time - t0 >= s ? res() : requestAnimationFrame(g)); g(); }), sec);
+  const fgo = (x, z) => f.evaluate(([x, z]) => { const w = __stacked2.walker; w.body.setTranslation({ x, y: 1.2, z }, true); w.body.setNextKinematicTranslation({ x, y: 1.2, z }); if (w.vel) { w.vel.x = 0; w.vel.z = 0; } }, [x, z]);
+  const shouts = [];
+  await f.exposeFunction('__shout', (t) => shouts.push(t));
+  await f.evaluate(() => { const P = __stacked2.peopleView, s = P.shout.bind(P); P.shout = (g, text, sec) => { globalThis.__shout(text); return s(g, text, sec); }; });
+  // run past the tills
+  await fgo(-12, 9.6); await fw(0.5);
+  await f.keyboard.down('ShiftLeft'); await f.keyboard.down('KeyD'); await fw(0.9); await f.keyboard.up('KeyD'); await f.keyboard.up('ShiftLeft'); await fw(0.15);
+  await f.screenshot({ path: 'test/shots/caught_why_bubble.png' });
+  console.log('why bubble', JSON.stringify(shouts), shouts.includes('Running in a shop?!') ? 'OK' : 'FAIL');
+  // kids fall out (test key K): markers over them, arrows at the edge, and on the crayon map
+  await f.evaluate(() => { for (const g of __stacked2.people.list) { g.sus.clear(); g.hostile.clear(); } });
+  await fgo(-3.5, 2); await fw(0.5);
+  await f.keyboard.press('KeyK'); await fw(0.3);
+  const calm = () => f.evaluate(() => { for (const g of __stacked2.people.list) { g.sus.clear(); g.hostile.clear(); g.set('idle'); g.target = null; g.goal = null; } });
+  await calm(); await fw(0.3); await calm(); await fw(0.3); await calm(); await fw(0.3);
+  const loose = await f.evaluate(() => ({ loose: __stacked2.coat.loose.length, arrows: __stacked2.pointers.filter((p) => p.to === 'kid').length, markers: [...__stacked2.coatView.looseG.values()].filter((m) => m.userData.marker?.visible).length }));
+  await f.screenshot({ path: 'test/shots/caught_loose_kids.png' });
+  console.log('loose kids with markers', JSON.stringify(loose), loose.loose >= 1 && loose.markers === loose.loose && loose.arrows === loose.loose ? 'OK' : 'FAIL');
+  await f.evaluate(() => { __stacked2.camRig.offset.multiplyScalar(0.55); }); await fw(0.4);
+  await f.screenshot({ path: 'test/shots/caught_loose_kids_edge.png' });
+  await f.evaluate(() => { __stacked2.camRig.offset.multiplyScalar(1 / 0.55); });
+  await f.keyboard.down('Tab'); await fw(0.2); await f.keyboard.up('Tab'); await fw(0.8);
+  await f.screenshot({ path: 'test/shots/caught_loose_map.png' });
+  await f.keyboard.down('Tab'); await fw(0.2); await f.keyboard.up('Tab'); await fw(0.3);
+  // a pile-on: two grown-ups right on top of the coat
+  await f.evaluate(() => { const S = __stacked2, c = S.coat; c.stack = ['sid', 'mo', 'tank']; c.loose = []; c.pile = null; c.wobble = 0; c.applyHeight(); });
+  await fgo(-7.5, 2); await fw(0.3);
+  await f.evaluate(() => { const S = __stacked2, ppl = S.people.list.filter((g) => g.typeName === 'shopper').slice(0, 2); ppl.forEach((g, i) => { const p = { x: -7.5 + (i ? 0.45 : -0.45), y: g.walker.half + g.walker.radius + 0.02, z: 2.85 }; g.walker.body.setTranslation(p, true); g.walker.body.setNextKinematicTranslation(p); g.set('idle'); g.goal = null; }); });
+  await fw(0.3);
+  const ghost = await f.evaluate(() => { const f = __stacked2.coat.walker.feet; return __stacked2.coatView.ghost.visible && __stacked2.people.list.filter((g) => Math.hypot(g.feet.x - f.x, g.feet.z - f.z) < 1.5).length >= 2; });
+  await f.screenshot({ path: 'test/shots/caught_outline.png' });
+  console.log('outline through a pile-on', ghost ? 'OK' : 'FAIL');
+  // Panic locked the front: the Spare Kid comes in through the back door
+  await f.evaluate(() => { const S = __stacked2, c = S.coat, g = S.people.byType('guard')[0]; S.closing.lock('front'); c.stack = ['sid']; c.applyHeight(); S.game.rescue.caught(c, g); });
+  await fw(0.8);
+  const spare = await f.evaluate(() => ({ at: __stacked2.area?.id, msg: document.getElementById('announce').textContent, op: getComputedStyle(document.getElementById('announce')).opacity }));
+  await f.screenshot({ path: 'test/shots/caught_spare_back_door.png' });
+  console.log('spare kid at the back door', JSON.stringify(spare), spare.at === 'yard' && /through the back door/.test(spare.msg) ? 'OK' : 'FAIL');
+  await f.close();
+  if (process.env.CAUGHTONLY) { console.log(errors.length ? 'ERRORS ' + errors.join(' | ') : 'no page errors'); await browser.close(); server.close(); process.exit(0); }
+}
+
 // the supermarket: an overview with the planning overlay, then every area seen from the coat's camera
 const shop = await browser.newPage({ viewport: { width: 1280, height: 720 }, deviceScaleFactor: 1 });
 shop.on('pageerror', (e) => { errors.push(String(e)); console.log('PAGE ERROR', String(e)); });
@@ -230,11 +281,11 @@ await shop.keyboard.down('KeyQ'); await wait2(1.5); await shot('heat_act_natural
 const drained = await susOf();
 console.log('meter', filled.toFixed(2), '-> act natural', drained.toFixed(2), filled > 0.15 && drained < filled ? 'OK' : 'FAIL');
 await shop.keyboard.down('ShiftLeft');
-for (let i = 0; i < 6 && (await shop.evaluate(() => __stacked2.sus.level)) === 0; i++) { await key('KeyS', 0.35); await key('KeyW', 0.35); }
+for (let i = 0; i < 14 && (await shop.evaluate(() => __stacked2.sus.level)) === 0; i++) { await key('KeyS', 0.35); await key('KeyW', 0.35); }   // (M1-F2 made the road to a bust longer)
 await shop.keyboard.up('ShiftLeft'); await shot('heat_bust');
 const lvl1 = await shop.evaluate(() => __stacked2.sus.level);
 console.log('bust heat', lvl1, lvl1 >= 1 ? 'OK' : 'FAIL');
-await go(-12, 6); await key('KeyH', 0.1); await key('KeyH', 0.1); await key('KeyH', 0.1); await wait2(1.5); await shot('heat_panic');
+await go(-12, 6); for (let i = 0; i < 6 && (await shop.evaluate(() => __stacked2.sus.level)) < 3; i++) await key('KeyH', 0.1); await wait2(1.5); await shot('heat_panic');
 const panic = await shop.evaluate(() => ({ level: __stacked2.sus.level, caretaker: !!__stacked2.security.caretaker, front: __stacked2.closing.closed.has('front'), guards: __stacked2.people.byType('guard').length }));
 console.log('panic', JSON.stringify(panic), panic.level === 3 && panic.caretaker && panic.front ? 'OK' : 'FAIL');
 await shop.evaluate(() => { const S = __stacked2; S.closing.C.sectionEvery = 2; S.closing.C.warn = 1; });

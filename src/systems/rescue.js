@@ -2,9 +2,12 @@
 // staff room (grabbed loose kids end up there too). A grown-up stands guard at it. A friend frees you by
 // luring the guard away (any noise will do) and opening the gate with E: everyone inside comes out, you
 // as one kid. Playing alone you have Spare Kids instead: a new kid walks in at the entrance and the
-// caught one waits in the cage for you to fetch. The job ends only when every player is caught at once.
+// caught one waits in the cage for you to fetch (when Panic has locked the front doors, the Spare Kid comes
+// in through the back door instead). While a grown-up carries a caught player off, that player's coat rides
+// along with them, so their camera and HUD follow them to the cage. The job ends only when every player is caught at once.
 export class Rescue {
-  constructor({ R, world, place, people, balance, solo = false, suspicion = null }) {
+  constructor({ R, world, place, people, balance, solo = false, suspicion = null, closing = null }) {
+    this.closing = closing;
     this.R = R; this.world = world; this.D = place.data; this.C = place.data.lostAndFound; this.B = balance.rescue;
     this.people = people; this.sus = suspicion; this.solo = solo; this.spares = solo ? this.B.spareKids : 0;
     this.drop = this.C.drop; this.events = []; this.open = false; this.coats = [];
@@ -36,13 +39,13 @@ export class Rescue {
     if (this.solo && this.spares > 0) {          // a Spare Kid takes over; the caught kid goes to the cage
       this.spares--;
       coat.loose.push(kid); g.carrying = kid;
-      const [x, z] = this.D.spawns.players[0];
+      const back = !!this.closing?.closed?.has('front') && this.D.spawns.backDoor, [x, z] = back ? this.D.spawns.backDoor[0] : this.D.spawns.players[0];
       this.respawn(coat, x, z, `spare${this.B.spareKids - this.spares}`);
-      this.events.push({ type: 'spareKid', coat, left: this.spares });
+      this.events.push({ type: 'spareKid', coat, left: this.spares, n: this.B.spareKids - this.spares, of: this.B.spareKids, back: !!back, by: g });
     } else {                                        // the whole player is carried off
       kid.coat = coat; g.carrying = kid;
       coat.caught = g; coat.grabbedBy = g; coat.mods = { frozen: true }; coat.walker.collider.setEnabled(false);
-      this.events.push({ type: 'caught', coat });
+      this.events.push({ type: 'caught', coat, by: g });
     }
     g.set('carry'); g.goal = { x: this.drop[0], z: this.drop[1] };
     this.checkAll();
@@ -77,7 +80,7 @@ export class Rescue {
   openBy(coat) {
     if (!this.canOpen(coat)) return false;
     this.setGate(true);
-    if (this.warden && this.sus && coat.count > 1 && this.warden.sees(coat.walker.feet)) this.sus.bump(this.warden, coat, this.B.openSeen);
+    if (this.warden && this.sus && coat.count > 1 && this.warden.sees(coat.walker.feet)) this.sus.bump(this.warden, coat, this.B.openSeen, 'cage');
     // everyone inside comes out: caught players as one kid, caged kids wait just outside to be picked up
     const out = this.gateAt;
     for (const c of this.coats) if (c.inCage) { c.inCage = false; c.walker.body.setTranslation({ x: out.x, y: c.walker.half + c.walker.radius + 0.02, z: out.z + 0.9 }, true); this.events.push({ type: 'freed', coat: c, by: coat }); }
@@ -93,8 +96,17 @@ export class Rescue {
 
   step(coats) { this.allCoats = coats; for (const c of coats) if (!this.coats.includes(c)) this.coats.push(c); }
 
+  // a caught player rides along in the grown-up's arms (their coat is hidden; the camera follows it)
+  follow() {
+    for (const c of this.coats) {
+      const g = c.caught; if (!g) continue;
+      const f = g.feet, y = c.walker.half + c.walker.radius + 0.02;
+      c.walker.body.setTranslation({ x: f.x, y, z: f.z }, true); c.walker.body.setNextKinematicTranslation({ x: f.x, y, z: f.z });
+    }
+  }
+
   hint(coat) {
-    if (coat.inCage) return this.solo ? 'Locked in the Lost & Found!' : 'Locked in the Lost & Found! A friend can lure the guard away and open the gate.';
+    if (coat.inCage) return this.solo ? 'Locked in the Lost & Found!' : 'Locked in! A friend lures the guard away (a noise, a prank, or letting him see them somewhere else), then opens the gate with E.';
     if (this.canOpen(coat)) return 'E: open the Lost & Found cage';
     return '';
   }

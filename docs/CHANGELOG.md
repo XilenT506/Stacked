@@ -2,6 +2,37 @@
 
 Newest first. One entry per build session (one prompt from the Build guide in the doc "STACKED – Game Plan").
 
+## 2026-11-19 · Fix 2 of 6 (M1-F2): Getting caught: fair, readable, funny
+
+- **Why bubbles:** every time a grown-up's "?" starts rising (or rises for a new reason) a short bubble says why: "Running in a shop?!", "Is that coat... wobbling?", "Was that a CHILD falling out?!", "Oi! Watch where you're going!" and more. The words are in the new `data/why.json`; `src/systems/suspicion.js` now tracks the main reason for each meter. When Heat rises the HUD line says what gave you away: "People are starting to stare. A baker saw you running."
+- **Slower road to Panic** (`data/balance.json`). Before → after:
+
+  | Number | Before | After |
+  | --- | --- | --- |
+  | heat.thresholds (Twitchy, Alert, Panic) | 1, 2, 3 | 1, 2.5, 4.5 |
+  | heat.kidShout | 0.5 | 0.25 |
+  | heat.sameIncident (seconds) | 4 | 6 |
+  | heat.bustSameIncident | 0.25 | 0.1 |
+  | suspicion.run | 0.4 | 0.3 |
+  | suspicion.wobbly | 0.3 | 0.2 |
+  | suspicion.wobblyAbove | 0.6 | 0.65 |
+  | suspicion.spillSeen | 0.5 | 0.35 |
+  | suspicion.unstack | 0.6 | 0.45 |
+  | suspicion.bump | 0.35 | 0.3 |
+  | suspicion.bumpSeenByOthers | 0.1 | 0.08 |
+  | suspicion.drainUnseen | 0.12 | 0.15 |
+  | suspicion.bumpWalking (new) | (1) | 0.5: walking into someone counts half |
+  | suspicion.bumpEvery (new) | (1.2 s) | 2.5 s between bumps with the same grown-up |
+  | suspicion.bumpMinSpeed (new) | (0) | 0.6: a grown-up walking into you while you stand still doesn't count |
+
+  The main culprit was bumping: a careful bot walking round the shop kept brushing past shoppers and was busted at 48 s, Panic at 59 s. Now the same bot goes 90 s without a bust, highest "?" 0.27. A bot that runs everywhere is still busted within about 5 s (now Alert instead of Panic).
+- **Loose kids:** each loose kid has a bobbing ▼ marker in their colour (seen through shelves), an arrow at the screen edge ("KID!", or "KID! (grabbed)" while a grown-up carries it off), and a coloured blob with "KID!" on the crayon map.
+- **Pile-on outline:** with two or more grown-ups on top of your coat (or while you are carried off) your coat's outline shows through them in your colour.
+- **Caught:** a caught player's coat now rides along in the grown-up's arms, so their camera and HUD follow them to the cage. Messages are per player: you get "Your coat was caught! A security guard is carrying you to the Lost & Found...", everyone else "Player 2's coat was caught!". Being locked in, freed, or dropped by a slipping grown-up each get a one-line message too. Playing alone: "You're Spare Kid 1 of 2, coming in at the entrance. Your old kid waits in the Lost & Found in the staff room."
+- **Back door:** when Panic has locked the front doors, the Spare Kid comes in through the back door (new `spawns.backDoor` in the yard). The Heat 3 line says the back door still works, and each Closing Time shutter that comes down gets a one-line announcement.
+- **Cage:** the hint says how to lure the guard: "a noise, a prank, or letting him see them somewhere else".
+- Tests: new `test/logic/caught.test.mjs` (the why text for running and wobbling, the Heat line, a careful bot not busted in 90 s, riding along to the cage with the right messages, the back-door Spare Kid, the cage hint). The online check now has the host catch friend B: B is told plainly, the others are told who, and B's camera rides along. New screenshots `caught_*.png` and `online_caught_*.png`.
+
 ## 2026-11-19 · Fix 1 of 6 (M1-F1): The first minute and where to go
 
 - **Joining works:** keys typed into a text box (the room code) now belong to the box. Before, `src/core/input.js` took them too, so "YDQR" became "Y" and R unstacked the coat. Enter in the code box joins.

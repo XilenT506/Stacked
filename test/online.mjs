@@ -108,6 +108,18 @@ await b.screenshot({ path: 'test/shots/online_shop_b.png' });
 for (const p of [host, a, b]) { await p.keyboard.down('Enter'); await p.waitForTimeout(150); await p.keyboard.up('Enter'); }
 ok('the next job starts when everyone pressed Next', await until(host, () => __stacked2.game.phase === 'job' && __stacked2.game.jobNo > 1, null, 30000));
 ok('friend A has the Sugar Rush in the next job', await until(a, (id) => (__stacked2.mirror.coats.find((c) => c.pid === id)?.drinks ?? []).includes('sugar_rush'), ids.a, 20000));
+// M1-F2: a guard catches friend B (their last kid): B is told plainly, everyone else is told who, and B's
+// camera rides along to the cage with the guard
+await host.evaluate((id) => { const G = __stacked2.game, c = G.player(id).coat, g = G.people.byType('guard')[0]; c.stack = [c.stack[0]]; c.applyHeight(); G.rescue.caught(c, g); }, ids.b);
+const said = (p) => p.evaluate(() => document.getElementById('announce').textContent);
+ok('friend B is told they were caught', await until(b, () => /Your coat was caught!/.test(document.getElementById('announce').textContent), null, 15000), await said(b));
+const slotB = await host.evaluate((id) => __stacked2.game.player(id).coat.slot + 1, ids.b);
+ok('friend A and the host are told who', await until(a, (n) => document.getElementById('announce').textContent.includes(`Player ${n}'s coat was caught!`), slotB, 15000) && (await said(host)).includes(`Player ${slotB}'s coat was caught!`), await said(a));
+await hostWait(1.5);
+const ride = await host.evaluate((id) => { const G = __stacked2.game, c = G.player(id).coat, g = c.caught; return g ? Math.hypot(c.walker.feet.x - g.feet.x, c.walker.feet.z - g.feet.z) : -1; }, ids.b);
+const camB = await b.evaluate(() => { const m = __stacked2.mirror.coats.find((c) => c.pid === __stacked2.client.id), f = m.walker.feet, F = __stacked2.camRig.focus; return Math.hypot(F.x - f.x, F.z - f.z); });
+ok('friend B rides along with the guard, camera and all', ride >= 0 && ride < 0.3 && camB < 3, JSON.stringify({ ride, camB }));
+await b.screenshot({ path: 'test/shots/online_caught_b.png' }); await a.screenshot({ path: 'test/shots/online_caught_a.png' });
 const net = await host.evaluate(() => ({ snaps: __stacked2.host.sent, bytes: JSON.stringify(__stacked2.game && (globalThis.__lastSnap ?? {})).length }));
 console.log('snapshots sent', net.snaps);
 console.log(errors.length ? 'ERRORS ' + errors.join(' | ') : 'no errors');

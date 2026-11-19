@@ -94,9 +94,10 @@ test('a hostile guard chases a whole coat and yanks the top kid out', () => {
 
 test('Heat 2 brings another guard; Heat 3 locks the front doors and brings the Caretaker, who hunts any coat', () => {
   const s = shop({ coatAt: [-7.5, 0, 2], only: () => false });
-  s.sus.addHeat(2); assert.equal(s.sus.level, 2);
+  const th = s.sus.H.thresholds;                                           // (the Heat road is tuned in data/balance.json)
+  s.sus.addHeat(th[1]); assert.equal(s.sus.level, 2);
   assert.equal(s.people.byType('guard').length, 1, 'security arrives at Alert');
-  s.sus.addHeat(1); assert.equal(s.sus.level, 3); assert.equal(s.sus.name, 'Panic');
+  s.sus.addHeat(th[2] - th[1]); assert.equal(s.sus.level, 3); assert.equal(s.sus.name, 'Panic');
   const ct = s.people.byType('caretaker');
   assert.equal(ct.length, 1, 'the Caretaker comes');
   assert.equal(s.people.byType('guard').length, 2);

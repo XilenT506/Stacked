@@ -30,7 +30,7 @@ test('spawn points, loot and hiding spots sit inside an area and not inside furn
   const world = makeWorld(R, 18), place = buildPlace(R, world, SHOP);
   const solids = SHOP.solids.list;
   const inSolid = (x, z) => solids.some(([sx, sz, w, , d]) => Math.abs(x - sx) < w / 2 && Math.abs(z - sz) < d / 2);
-  const pts = [...Object.values(SHOP.spawns).flat(), ...SHOP.hiding.list.map((h) => h.at), ...SHOP.loot.list.filter((l) => l.at[1] < 0.5).map((l) => [l.at[0], l.at[2]])];
+  const pts = [...Object.entries(SHOP.spawns).filter(([k]) => !k.startsWith('_')).map(([, v]) => v).flat(), ...SHOP.hiding.list.map((h) => h.at), ...SHOP.loot.list.filter((l) => l.at[1] < 0.5).map((l) => [l.at[0], l.at[2]])];
   for (const [x, z] of pts) { assert.ok(place.areaAt(x, z), `${x},${z} is in no area`); assert.ok(!inSolid(x, z), `${x},${z} is inside furniture`); }
   assert.equal(place.areaAt(0.5, 0).id, 'sweets');
   assert.equal(place.areaAt(-14, 10).id, 'entrance');

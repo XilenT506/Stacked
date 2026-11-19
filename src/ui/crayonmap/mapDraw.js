@@ -114,7 +114,8 @@ export function drawLive(ctx, V, D, model, { me, colors, time = 0 }) {
   for (const c of model.coats) {
     const f = c.walker.feet, [x, y] = V.px(f.x, f.z), col = colors[(c.slot ?? 0) % colors.length];
     coat(ctx, x, y, doodle * 1.25, col, c.pid === me ? 'YOU' : `P${(c.slot ?? 0) + 1}`, { kids: c.count, mapOpen: c.mapOpen, caged: c.inCage, seed: (c.slot ?? 0) * 19 + 5 });
-    for (const k of c.loose ?? []) if (!k.caged) ring(ctx, ...V.px(k.x, k.z), 4, col, 3, k.x * 9, { passes: 1 });
+    // loose kids: a coloured blob with a dark ring and "KID!" (so a lost kid is easy to find)
+    for (const k of c.loose ?? []) if (!k.caged) { const [kx, ky] = V.px(k.x, k.z); scribbleFill(ctx, ringPts(kx, ky, 8, k.x * 9), col, k.x * 9, { gap: 2.5, alpha: 0.95 }); ring(ctx, kx, ky, 10, INK, 2.5, k.x * 9 + 1, { passes: 1 }); write(ctx, 'KID!', kx, ky - 18, 15, col, k.x * 5, { outline: '#fbf6ea' }); }
   }
 }
 

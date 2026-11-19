@@ -56,10 +56,12 @@ export class Stage {
     if (this.model.jobNo !== this.jobNo) this.build(this.model);
     this.syncCoats();
     this.peopleView.watch = watch;
-    this.present(events);
+    this.present(events, me);
     this.juice.handle(events, { me, focus }); this.juice.update(dt, camera);
     this.thingsView.update(dt); this.peopleView.update(dt); this.shutterView.update(dt); this.gadgetView.update(); this.lootView.update(dt); this.cageView.update(dt); this.chalkView.update(this.model.map);
-    for (const [c, v] of this.coatViews) v.update(dt, this.pops?.get(c) ?? []);
+    // how many grown-ups are right on top of each coat (a pile-on): the coat's outline shows through them
+    const crowd = (c) => { const f = c.walker.feet; return this.model.people.list.filter((g) => Math.hypot(g.feet.x - f.x, g.feet.z - f.z) < 1.5).length; };
+    for (const [c, v] of this.coatViews) v.update(dt, this.pops?.get(c) ?? [], { crowd: crowd(c), mine: me.includes(c.pid) });
     this.pops = new Map();
     // aim rings for local players
     while (this.aimMarks.length < aims.length) { const m = new T.Mesh(new T.RingGeometry(0.18, 0.26, 24), new T.MeshBasicMaterial({ color: 0xc4553d, transparent: true, opacity: 0.8 })); m.rotation.x = -Math.PI / 2; this.scene.add(m); this.aimMarks.push(m); }
@@ -73,13 +75,13 @@ export class Stage {
   }
 
   // the game's presentation events: the same list on every screen
-  present(events) {
+  present(events, me = []) {
     const people = new Map(this.model.people.list.map((g) => [g.id, g])), coats = new Map(this.model.coats.map((c) => [c.pid, c]));
     this.pops ??= new Map();
     for (const e of events) {
       if (e.k === 'sound') this.sfx.play(e.name, e.x !== undefined ? { x: e.x, z: e.z } : null);
       else if (e.k === 'say') this.voices.say(e.who, e.clip, { x: e.x, z: e.z });
-      else if (e.k === 'announce') this.hud.announce(e.text, e.title);
+      else if (e.k === 'announce') { const mine = !e.to || me.includes(e.to); if (mine || e.others) this.hud.announce(mine ? e.text : e.others, e.title); }
       else if (e.k === 'shout') { const g = people.get(e.who); if (g) this.peopleView.shout(g, e.text, e.sec); }
       else if (e.k === 'giggle') this.hud.giggle(e);
       else if (e.k === 'coat') { const c = coats.get(e.pid); if (c) { const l = this.pops.get(c) ?? []; l.push({ type: e.type }); this.pops.set(c, l); } }

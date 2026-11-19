@@ -24,6 +24,7 @@ import { DelShop } from './ui/shop/delShop.js';
 import { StartCard } from './ui/startCard.js';
 import { PointerHud } from './ui/pointerHud.js';
 import { pointerFor } from './systems/pointer.js';
+import { KID_COLORS } from './render/coatView.js';
 import { typingIn } from './core/input.js';
 import STARTCARD from '../data/startcard.json';
 import { FollowCamera } from './render/followCamera.js';
@@ -45,8 +46,9 @@ import LOOT from '../data/loot.json';
 import CRAYONMAP from '../data/crayonmap.json';
 import DEL from '../data/shop.json';
 import GIGGLES from '../data/giggles.json';
+import WHY from '../data/why.json';
 
-const DATA = { place: SUPERMARKET, events: SHOP_EVENTS, things: THINGS, signals: SIGNALS, balance: BALANCE, grownups: GROWNUPS, gadgets: GADGETS, loot: LOOT, crayonmap: CRAYONMAP, shop: DEL, giggles: GIGGLES, juice: JUICE };
+const DATA = { place: SUPERMARKET, events: SHOP_EVENTS, things: THINGS, signals: SIGNALS, balance: BALANCE, grownups: GROWNUPS, gadgets: GADGETS, loot: LOOT, crayonmap: CRAYONMAP, shop: DEL, giggles: GIGGLES, juice: JUICE, why: WHY };
 const params = new URLSearchParams(location.search);
 const quality = params.get('q') || 'high';                       // chosen, never switched behind the player's back
 const dev = params.get('dev') === '1';
@@ -215,7 +217,9 @@ function frame(now) {
     hud.update(dt, watch, [], areaNow, game ? game.hint(watch.pid) : watch.hint ?? '');
     hud.gadgets(watch, { ...GADGETS, drinks: DEL.drinks });
   }
-  pointerHud.update(card.open || shopping || !watch ? null : pointerFor(model, watch, SUPERMARKET), camera, innerWidth, innerHeight);
+  // the arrows at the screen edge: the way to go, and each of your loose kids in their colour
+  const kids = watch ? (watch.loose ?? []).filter((k) => !k.caged).map((k) => ({ x: k.x, z: k.z, label: k.carriedBy ? 'KID! (grabbed)' : 'KID!', to: 'kid', color: '#' + (KID_COLORS[k.id] ?? 0xffffff).toString(16).padStart(6, '0') })) : [];
+  pointerHud.update(card.open || shopping || !watch ? [] : [pointerFor(model, watch, SUPERMARKET), ...kids], camera, innerWidth, innerHeight);
   hud.status(model.sus, model.closing, model.rescue); hud.giggleMeter(shopping ? null : model.giggles, BALANCE.giggles.meter, model.coats.some((c) => c.superT > 0)); hud.quota(model.job, model.loot, model.sus); hud.results(shopping ? null : model.job?.result, model.run?.sweets);
   sfx.listener = voices.listener = { x: focus.x, z: focus.z };
   // music layers follow Heat (and Closing Time); the kids mutter while you walk
@@ -244,5 +248,5 @@ globalThis.__stacked2 = {
   get gadgets() { return (game ?? mirror).gadgets; }, get jobEvents() { return game?.jobEvents; }, get signals() { return game?.signals; },
   get coatView() { return stage.coatViews.get(this.coat); }, get peopleView() { return stage.peopleView; }, get placeView() { return stage.placeView; }, get fade() { return stage.fade; },
   get place() { return place; }, get area() { return areaNow; }, get host() { return host; }, get client() { return client; },
-  get aim() { return lastAim; }, crayonMap, delShop, callouts, music, get juice() { return stage.juice; }, get run() { return (game ?? mirror).run; }, get shop() { return (game ?? mirror).shop; }, get map() { return (game ?? mirror).map; }, camRig, input: keyboard, clock, quality, renderer, get fps() { return fps; }, hostGame, joinGame, card, get pointer() { return pointerHud.state; },
+  get aim() { return lastAim; }, crayonMap, delShop, callouts, music, get juice() { return stage.juice; }, get run() { return (game ?? mirror).run; }, get shop() { return (game ?? mirror).shop; }, get map() { return (game ?? mirror).map; }, camRig, input: keyboard, clock, quality, renderer, get fps() { return fps; }, hostGame, joinGame, card, get pointer() { return pointerHud.state; }, get pointers() { return pointerHud.states; },
 };

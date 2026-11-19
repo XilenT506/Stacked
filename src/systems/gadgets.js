@@ -117,7 +117,7 @@ export class Gadgets {
       g.walker.vel.x += dir.x * knock; g.walker.vel.z += dir.z * knock;
       g.struckFrom(shooter.walker.feet);
       // they may well have seen who did it
-      if (this.sus && shooter.count > 1 && g.sees(shooter.walker.feet)) this.sus.bump(g, shooter, this.sus.S.gadgetHitSeen ?? 0.5);
+      if (this.sus && shooter.count > 1 && g.sees(shooter.walker.feet)) this.sus.bump(g, shooter, this.sus.S.gadgetHitSeen ?? 0.5, 'gadget');
       this.events.push({ type: 'hit', gadget: p.id, by: p.owner, from: p.from, target: 'grownup', who: g, effect, at });
     } else if (who.kind === 'coat') {        // friendly fire
       const c = who.c;

@@ -34,6 +34,14 @@ const STILL = { x: 0, z: 0 };
 const ACTS = new Set(['pickUp', 'drop', 'throw', 'use', 'hide', 'unhide', 'ride', 'letGo', 'belt', 'offBelt', 'loot', 'openCage']);
 const GROWNUP = new Set(['slip', 'soaked', 'chase', 'grabCoat', 'grabKid']), LOOT = new Set(['pocket', 'carry', 'coCarry', 'bank', 'drop']);
 
+// the Heat announcement: what the new level means, and what gave you away ("A Baker saw you running.")
+function heatLine(W, e) {
+  const base = W?.heatLevels?.[e.level] ?? '', r = W?.reasons?.[e.why]?.heat ?? (e.why === 'test key' ? W?.testKey : null);
+  if (!r) return base;
+  const who = e.who?.type?.name ?? e.who?.typeName;
+  return `${base} ${who ? `${/^[AEIOU]/.test(who) ? 'An' : 'A'} ${who.toLowerCase()} ${r}` : `Someone ${r}`}.`;
+}
+
 export class Game {
   // D = { place, events, things, controls?, signals, balance, grownups, gadgets, loot, crayonmap, shop, giggles }
   constructor(R, D, { joinWindow = 20 } = {}) {
@@ -63,7 +71,7 @@ export class Game {
     this.sus = new Suspicion(B);
     this.closing = new ClosingTime(R, this.world, this.place, B, { nav: this.people.nav });
     this.security = new Security({ people: this.people, closing: this.closing, suspicion: this.sus, place: this.place, balance: B });
-    this.rescue = new Rescue({ R, world: this.world, place: this.place, people: this.people, balance: B, solo: this.order.length <= 1, suspicion: this.sus });
+    this.rescue = new Rescue({ R, world: this.world, place: this.place, people: this.people, balance: B, solo: this.order.length <= 1, suspicion: this.sus, closing: this.closing });
     this.loot = new Loot(this.place, D.loot, B); this.job = new Job(this.place, B);
     this.gadgets = new Gadgets(D.gadgets, { R, world: this.world, signals: this.signals, things: this.things, people: this.people, sus: this.sus, balance: B });
     this.jobEvents = new JobEvents(D.events.events, { signals: this.signals, things: this.things, spots: D.place.events, say: (text, title) => { this.emit({ k: 'announce', text, title }); this.emit({ k: 'sound', name: 'tannoy_ding' }); } }, B.events);
@@ -125,7 +133,7 @@ export class Game {
     // after the results: Del's shop, or (everyone caught) a fresh run
     if (this.job.over && (this.after += dt) >= B.shop.resultsSeconds) return this.job.why === 'all caught' ? this.newRun() : this.openShop();
     this.rescue.step(coats);
-    this.people.step(dt, coats);
+    this.people.step(dt, coats); this.rescue.follow();
     this.giggles.step(dt, { coats, people: this.people });
     for (const p of this.players) {
       const c = p.coat, I = p.input, h = p.hands;
@@ -144,7 +152,7 @@ export class Game {
       h.step(dt, { grab, throwIt: this.pressed(p, 'throw'), use: I.use, natural: I.natural, aim: I.aim });
       c.step(dt, c.mapOpen ? STILL : I.move, I.run && !c.mapOpen, I.aim, I.natural);
       p.events.push(...c.events); p.evN = c.events.length;
-      for (const e of h.events) { if (e.type === 'throw') this.sus.instant(this.people, c, B.suspicion.throw); if (ACTS.has(e.type)) this.fx('act:' + e.type, c, p.id); }
+      for (const e of h.events) { if (e.type === 'throw') this.sus.instant(this.people, c, B.suspicion.throw, 'throw'); if (ACTS.has(e.type)) this.fx('act:' + e.type, c, p.id); }
       // the start of Act Natural and of running get their own little reaction
       if (c.actingNatural && !p.nat) this.fx('act:natural', c, p.id); p.nat = c.actingNatural;
       if (c.running && !p.ran) this.fx('act:run', c, p.id); p.ran = c.running;
@@ -201,24 +209,35 @@ export class Game {
       if (e.type === 'say' && e.clip) this.emit({ k: 'say', who: e.who.id, clip: e.clip, x: e.who.feet.x, z: e.who.feet.z });
       if (e.type === 'slip') this.emit({ k: 'sound', name: 'slip_whee', x: e.who.feet.x, z: e.who.feet.z });
     }
+    const W = this.D.why;
     for (const e of this.sus.take()) {
+      // why a "?" went up: a short bubble over the grown-up (the bust shout wins over it)
+      if (e.type === 'why' && W?.reasons[e.why]) this.emit({ k: 'shout', who: e.who.id, text: W.reasons[e.why].bubble, sec: 2.2 });
       if (e.type === 'bust') { this.emit({ k: 'shout', who: e.who.id, text: "THAT'S NOT A GROWN-UP!" }); this.fx('grownup:bust', e.who.feet); }
       if (e.type === 'heat' && e.level > 0) this.fx('heat:' + e.level);
-      if (e.type === 'heat') this.emit({ k: 'announce', text: ['', 'People are starting to stare.', 'Security has been called!', 'PANIC! The front doors are locked!'][e.level], title: `Heat ${e.level}: ${S.heat.names[e.level]}` });
+      if (e.type === 'heat') this.emit({ k: 'announce', text: heatLine(W, e), title: `Heat ${e.level}: ${S.heat.names[e.level]}` });
     }
     for (const e of this.security.take()) {
       if (e.type === 'caretaker') { this.emit({ k: 'announce', text: e.why === 'closing' ? 'The Caretaker is doing his rounds. Get out!' : 'Someone has called the Caretaker!', title: 'Uh oh' }); this.emit({ k: 'shout', who: this.security.caretaker.id, text: "Right. Who's still in here?", sec: 3 }); }
       if (e.type === 'start' || e.type === 'shut') this.fx('closing:' + e.type);
       if (e.type === 'start') { this.map.note('Closing Time!', this.place.data.getaway.at); this.emit({ k: 'announce', text: 'Closing Time! The shutters are coming down, section by section.', title: 'Tannoy' }); this.emit({ k: 'sound', name: 'tannoy_ding' }); }
       if (e.type === 'warn') this.emit({ k: 'announce', text: `${e.section.name} closes in ${S.closingTime.warn} seconds!`, title: 'Tannoy' });
+      if (e.type === 'shut' && this.closing.started) this.emit({ k: 'announce', text: `The ${e.section.name} shutter is down: find another way round.`, title: 'Shutter' });
       if (e.type === 'shut') this.emit({ k: 'sound', name: 'machine_clunk' });
     }
     const g = this.rescue.gateAt;
     for (const e of this.rescue.take()) {
       if (e.type === 'spareKid' || e.type === 'caught' || e.type === 'gateOpen') this.fx('rescue:' + e.type, e.type === 'gateOpen' ? g : null);
-      if (e.type === 'spareKid') this.emit({ k: 'announce', text: `Caught! A Spare Kid comes in at the entrance (${e.left} left). Your kid is in the Lost & Found in the staff room.`, title: 'Got you!' });
-      if (e.type === 'caught') this.emit({ k: 'announce', text: 'Caught! Off to the Lost & Found. A friend can get you out.', title: 'Got you!' });
+      // who was caught goes on every screen; the player it happened to is told plainly where they are now
+      const name = (c) => `Player ${(c.slot ?? 0) + 1}`;
+      if (e.type === 'spareKid') this.emit({ k: 'announce', to: e.coat.pid, title: 'Got you!',
+        text: `You're Spare Kid ${e.n} of ${e.of}, coming in ${e.back ? 'through the back door (the front is locked)' : 'at the entrance'}. Your old kid waits in the Lost & Found in the staff room.`,
+        others: `${name(e.coat)}'s kid was caught! A Spare Kid comes in ${e.back ? 'through the back door' : 'at the entrance'}.` });
+      if (e.type === 'caught') this.emit({ k: 'announce', to: e.coat.pid, title: 'Got you!', text: `Your coat was caught! A ${e.by.type.name.toLowerCase()} is carrying you to the Lost & Found in the staff room. A friend can get you out.`, others: `${name(e.coat)}'s coat was caught! They're off to the Lost & Found in the staff room.` });
       if (e.type === 'locked') this.emit({ k: 'sound', name: 'machine_clunk', x: g.x, z: g.z });
+      if (e.type === 'locked' && e.coat) this.emit({ k: 'announce', to: e.coat.pid, title: 'Locked in', text: 'Locked in the Lost & Found. A friend can lure the guard away (a noise, a prank, or letting him see them somewhere else) and open the gate with E.', others: `${name(e.coat)} is locked in the Lost & Found (staff room). Lure the guard away, then E at the gate.` });
+      if (e.type === 'freed' && e.coat) this.emit({ k: 'announce', to: e.coat.pid, title: 'Free!', text: `${e.by === e.coat ? 'You' : name(e.by)} opened the cage: you're out, as one kid. Find your coat's kids!`, others: `${name(e.coat)} is out of the cage!` });
+      if (e.type === 'escaped') this.emit({ k: 'announce', to: e.coat.pid, title: 'Dropped!', text: 'The grown-up slipped and dropped you: run!', others: `${name(e.coat)} got away from the grown-up!` });
       if (e.type === 'gateOpen') { this.emit({ k: 'sound', name: 'switch_click', x: g.x, z: g.z }); this.emit({ k: 'announce', text: 'The Lost & Found is open: everyone out!', title: 'Rescue' }); }
       if (e.type === 'allCaught') this.finish('all caught');
     }
