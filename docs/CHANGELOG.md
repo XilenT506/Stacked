@@ -17,6 +17,8 @@ Newest first. One entry per build session (one prompt from the Build guide in th
 - All numbers are in `data/balance.json` (`giggles`); the shouts and reel lines are in `data/giggles.json`.
 - Giggles go online too: the meter is in every snapshot, the shouts go to every screen, the Giggles are on everyone's results.
 - Tests: 90 logic tests pass (6 new). **A Domino from a real chain**: one water balloon thrown into a group at the tills soaks them and wets the floor; they go over one after another, each fall making a noise in the same chain. The test checks: DOMINO ×4, the thrower credited, the chain made of several kinds of signal, and a stored frame played in a Mirror shows them on the floor. Also tested: trick shot (and a short shot isn't one), soaking a friend, nerves of steel, a last-second getaway with the Giggles on the results, and a full meter starting a Giggle Rush with endless ammo that wears off.
+- Small fix found on the way: a very quick key tap or click now always counts, even if the game draws a slow frame (before, a tap shorter than one frame could be missed).
+- Screenshot tour: each section now starts from a plain coat and stands right in front of the vending machine, because it was failing for reasons that had nothing to do with the game. A few older steps (the guard's grab, and the rescue / Heat steps that follow it) still sometimes fail in the cloud browser at 4 frames a second. Their logic tests pass every time.
 - Screenshots: `giggles_domino`, `giggles_results`.
 
 ## 2026-11-19 · Prompt 14 of 16 (M1-10): Dodgy Del's mini shop

@@ -83,7 +83,7 @@ await shop.waitForFunction(() => globalThis.__stacked2?.clock.time > 1, null, { 
 await shop.evaluate(() => { __stacked2.game.D.balance.shop.resultsSeconds = 1e9; });
 const wait2 = (sec) => shop.evaluate((s) => new Promise((res) => { const t0 = __stacked2.clock.time; const f = () => (__stacked2.clock.time - t0 >= s ? res() : requestAnimationFrame(f)); f(); }), sec);
 await shop.mouse.move(640, 300);
-const go = (x, z) => shop.evaluate(([x, z]) => { const w = __stacked2.walker; w.body.setTranslation({ x, y: 1.2, z }, true); w.body.setNextKinematicTranslation({ x, y: 1.2, z }); }, [x, z]);
+const go = (x, z) => shop.evaluate(([x, z]) => { const w = __stacked2.walker; w.body.setTranslation({ x, y: 1.2, z }, true); w.body.setNextKinematicTranslation({ x, y: 1.2, z }); if (w.vel) { w.vel.x = 0; w.vel.z = 0; } }, [x, z]);
 await shop.evaluate(() => { const S = __stacked2; S.placeView.overlay.visible = true; S.camRig.offset.multiplyScalar(3.4); });
 await go(0, -3); await wait2(2.5);
 await shop.screenshot({ path: 'test/shots/shop_overview.png' });
@@ -107,13 +107,19 @@ const logHas = (ev) => shop.evaluate((e) => __stacked2.signals.log.some((s) => s
 if (!process.env.HEATONLY) {
 // the living supermarket: one kick and the chain runs on its own; freezer fog; timed events; riding, posing, the belt
 await shop.evaluate(() => __stacked2.camRig.offset.multiplyScalar(1.3));
+// start the section from a plain coat (whatever the tour left it holding or doing)
+await shop.evaluate(() => { const S = __stacked2, c = S.coat, h = S.hands; if (h?.held) h.drop?.(); if (c.hidden) h?.unhide?.(); c.stack = ['sid', 'mo', 'tank']; c.loose = []; c.pile = null; c.grabbedBy = null; c.mods = {}; c.hidden = null; c.wobble = 0; c.applyHeight(); });
+const chainState = () => shop.evaluate(() => { const c = __stacked2.coat; return { held: __stacked2.hands?.held?.name ?? null, hidden: c.hidden?.mode ?? null, count: c.count, at: [+c.walker.feet.x.toFixed(1), +c.walker.feet.z.toFixed(1)], vm: (() => { const v = __stacked2.things.list.find((t) => t.name === 'vending_machine'); return v ? [+v.position.x.toFixed(1), +v.position.z.toFixed(1), v.state] : null; })() }; });
 await shop.evaluate(() => { for (const t of __stacked2.things.list) if (t.name === 'mop' && Math.hypot(t.position.x + 4, t.position.z + 8) < 3) t.body.setTranslation({ x: 9, y: 0.5, z: 14 }, true); });   // the clean-up event may have left the mop by the vending machine
-await go(-4.4, -8.3); await wait2(0.8);
+await go(-3.5, -6.7); await wait2(0.8);
 const hint = await shop.evaluate(() => __stacked2.hands.hint());
+if (!hint) console.log('no hint', JSON.stringify(await shop.evaluate(() => { const f = __stacked2.coat.walker.feet; return { feet: [+f.x.toFixed(2), +f.z.toFixed(2)], near: __stacked2.things.list.filter((t) => !t.gone && Math.hypot(t.position.x - f.x, t.position.z - f.z) < 2.5).map((t) => t.name + ':' + (t.carried ? 'carried' : t.state ?? '')), held: !!__stacked2.hands.held, riding: !!__stacked2.hands.riding, belt: !!__stacked2.hands.belt }; })));
 await key('KeyE'); await go(-3.5, 4.2); await wait2(0.5); await shot('living_kick');
 await wait2(2.5); await shot('living_chain');
 const chain = { hint, kicked: await logHas('kicked'), splat: await logHas('splat'), slip: await logHas('slip'), crash: await logHas('pyramid crash') };
+if (!chain.kicked) console.log('chain state', JSON.stringify(await chainState()));
 console.log('chain', JSON.stringify(chain), chain.kicked && chain.splat && chain.slip && chain.crash ? 'OK' : 'FAIL');
+if (process.env.STOPAFTERCHAIN) { await browser.close(); server.close(); process.exit(0); }
 await go(4.95, -0.5); await wait2(0.6); await key('KeyE'); await wait2(2); await shot('living_freezer');
 const fog = await shop.evaluate(() => __stacked2.things.list.filter((t) => t.name === 'freezer_door' && t.state === 'on').length);
 console.log('freezer', fog, fog === 1 ? 'OK' : 'FAIL');

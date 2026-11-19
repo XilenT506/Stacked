@@ -36,8 +36,16 @@ export class CoatHud {
   giggle(e) {
     const el = this.popEl ??= document.getElementById('giggle');
     el.innerHTML = `${e.label}${e.giggles ? `<small>+${e.giggles} Giggles</small>` : ''}`;
-    el.animate([{ opacity: 0, transform: 'translate(-50%, -50%) rotate(-4deg) scale(0.3)' }, { opacity: 1, transform: 'translate(-50%, -50%) rotate(-4deg) scale(1.15)', offset: 0.15 },
-      { opacity: 1, transform: 'translate(-50%, -50%) rotate(-4deg) scale(1)', offset: 0.3 }, { opacity: 1, offset: 0.85 }, { opacity: 0, transform: 'translate(-50%, -60%) rotate(-4deg) scale(1)' }], { duration: 2200, easing: 'ease-out' });
+    this.popT = 2.4;                                                      // drawn frame by frame in tickPop
+  }
+
+  // the shout pops in big, settles, then floats up and fades
+  tickPop(dt) {
+    const el = this.popEl; if (!el || !(this.popT > 0)) { if (el) el.style.opacity = 0; return; }
+    this.popT -= dt; const age = 2.4 - this.popT;
+    const scale = age < 0.15 ? 0.3 + (age / 0.15) * 0.9 : age < 0.3 ? 1.2 - ((age - 0.15) / 0.15) * 0.2 : 1;
+    el.style.opacity = this.popT < 0.4 ? Math.max(0, this.popT / 0.4) : 1;
+    el.style.transform = `translate(-50%, ${-50 - Math.max(0, 0.4 - this.popT) * 25}%) rotate(-4deg) scale(${scale})`;
   }
 
   // the gadget slots, bottom right: name, ammo, the one in hand, and the slingshot's charge
@@ -88,6 +96,7 @@ export class CoatHud {
   }
 
   update(dt, coat, ev, area, hint) {
+    this.tickPop(dt);
     if (ev.some((e) => e.type === 'spill' || e.type === 'hit')) this.shake = 0.4;
     this.shake = Math.max(0, this.shake - dt);
     const ids = coat.pile ? [...coat.pile.kids, ...coat.stack] : [...coat.stack, ...coat.loose.map((k) => k.id)];

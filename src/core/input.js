@@ -10,6 +10,7 @@ export class Input {
   constructor(cfg, padIndex = 0) {
     this.cfg = cfg; this.padIndex = padIndex;
     this.keys = new Set(); this.mouse = new Set(); this.wheel = 0;
+    this.tapKeys = new Set(); this.tapMouse = new Set();     // pressed since the last frame (a quick tap still counts on a slow frame)
     this.mx = 0; this.my = 0; this.mouseMoved = false;
     this.pad = null;               // {axes:[], buttons:[{pressed, value}]} like navigator.getGamepads()
     this.prev = new Set(); this.now = new Set();
@@ -18,11 +19,11 @@ export class Input {
 
   attach(target = globalThis) {
     const keyOwned = new Set(Object.values(this.cfg.actions).flatMap((a) => a.keys || []).concat(Object.values(this.cfg.move.keys).flat()));
-    target.addEventListener('keydown', (e) => { if (keyOwned.has(e.code)) e.preventDefault(); this.keys.add(e.code); this.device = 'keys'; });
+    target.addEventListener('keydown', (e) => { if (keyOwned.has(e.code)) e.preventDefault(); this.keys.add(e.code); this.tapKeys.add(e.code); this.device = 'keys'; });
     target.addEventListener('keyup', (e) => this.keys.delete(e.code));
     target.addEventListener('blur', () => { this.keys.clear(); this.mouse.clear(); });
     target.addEventListener('mousemove', (e) => { this.mx = e.clientX; this.my = e.clientY; this.mouseMoved = true; this.device = 'keys'; });
-    target.addEventListener('mousedown', (e) => { this.mouse.add(e.button); this.device = 'keys'; });
+    target.addEventListener('mousedown', (e) => { this.mouse.add(e.button); this.tapMouse.add(e.button); this.device = 'keys'; });
     target.addEventListener('mouseup', (e) => this.mouse.delete(e.button));
     target.addEventListener('contextmenu', (e) => e.preventDefault());
     target.addEventListener('wheel', (e) => { this.wheel += Math.sign(e.deltaY); }, { passive: true });
@@ -53,11 +54,12 @@ export class Input {
     // actions
     this.prev = this.now; this.now = new Set();
     for (const [name, a] of Object.entries(c.actions)) {
-      const on = (a.keys || []).some((code) => this.keys.has(code)) || (a.mouse || []).some((b) => this.mouse.has(b)) || (a.pad || []).some(btn);
+      const on = (a.keys || []).some((code) => this.keys.has(code) || this.tapKeys.has(code)) || (a.mouse || []).some((b) => this.mouse.has(b) || this.tapMouse.has(b)) || (a.pad || []).some(btn);
       if ((a.pad || []).some(btn)) this.device = 'pad';
       if (on) this.now.add(name);
     }
     if (this.wheel) { this.now.add('switch'); this.wheel = 0; }
+    this.tapKeys.clear(); this.tapMouse.clear();
   }
 
   down(name) { return this.now.has(name); }
