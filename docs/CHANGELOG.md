@@ -2,6 +2,16 @@
 
 Newest first. One entry per build session (one prompt from the Build guide in the doc "STACKED – Game Plan").
 
+## 2026-11-19 · Fix 1 of 6 (M1-F1): The first minute and where to go
+
+- **Joining works:** keys typed into a text box (the room code) now belong to the box. Before, `src/core/input.js` took them too, so "YDQR" became "Y" and R unstacked the coat. Enter in the code box joins.
+- **No developer clutter:** the top-left developer line and the test keys (T, H, C, Space, J, K, O, Y, Backspace) only exist with `?dev=1`. The screenshot tour, couch and online checks use it. The Online panel moved to the bottom left, above the coat HUD, so it covers nothing.
+- **Start card** before the first job: the goal in one sentence, the 6 keys that matter (gamepad buttons when a pad is plugged in), "Press any key". Playing alone, the job waits for it; the key or click that closes it does nothing else (pressing R to start does not unstack). Text in `data/startcard.json`, the goal in the place's `job.goal`.
+- **Pointing the way:** a big red "NAN'S CAKE" sign floats over the cake (seen through shelves), and a small arrow at the screen edge points to it while you don't hold it, then (green, "GATE") to the getaway gate once you do. It stays clear of the quota bar, the hint line and the Heat boxes. New `src/systems/pointer.js` (works on host and clients), `src/ui/pointerHud.js`; the target is `job.targetLoot` in `data/places/supermarket.json`.
+- **Crayon map:** the bakery and the getaway gate are known from the start (briefing), and Nan's cake is circled and named.
+- **Wobble bar** has a "Wobble" label and flashes red above `wobble.flashAt` (0.8; the kids fall out at 1).
+- Tests: new `test/logic/pointer.test.mjs` (arrow to the cake, then to the gate when carried, nothing once banked; map knows bakery and gate; typed keys never reach the coat). The online check now has a friend open the page like a player, close the start card with R, and type the room code "DQRW" into the CODE box: every letter kept, the coat doesn't move or unstack. New screenshots `first_*.png`.
+
 ## 2026-11-19 · Task 17: M1 playtest and gate
 
 - No game code changed.

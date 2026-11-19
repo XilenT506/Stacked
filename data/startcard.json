@@ -1,0 +1,13 @@
+{
+  "_about": "The start card shown before the first job: the goal comes from the place's job.goal; these are the 6 keys that matter, for keyboard and for a gamepad (Xbox names).",
+  "title": "Three kids. One coat. One cake.",
+  "keys": [
+    { "what": "Walk", "keys": "WASD", "pad": "Left stick" },
+    { "what": "Grab, carry, use", "keys": "E", "pad": "A" },
+    { "what": "Use your gadget", "keys": "Left click", "pad": "RT" },
+    { "what": "Act natural", "keys": "Q (hold)", "pad": "LB (hold)" },
+    { "what": "Unstack and restack", "keys": "R", "pad": "B" },
+    { "what": "Crayon map", "keys": "Tab", "pad": "View" }
+  ],
+  "go": { "keys": "Press any key", "pad": "Press any button" }
+}

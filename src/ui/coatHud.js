@@ -106,6 +106,7 @@ export class CoatHud {
     }).join('');
     this.bar.style.width = (coat.wobble * 100).toFixed(1) + '%';
     this.bar.style.background = coat.wobble > 0.75 ? '#c4553d' : coat.wobble > 0.45 ? '#e0a83a' : '#7fbf5f';
+    this.bar.parentElement.classList.toggle('flash', coat.wobble > (this.flashAt ?? 0.8) && !coat.pile);
     this.bar.parentElement.style.transform = this.shake ? `translateX(${Math.sin(this.shake * 80) * 4}px)` : '';
     const hidden = coat.hidden ? ` · hidden (${{ inside: 'in a box', pose: 'posing', stand: 'standing still', shopping: 'on the belt' }[coat.hidden.mode] || coat.hidden.mode})` : '';
     this.label.textContent = (area ? area.name + ' · ' : '') + (coat.pile ? 'Just a kid (the coat is on the floor: R there to stack up)'

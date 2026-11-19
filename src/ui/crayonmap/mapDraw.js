@@ -95,7 +95,7 @@ export function drawLive(ctx, V, D, model, { me, colors, time = 0 }) {
     if (it.state !== 'lying' || !seenArea(it.x, it.z)) continue;
     const [lx, ly] = V.px(it.x, it.z), big = it.kind === 'big', r = big ? 15 : 10;
     star(ctx, lx, ly, r * (1 + Math.sin(time * 3 + it.n) * 0.06), '#f4c542', it.n * 3 + 1);
-    if (D.job && it.id && D.job.target.toLowerCase().includes(it.id.split('_').pop())) write(ctx, (it.name || it.id).toUpperCase() + '!', lx, ly - 22, 17, '#c4553d', it.n, { outline: '#fbf6ea' });
+    if (D.job?.targetLoot === it.id) { ring(ctx, lx, ly, r + 9, '#c4553d', 3, it.n * 5, { passes: 2 }); write(ctx, (D.job.sign ?? it.name).toUpperCase() + '!', lx, ly - 26, 19, '#c4553d', it.n, { outline: '#fbf6ea' }); }
   }
   // events (they fade away after a while)
   for (const e of M.events) { const age = M.time - e.t, [ex, ey] = V.px(e.x, e.z); burst(ctx, ex, ey, 13, e.text, Math.round(e.x * 7 + e.z), Math.max(0.25, 1 - age / 40)); }

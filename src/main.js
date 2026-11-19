@@ -2,9 +2,11 @@
 // a pad to join), or online with a join code (one player hosts and runs the game, friends send what they
 // press and get snapshots 20 times a second). The job itself lives in src/core/game.js; the screen in
 // src/render/stage.js. M1-09: Tab (Back on a pad) opens the crayon map (src/ui/crayonmap/). M1-10: between jobs, Dodgy Del's
-// shop (src/ui/shop/); F (RB) drinks a fizzy drink. Page options: ?host=CODE, ?join=CODE, ?net=local (tabs of one browser), ?q=low|high.
+// shop (src/ui/shop/); F (RB) drinks a fizzy drink. M1-F1: a start card before the first job, an arrow and a sign
+// that point the way (src/systems/pointer.js). Page options: ?host=CODE, ?join=CODE, ?net=local (tabs of one
+// browser), ?q=low|high, ?dev=1 (the developer line and the test keys, no start card; the shots and checks use it).
 // Keys: WASD walk, mouse aim, Shift run, left click gadget (1 2 3 pick), E grab/use, right click throw,
-// Q act natural, R unstack. Test keys (solo/host): T next event, H Heat+1, C Closing Time, Space melon,
+// Q act natural, R unstack. Test keys (solo/host, with ?dev=1): T next event, H Heat+1, C Closing Time, Space melon,
 // J puddle, K whack, O plan overlay, Backspace new job.
 import * as T from 'three';
 import { Clock, STEP } from './core/clock.js';
@@ -19,6 +21,11 @@ import { Stage } from './render/stage.js';
 import { CoatHud } from './ui/coatHud.js';
 import { CrayonMap } from './ui/crayonmap/crayonMap.js';
 import { DelShop } from './ui/shop/delShop.js';
+import { StartCard } from './ui/startCard.js';
+import { PointerHud } from './ui/pointerHud.js';
+import { pointerFor } from './systems/pointer.js';
+import { typingIn } from './core/input.js';
+import STARTCARD from '../data/startcard.json';
 import { FollowCamera } from './render/followCamera.js';
 import { Sfx } from './audio/sfx.js';
 import { Voices } from './audio/voices.js';
@@ -42,6 +49,8 @@ import GIGGLES from '../data/giggles.json';
 const DATA = { place: SUPERMARKET, events: SHOP_EVENTS, things: THINGS, signals: SIGNALS, balance: BALANCE, grownups: GROWNUPS, gadgets: GADGETS, loot: LOOT, crayonmap: CRAYONMAP, shop: DEL, giggles: GIGGLES, juice: JUICE };
 const params = new URLSearchParams(location.search);
 const quality = params.get('q') || 'high';                       // chosen, never switched behind the player's back
+const dev = params.get('dev') === '1';
+document.body.classList.toggle('dev', dev);
 const PRESS = ['grab', 'throw', 'stack', 'slot1', 'slot2', 'slot3', 'slot4', 'slot5', 'switch', 'drink', 'point'];
 
 const renderer = new T.WebGLRenderer({ antialias: quality !== 'low' });
@@ -52,7 +61,7 @@ renderer.shadowMap.type = T.PCFSoftShadowMap;
 document.body.appendChild(renderer.domElement);
 const camera = new T.PerspectiveCamera(42, innerWidth / innerHeight, 0.1, 200);
 const camRig = new FollowCamera(camera);
-const sfx = new Sfx(SOUNDS.sounds), voices = new Voices(), hud = new CoatHud(), callouts = new Callouts(JUICE), music = new Music(JUICE.music);
+const sfx = new Sfx(SOUNDS.sounds), voices = new Voices(), hud = Object.assign(new CoatHud(), { flashAt: BALANCE.wobble.flashAt }), callouts = new Callouts(JUICE), music = new Music(JUICE.music);
 
 const R = await initPhysics();
 const place = buildPlace(R, makeWorld(R), SUPERMARKET);          // for drawing the shop (the game has its own)
@@ -60,7 +69,7 @@ const stage = new Stage({ place, data: DATA, hud, sfx, voices, callouts, camRig 
 
 // ---- who plays on this screen: player 1 on keyboard + mouse (or the first pad); more pads join with A ----
 const keyboard = new Input(CONTROLS, 0).attach();
-const newLocal = (id, input, pad) => ({ id, input, pad, counters: {}, mapOpen: false, sid: 0, outbox: [], shopSid: 0, shopOut: [] });
+const newLocal = (id, input, pad) => ({ id, input, pad, counters: {}, mapOpen: false, sid: 0, outbox: [], shopSid: 0, shopOut: [], swallow: false });
 const locals = [newLocal('p1', keyboard, 0)];
 let mode = 'solo', game = null, mirror = null, host = null, client = null, roomCode = '';
 
@@ -86,6 +95,8 @@ function checkPads() {
 // while a player has the crayon map open, their buttons draw on the map instead of doing things in the shop
 function readInput(l, coat, shopping) {
   const inp = l.input; inp.update();
+  // the key or click that closed the start card does nothing else (until it is let go)
+  if (l.swallow) { if (!inp.keys.size && !inp.mouse.size && !inp.pad?.buttons?.some((b) => b.pressed)) l.swallow = false; return { move: { x: 0, z: 0 }, aim: null, run: false, use: false, natural: false, presses: { ...l.counters }, map: false, sc: l.outbox.slice(), shop: [] }; }
   if (shopping) { l.mapOpen = false; return { move: { x: 0, z: 0 }, aim: null, run: false, use: false, natural: false, presses: { ...l.counters }, map: false, sc: [], shop: l.shopOut.slice() }; }
   if (inp.pressed('map')) { l.mapOpen = !l.mapOpen; l.mute = true; }
   if (l.mute && !inp.down('use') && !inp.down('grab')) l.mute = false;       // a click that closed the map is not a shot
@@ -125,21 +136,28 @@ async function joinGame(code) {
   mirror = new Mirror(DATA); client = new ClientSession(mirror, link); stage.build(mirror);
   netStatus(`In room ${code}. Waiting for the host...`); net.classList.add('on');
 }
-net.querySelector('.host').onclick = () => hostGame();
-net.querySelector('.join').onclick = () => joinGame(net.querySelector('input').value);
+net.querySelector('.host').onclick = (e) => { e.target.blur(); hostGame(); };
+net.querySelector('.join').onclick = (e) => { e.target.blur(); joinGame(net.querySelector('input').value); };
+net.querySelector('input').addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.target.blur(); joinGame(e.target.value); } });
 if (params.get('host')) hostGame(params.get('host').toUpperCase());
 if (params.get('join')) joinGame(params.get('join'));
 
 // ---- test keys (solo and host only) ----
 // M: sound and music on or off (any mode)
-addEventListener('keydown', (e) => { if (e.code === 'KeyM' && e.target.tagName !== 'INPUT') { const on = music.toggle(); sfx.on = voices.on = callouts.on = on; hud.announce(on ? 'Sound on' : 'Sound off', 'M'); } });
+addEventListener('keydown', (e) => { if (e.code === 'KeyM' && !typingIn(e.target)) { const on = music.toggle(); sfx.on = voices.on = callouts.on = on; hud.announce(on ? 'Sound on' : 'Sound off', 'M'); } });
 addEventListener('keydown', (e) => {
-  if (!game || e.target.tagName === 'INPUT') return;
+  if (!dev || !game || typingIn(e.target)) return;
   const k = { Space: 'melon', KeyJ: 'puddle', KeyK: 'whack', KeyT: 'event', KeyH: 'heat', KeyC: 'closing', KeyY: 'shop' }[e.code];
   if (k) game.test(k, 'p1');
   if (e.code === 'Backspace') { game.reset(); }
   if (e.code === 'KeyO') stage.placeView.overlay.visible = !stage.placeView.overlay.visible;
 });
+
+// the start card before the first job (not with ?dev=1 unless ?card=1); playing alone, the job waits for it
+const card = new StartCard(document.getElementById('startcard'), STARTCARD, SUPERMARKET.job.goal);
+card.onClose = () => { document.body.classList.remove('carded'); for (const l of locals) l.swallow = true; };
+if (dev && params.get('card') !== '1') card.close(); else document.body.classList.add('carded');
+const pointerHud = new PointerHud(document.getElementById('pointer'));
 
 const clock = new Clock();
 let heldEvents = [];
@@ -148,7 +166,8 @@ function frame(now) {
   const dt = Math.min(0.25, (now - last) / 1000); last = now;
   const model = game ?? mirror;
   const myId = mode === 'client' ? client.id : 'p1';
-  checkPads();
+  card.update(navigator.getGamepads?.());
+  if (!card.open) checkPads();
   const coatOf = (id) => model.coats.find((c) => c.pid === id);
   const shopping = model.phase === 'shop' && !!model.shop;
   const inputs = locals.map((l) => ({ l, I: readInput(l, coatOf(mode === 'client' ? myId : l.id), shopping) }));
@@ -158,8 +177,9 @@ function frame(now) {
   // hosting, the game goes on for the friends and what happened meanwhile is shown straight after)
   const holding = (stage.juice?.freezeT ?? 0) > 0;
   if (holding) stage.juice.freezeT -= dt;
+  const waiting = card.open && mode === 'solo';
   if (game) {
-    if (!holding || host) {
+    if ((!holding || host) && !waiting) {
       const steps = clock.advance(dt);
       for (let i = 0; i < steps; i++) { for (const { l, I } of inputs) game.setInput(l.id, I); game.step(STEP); }
       events = game.take();
@@ -195,6 +215,7 @@ function frame(now) {
     hud.update(dt, watch, [], areaNow, game ? game.hint(watch.pid) : watch.hint ?? '');
     hud.gadgets(watch, { ...GADGETS, drinks: DEL.drinks });
   }
+  pointerHud.update(card.open || shopping || !watch ? null : pointerFor(model, watch, SUPERMARKET), camera, innerWidth, innerHeight);
   hud.status(model.sus, model.closing, model.rescue); hud.giggleMeter(shopping ? null : model.giggles, BALANCE.giggles.meter, model.coats.some((c) => c.superT > 0)); hud.quota(model.job, model.loot, model.sus); hud.results(shopping ? null : model.job?.result, model.run?.sweets);
   sfx.listener = voices.listener = { x: focus.x, z: focus.z };
   // music layers follow Heat (and Closing Time); the kids mutter while you walk
@@ -223,5 +244,5 @@ globalThis.__stacked2 = {
   get gadgets() { return (game ?? mirror).gadgets; }, get jobEvents() { return game?.jobEvents; }, get signals() { return game?.signals; },
   get coatView() { return stage.coatViews.get(this.coat); }, get peopleView() { return stage.peopleView; }, get placeView() { return stage.placeView; }, get fade() { return stage.fade; },
   get place() { return place; }, get area() { return areaNow; }, get host() { return host; }, get client() { return client; },
-  get aim() { return lastAim; }, crayonMap, delShop, callouts, music, get juice() { return stage.juice; }, get run() { return (game ?? mirror).run; }, get shop() { return (game ?? mirror).shop; }, get map() { return (game ?? mirror).map; }, camRig, input: keyboard, clock, quality, renderer, get fps() { return fps; }, hostGame, joinGame,
+  get aim() { return lastAim; }, crayonMap, delShop, callouts, music, get juice() { return stage.juice; }, get run() { return (game ?? mirror).run; }, get shop() { return (game ?? mirror).shop; }, get map() { return (game ?? mirror).map; }, camRig, input: keyboard, clock, quality, renderer, get fps() { return fps; }, hostGame, joinGame, card, get pointer() { return pointerHud.state; },
 };

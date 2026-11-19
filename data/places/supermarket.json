@@ -138,7 +138,7 @@
     "guard": [-4.9, -14.2], "drop": [-4.9, -14.6]
   },
 
-  "job": { "_about": "the job in this place: what the briefing asks for", "target": "Nan's birthday cake from the bakery", "quota": 1500 },
+  "job": { "_about": "the job in this place: what the briefing asks for. targetLoot is the loot id the pointer and the floating sign show; goal is the one-sentence goal on the start card", "target": "Nan's birthday cake from the bakery", "quota": 1500, "targetLoot": "birthday_cake", "sign": "NAN'S CAKE", "goal": "Get Nan's birthday cake from the bakery and bring it out through the gate in the car park." },
 
   "loot": {
     "_about": "small fits in a pocket, big is carried (two players can carry together). value in sweets. Names and looks in data/loot.json.",

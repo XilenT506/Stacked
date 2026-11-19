@@ -1,6 +1,8 @@
 // The online check: one host and two friends in three tabs of one browser (BroadcastChannel link),
 // one job. Each friend steers their own coat; the host kicks the vending machine; everyone must see the
 // same mess; a friend gets away at the gate and everyone gets the result. Writes test/shots/online_*.png
+// Friend A opens the page like a player (start card, no dev keys) and types the room code, which has the
+// letters D, Q and R in it (keys the game also uses), into the CODE box.
 //   node build.mjs && node test/online.mjs
 import { chromium } from './pw.mjs';
 import { createServer } from 'node:http';
@@ -11,17 +13,30 @@ await mkdir('test/shots', { recursive: true });
 const browser = await chromium.launch({ args: ['--use-gl=angle', '--enable-unsafe-swiftshader'] });
 const ctx = await browser.newContext({ viewport: { width: 800, height: 450 } });
 const errors = [];
-const open = async (q) => { const p = await ctx.newPage(); p.on('pageerror', (e) => { errors.push(String(e)); console.log('PAGE ERROR', String(e)); }); await p.goto(`http://localhost:8483/?q=low&net=local&${q}`); await p.waitForFunction(() => globalThis.__stacked2?.model, null, { timeout: 120000 }); return p; };
-const host = await open('host=TEST');
+const open = async (q) => { const p = await ctx.newPage(); p.on('pageerror', (e) => { errors.push(String(e)); console.log('PAGE ERROR', String(e)); }); await p.goto(`http://localhost:8483/?q=low&net=local${q ? '&' + q : ''}`); await p.waitForFunction(() => globalThis.__stacked2?.model, null, { timeout: 120000 }); return p; };
+const ROOM = 'DQRW';
+const host = await open(`dev=1&host=${ROOM}`);
 await host.waitForFunction(() => __stacked2.mode === 'host', null, { timeout: 60000 });
-const a = await open('join=TEST'), b = await open('join=TEST');
 const ok = (name, cond, info = '') => { console.log(name, info, cond ? 'OK' : 'FAIL'); if (!cond) failed = true; };
 let failed = false;
+const a = await open('');
+ok('friend A sees the start card', await a.evaluate(() => __stacked2.card.open && getComputedStyle(document.getElementById('net')).visibility === 'hidden'));
+await a.keyboard.press('KeyR'); await a.waitForTimeout(400);
+const soloCoat = () => a.evaluate(() => { const c = __stacked2.coat, f = c.walker.feet; return { x: +f.x.toFixed(3), z: +f.z.toFixed(3), count: c.count, pile: !!c.pile }; });
+const s0 = await soloCoat();
+ok('the key that closed the card did not unstack the coat', !s0.pile && s0.count === 3 && !(await a.evaluate(() => __stacked2.card.open)), JSON.stringify(s0));
+await a.click('#net input'); await a.keyboard.type(ROOM, { delay: 120 }); await a.waitForTimeout(500);
+const s1 = await soloCoat(), typed = await a.evaluate(() => document.querySelector('#net input').value.toUpperCase());
+ok('typing the room code keeps every letter and does not move the coat', typed === ROOM && Math.hypot(s1.x - s0.x, s1.z - s0.z) < 0.05 && !s1.pile && s1.count === 3, JSON.stringify({ typed, s0, s1 }));
+await a.keyboard.press('Enter');
+await a.waitForFunction(() => __stacked2.mode === 'client', null, { timeout: 60000 });
+const b = await open(`dev=1&join=${ROOM}`);
 const until = (p, fn, arg, ms = 90000) => p.waitForFunction(fn, arg, { timeout: ms, polling: 250 }).then(() => true, () => false);
 const hostWait = (sec) => host.evaluate((s) => new Promise((res) => { const t0 = __stacked2.game.time; const f = () => (__stacked2.game.time - t0 >= s ? res() : setTimeout(f, 50)); f(); }), sec);
 
 ok('both friends joined', await until(host, () => __stacked2.game.players.length === 3), JSON.stringify(await host.evaluate(() => __stacked2.game.order)));
-ok('friends get snapshots', await until(a, () => __stacked2.mirror?.coats.length === 3) && await until(b, () => __stacked2.mirror?.coats.length === 3));
+const ga = await until(a, () => __stacked2.mirror?.coats.length === 3), gb = await until(b, () => __stacked2.mirror?.coats.length === 3);
+ok('friends get snapshots', ga && gb, JSON.stringify({ ga, gb, a: await a.evaluate(() => [__stacked2.mode, __stacked2.mirror?.coats.length, document.querySelector('#net .status').textContent]), b: await b.evaluate(() => [__stacked2.mode, __stacked2.mirror?.coats.length, document.querySelector('#net .status').textContent]) }));
 // friend A walks up the screen (W), friend B walks right (D): each moves only their own coat
 const ids = { a: await a.evaluate(() => __stacked2.client.id), b: await b.evaluate(() => __stacked2.client.id) };
 const where = () => host.evaluate((ids) => Object.fromEntries(Object.entries(ids).map(([k, id]) => { const f = __stacked2.game.player(id).coat.walker.feet; return [k, { x: +f.x.toFixed(2), z: +f.z.toFixed(2) }]; })), ids);

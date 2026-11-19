@@ -11,7 +11,7 @@ await mkdir('test/shots', { recursive: true });
 const browser = await chromium.launch({ args: ['--use-gl=angle', '--enable-unsafe-swiftshader'] });
 const page = await browser.newPage({ viewport: { width: 1280, height: 720 } });
 const errors = []; page.on('pageerror', (e) => { errors.push(String(e)); console.log('PAGE ERROR', String(e)); });
-await page.goto('http://localhost:8484/?q=high');
+await page.goto('http://localhost:8484/?q=high&dev=1');
 await page.waitForFunction(() => globalThis.__stacked2?.game, null, { timeout: 120000 });
 let failed = false;
 const ok = (name, cond, info = '') => { console.log(name, info, cond ? 'OK' : 'FAIL'); if (!cond) failed = true; };

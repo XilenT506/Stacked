@@ -27,6 +27,8 @@
     "speedMultiplier": 1.4
   },
   "wobble": {
+    "_flashAt": "the HUD wobble bar flashes above this (the kids fall out at 1)",
+    "flashAt": 0.8,
     "calmDrain": 0.35,
     "runFill": 0.22,
     "carryFillPerKg": 0.012,

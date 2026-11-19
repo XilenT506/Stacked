@@ -6,6 +6,9 @@
 //   input.down('run'), input.pressed('grab')  (pressed = this frame only)
 //   input.device -> 'keys' or 'pad'  (whichever was used last)
 // Raw state can also be set directly, which is how the logic tests drive it.
+// keys typed into a text box (the room code, say) belong to the box, not the game
+export const typingIn = (el) => !!el && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.tagName === 'SELECT' || el.isContentEditable);
+
 export class Input {
   constructor(cfg, padIndex = 0) {
     this.cfg = cfg; this.padIndex = padIndex;
@@ -19,7 +22,7 @@ export class Input {
 
   attach(target = globalThis) {
     const keyOwned = new Set(Object.values(this.cfg.actions).flatMap((a) => a.keys || []).concat(Object.values(this.cfg.move.keys).flat()));
-    target.addEventListener('keydown', (e) => { if (keyOwned.has(e.code)) e.preventDefault(); this.keys.add(e.code); this.tapKeys.add(e.code); this.device = 'keys'; });
+    target.addEventListener('keydown', (e) => { if (typingIn(e.target)) return; if (keyOwned.has(e.code)) e.preventDefault(); this.keys.add(e.code); this.tapKeys.add(e.code); this.device = 'keys'; });
     target.addEventListener('keyup', (e) => this.keys.delete(e.code));
     target.addEventListener('blur', () => { this.keys.clear(); this.mouse.clear(); });
     target.addEventListener('mousemove', (e) => { this.mx = e.clientX; this.my = e.clientY; this.mouseMoved = true; this.device = 'keys'; });

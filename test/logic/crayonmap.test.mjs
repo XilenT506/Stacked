@@ -19,7 +19,8 @@ test('the map only knows the parts the team has been in, and the grown-ups someo
   const g = new Game(R, DATA); g.addPlayer('p1');
   for (let i = 0; i < 10; i++) g.step();
   assert.ok(g.map.seenAreas.has('carpark'), 'the car park, where we start');
-  assert.ok(!g.map.seenAreas.has('bakery') && !g.map.seenAreas.has('staff'), 'not the bakery or the staff room yet');
+  assert.ok(g.map.seenAreas.has('bakery') && g.map.seenAreas.has('getaway'), 'the target\'s bakery and the gate are known from the briefing');
+  assert.ok(!g.map.seenAreas.has('staff') && !g.map.seenAreas.has('freezer'), 'not the staff room or the freezers yet');
   put(g.players[0].coat, -5.2, 6);                               // at the tills
   for (let i = 0; i < 20; i++) g.step();
   assert.ok(g.map.seenAreas.has('tills'));

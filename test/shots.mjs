@@ -14,7 +14,7 @@ const tab = await browser.newPage({ viewport: { width: 1280, height: 720 }, devi
 const errors = [];
 tab.on('pageerror', (e) => { errors.push(String(e)); console.log('PAGE ERROR', String(e)); });
 tab.on('console', (m) => { if (m.type() === 'error') errors.push(m.text()); });
-await tab.goto('http://localhost:8481/?q=high');
+await tab.goto('http://localhost:8481/?q=high&dev=1');
 const at = async (t, name) => { await tab.waitForFunction((x) => globalThis.__stacked2?.clock.time > x, t, { timeout: 120000 }); await tab.screenshot({ path: `test/shots/${name}.png` }); };
 await at(1, 'start');
 const state = await tab.evaluate(() => ({ fps: __stacked2.fps, shadows: __stacked2.renderer.shadowMap.enabled, quality: __stacked2.quality, mode: __stacked2.mode, players: __stacked2.game.players.length }));
@@ -73,11 +73,44 @@ await tab.keyboard.down('KeyD'); await waitGame(0.35); await tab.keyboard.up('Ke
 cs = await coatState(); await tab.screenshot({ path: 'test/shots/coat_pile.png' });
 console.log('pile', JSON.stringify(cs), cs.count === 1 && cs.pile ? 'OK' : 'FAIL');
 
+// M1-F1, the first minute, opened like a player would (no ?dev=1): the very first frame is only the start
+// card over the shop; R closes it without unstacking; the arrow points to Nan's cake, the sign floats over
+// it, and once the cake is carried the arrow points to the gate. The crayon map knows the bakery and the gate.
+{
+  const f = await browser.newPage({ viewport: { width: 1280, height: 720 }, deviceScaleFactor: 1 });
+  f.on('pageerror', (e) => { errors.push(String(e)); console.log('PAGE ERROR', String(e)); });
+  await f.goto('http://localhost:8481/?q=high');
+  await f.waitForFunction(() => globalThis.__stacked2?.renderer.info.render.frame > 2, null, { timeout: 120000 });
+  await f.screenshot({ path: 'test/shots/first_start_card.png' });
+  const first = await f.evaluate(() => { const vis = (id) => { const el = document.getElementById(id); return getComputedStyle(el).display !== 'none' && getComputedStyle(el).visibility !== 'hidden'; };
+    return { card: __stacked2.card.open, time: __stacked2.game.time, shown: ['hud', 'net', 'coathud', 'quota', 'heat', 'giggles', 'gadgets', 'pointer'].filter(vis) }; });
+  console.log('first frame', JSON.stringify(first), first.card && first.time === 0 && first.shown.length === 0 ? 'OK' : 'FAIL');
+  const fw = (sec) => f.evaluate((s) => new Promise((res) => { const t0 = __stacked2.clock.time; const g = () => (__stacked2.clock.time - t0 >= s ? res() : requestAnimationFrame(g)); g(); }), sec);
+  await f.keyboard.press('KeyR'); await fw(1.2);
+  const after = await f.evaluate(() => ({ card: __stacked2.card.open, pile: !!__stacked2.coat.pile, t: +__stacked2.game.time.toFixed(1), ptr: __stacked2.pointer, net: getComputedStyle(document.getElementById('net')).visibility }));
+  console.log('card closed by R', JSON.stringify(after), !after.card && !after.pile && after.t > 0.5 && after.ptr?.to === 'target' && !after.ptr.on ? 'OK' : 'FAIL');
+  await f.screenshot({ path: 'test/shots/first_arrow_cake.png' });
+  const fgo = (x, z) => f.evaluate(([x, z]) => { const w = __stacked2.walker; w.body.setTranslation({ x, y: 1.2, z }, true); w.body.setNextKinematicTranslation({ x, y: 1.2, z }); if (w.vel) { w.vel.x = 0; w.vel.z = 0; } }, [x, z]);
+  await fgo(10.5, -4.5); await fw(1.2);
+  await f.screenshot({ path: 'test/shots/first_cake_sign.png' });
+  await fgo(12.9, -5); await fw(0.8);
+  await f.keyboard.down('KeyE'); await fw(0.25); await f.keyboard.up('KeyE'); await fw(1);
+  const carried = await f.evaluate(() => ({ state: __stacked2.loot.items.find((i) => i.id === 'birthday_cake').state, ptr: __stacked2.pointer, hint: __stacked2.hands.hint() }));
+  console.log('carrying the cake: arrow to the gate', JSON.stringify(carried), carried.state === 'carried' && carried.ptr?.to === 'gate' && !carried.ptr.on && carried.ptr.angle > 0 ? 'OK' : 'FAIL');
+  await f.screenshot({ path: 'test/shots/first_arrow_gate.png' });
+  await f.evaluate(() => { __stacked2.coat.wobble = 0.92; }); await fw(0.1);
+  await f.screenshot({ path: 'test/shots/first_wobble_flash.png' });
+  await f.keyboard.down('Tab'); await fw(0.2); await f.keyboard.up('Tab'); await fw(0.8);
+  await f.screenshot({ path: 'test/shots/first_map_briefed.png' });
+  await f.close();
+  if (process.env.FIRSTONLY) { console.log(errors.length ? 'ERRORS ' + errors.join(' | ') : 'no page errors'); await browser.close(); server.close(); process.exit(0); }
+}
+
 // the supermarket: an overview with the planning overlay, then every area seen from the coat's camera
 const shop = await browser.newPage({ viewport: { width: 1280, height: 720 }, deviceScaleFactor: 1 });
 shop.on('pageerror', (e) => { errors.push(String(e)); console.log('PAGE ERROR', String(e)); });
 shop.on('console', (m) => { if (m.type() === 'error') errors.push(m.text()); });
-await shop.goto('http://localhost:8481/?q=high');
+await shop.goto('http://localhost:8481/?q=high&dev=1');
 await shop.waitForFunction(() => globalThis.__stacked2?.clock.time > 1, null, { timeout: 120000 });
 // the screenshot tour ends jobs on purpose along the way (caught, shut in): don't go off to Del's by itself (the shop section opens it)
 await shop.evaluate(() => { __stacked2.game.D.balance.shop.resultsSeconds = 1e9; });

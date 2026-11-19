@@ -1,11 +1,15 @@
 // What the crayon map knows, shared by the whole team: which parts of the shop someone has been in
 // (the rest stays blank), the grown-ups someone has seen (where and how they were when last seen), the
 // team's scribbles (crayon lines, arrows, circles and stickers, which also appear as chalk on the floor),
-// recent events, and (playing alone) the Caretaker's route after Closing Time.
+// recent events, and (playing alone) the Caretaker's route after Closing Time. The target's area and the
+// getaway gate are known from the briefing, before anyone has been there.
+import { briefedAreas } from './pointer.js';
+
 export class TeamMap {
   constructor(place, cfg) {
     this.place = place; this.cfg = cfg; this.seenAreas = new Set(); this.seenPeople = new Map(); this.scribbles = []; this.seq = 0;
     this.acks = new Map(); this.events = []; this.sv = 0; this.route = null; this.time = 0;
+    for (const id of briefedAreas(place)) this.seenAreas.add(id);
   }
 
   // a scribble from a player: { sid (the player's own counter), kind: line|arrow|circle|sticker, pts: [[x, z]...], text }

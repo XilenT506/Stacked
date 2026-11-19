@@ -33,7 +33,7 @@ export class Stage {
     this.peopleView = new PeopleView(scene, model.people, this.data.grownups.models);
     this.shutterView = new ShutterView(scene, model.closing, this.fade);
     this.gadgetView = new GadgetView(scene, model.gadgets);
-    this.lootView = new LootView(scene, model.loot);
+    this.lootView = new LootView(scene, model.loot, this.data.place.job);
     this.cageView = new CageView(scene, model.rescue);
     this.chalkView = new ChalkView(scene, this.data.crayonmap.playerColors);
     this.juice = new Juice(scene, this.data.juice, { sfx: this.sfx, callouts: this.callouts, camRig: this.camRig });
