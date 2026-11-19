@@ -19,6 +19,12 @@
   #announce { position: fixed; left: 50%; top: 66px; transform: translateX(-50%); max-width: 70%; background: #fff3e2; color: #33201a; border: 3px solid #33201a; padding: 8px 16px; border-radius: 14px; font-size: 18px; pointer-events: none; transition: opacity 0.4s; opacity: 0; text-align: center; }
   #heat, #closing { position: fixed; right: 16px; background: #fff3e2; color: #33201a; border: 3px solid #33201a; border-radius: 12px; padding: 4px 12px; font-size: 16px; pointer-events: none; display: none; }
   #heat { top: 52px; } #closing { top: 92px; }
+  #giggles { position: fixed; right: 16px; top: 132px; width: 200px; background: #fff3e2; color: #33201a; border: 3px solid #33201a; border-radius: 12px; padding: 4px 12px; font-size: 15px; pointer-events: none; display: none; }
+  #giggles .gb { height: 10px; background: #fff; border: 2px solid #33201a; border-radius: 6px; margin-top: 3px; overflow: hidden; } #giggles .gb div { height: 100%; background: #e2557a; transition: width 0.3s; }
+  #giggles.rush { background: #ffd1e1; animation: rush 0.3s infinite alternate; } @keyframes rush { from { transform: scale(1); } to { transform: scale(1.05); } }
+  #giggle { position: fixed; left: 50%; top: 28%; transform: translate(-50%, -50%) rotate(-4deg); font: 900 54px "Trebuchet MS", sans-serif; color: #e2557a; -webkit-text-stroke: 3px #33201a; text-shadow: 0 4px 0 #33201a; pointer-events: none; opacity: 0; white-space: nowrap; text-align: center; }
+  #giggle small { display: block; font-size: 24px; color: #f4c542; -webkit-text-stroke: 2px #33201a; }
+  #results .gg { color: #e2557a; font-weight: bold; } #results .gg li b { color: #e2557a; }
   #closing.urgent { background: #c4553d; color: #fff3e2; animation: bob 0.5s infinite alternate; }
   .pip { display: inline-block; width: 14px; height: 14px; border-radius: 50%; border: 2px solid #33201a; margin: 0 1px -2px; }
   #gadgets { position: fixed; right: 16px; bottom: 16px; color: #33201a; font-size: 15px; pointer-events: none; display: none; }
@@ -46,7 +52,7 @@
 <body>
 <div id="hud">STACKED, new build</div>
 <div id="net"><b>Online</b> <span class="kind"></span><div class="row"><button class="host">Host</button> or <input maxlength="4" placeholder="CODE"> <button class="join">Join</button></div><div class="status"></div></div>
-<div id="blind"></div><div id="quota"></div><div id="results"></div><div id="gadgets"></div><div id="heat"></div><div id="closing"></div><div id="hint"></div><div id="announce"></div>
+<div id="blind"></div><div id="quota"></div><div id="results"></div><div id="gadgets"></div><div id="heat"></div><div id="giggles"></div><div id="giggle"></div><div id="closing"></div><div id="hint"></div><div id="announce"></div>
 <div id="coathud"><div id="heads"></div><div id="wobblebox"><div id="wobble"></div></div><div id="height"></div></div>
 <script type="module" src="./main.js"></script>
 </body>

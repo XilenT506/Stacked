@@ -33,7 +33,7 @@ export class Gadgets {
     if (cycle) { G.i = (G.i + cycle + G.slots.length) % G.slots.length; G.charge = 0; }
     G.cool = Math.max(0, G.cool - dt);
     const id = G.slots[G.i], d = this.def(id), busy = coat.hidden || coat.grabbedBy;
-    if (busy || G.ammo[id] <= 0) { G.wasDown = fire; G.charge = 0; return; }
+    if (busy || (G.ammo[id] <= 0 && !(coat.superT > 0))) { G.wasDown = fire; G.charge = 0; return; }     // a Giggle Rush: endless ammo
     if (d.charge) {                               // hold to wind up, let go to fire
       if (fire) G.charge += dt;
       else if (G.wasDown && G.charge >= d.charge.min) { this.fire(coat, id, Math.min(1, G.charge / d.charge.full), aim); G.charge = 0; }
@@ -46,7 +46,7 @@ export class Gadgets {
 
   fire(coat, id, power, aim) {
     const d = this.def(id), w = coat.walker, f = w.feet, G = coat.gadgets;
-    G.ammo[id]--;
+    if (!(coat.superT > 0)) G.ammo[id]--;
     const fw = aim && Math.hypot(aim.x, aim.z) > 0.01 ? aim : { x: Math.sin(w.yaw), z: Math.cos(w.yaw) }, l = Math.hypot(fw.x, fw.z), dir = { x: fw.x / l, z: fw.z / l };
     this.events.push({ type: 'fire', gadget: id, coat, power, sound: d.sound, at: { ...f } });
     if (d.mode === 'place') {
@@ -58,7 +58,7 @@ export class Gadgets {
     const P = d.projectile, sp = lerp(P.speed, power), spread = (this.rnd() - 0.5) * 2 * (P.spread ?? 0);
     const c = Math.cos(spread), s = Math.sin(spread), vx = (dir.x * c - dir.z * s) * sp, vz = (dir.x * s + dir.z * c) * sp;
     const h = (P.height ?? 1.2) * (w.height / 2.2);
-    this.projectiles.push({ id, def: d, power, owner: coat, x: f.x + dir.x * 0.45, y: f.y + h, z: f.z + dir.z * 0.45, vx, vy: d.mode === 'thrown' ? lerp(P.lift ?? 3, power) : P.lift ?? 0, vz, life: P.life ?? 2 });
+    this.projectiles.push({ id, def: d, power, owner: coat, from: { x: f.x, z: f.z }, x: f.x + dir.x * 0.45, y: f.y + h, z: f.z + dir.z * 0.45, vx, vy: d.mode === 'thrown' ? lerp(P.lift ?? 3, power) : P.lift ?? 0, vz, life: P.life ?? 2 });
   }
 
   // send a hit's or a landing's signals
@@ -118,18 +118,18 @@ export class Gadgets {
       g.struckFrom(shooter.walker.feet);
       // they may well have seen who did it
       if (this.sus && shooter.count > 1 && g.sees(shooter.walker.feet)) this.sus.bump(g, shooter, this.sus.S.gadgetHitSeen ?? 0.5);
-      this.events.push({ type: 'hit', gadget: p.id, target: 'grownup', who: g, effect, at });
+      this.events.push({ type: 'hit', gadget: p.id, by: p.owner, from: p.from, target: 'grownup', who: g, effect, at });
     } else if (who.kind === 'coat') {        // friendly fire
       const c = who.c;
       if (effect) c.applyEffect(effect, secs);
       if (knock > 0) c.hit(knock);
-      this.events.push({ type: 'hit', gadget: p.id, target: 'coat', coat: c, effect, at });
+      this.events.push({ type: 'hit', gadget: p.id, by: p.owner, from: p.from, target: 'coat', coat: c, effect, at });
     } else if (who.kind === 'thing') {
-      const t = who.t;
+      const t = who.t; let toggled = false;
       if (t.body && t.def.body === 'dynamic' && !t.carried) {
         const m = t.body.mass(); t.body.applyImpulse({ x: dir.x * knock * m, y: knock * m * 0.3, z: dir.z * knock * m }, true);
-      } else if (t.kind === 'machine' && t.def.use?.type === 'toggle' && knock >= 2) this.things.use(t);   // flip a switch from across the room
-      this.events.push({ type: 'hit', gadget: p.id, target: 'thing', thing: t, at });
+      } else if (t.kind === 'machine' && t.def.use?.type === 'toggle' && knock >= 2) { this.things.use(t); toggled = true; }   // flip a switch from across the room
+      this.events.push({ type: 'hit', gadget: p.id, by: p.owner, from: p.from, target: 'thing', thing: t, toggled, at });
     }
     this.send(H, at, p.id);
     if (d.mode === 'thrown') this.land(p, { x: at.x, y: 0, z: at.z }, coats);      // a balloon bursts on whatever it hits
@@ -138,7 +138,7 @@ export class Gadgets {
   hitKid(p, { c, k }) {
     const dir = norm(p.vx, p.vz), knock = lerp(p.def.onHit?.knock ?? 0, p.power);
     k.vx += dir.x * knock * 1.5; k.vz += dir.z * knock * 1.5; if (k.waiting) { k.waiting = false; k.t = 2; }
-    this.events.push({ type: 'hit', gadget: p.id, target: 'kid', coat: c, kid: k.id });
+    this.events.push({ type: 'hit', gadget: p.id, by: p.owner, from: p.from, target: 'kid', coat: c, kid: k.id });
     this.send(p.def.onHit, { x: k.x, z: k.z }, p.id);
   }
 
@@ -147,10 +147,10 @@ export class Gadgets {
     const L = p.def.onLand || {};
     if (L.radius) {
       const effect = L.effect, secs = effect ? this.data.effects[effect].seconds : 0;
-      for (const g of this.people?.list || []) if (dist(g.feet, at) <= L.radius) { if (effect) g.applyEffect(effect, secs); g.struckFrom(at); this.events.push({ type: 'hit', gadget: p.id, target: 'grownup', who: g, effect, at }); }
-      for (const c of coats) if (dist(c.walker.feet, at) <= L.radius) { if (effect) c.applyEffect(effect, secs); this.events.push({ type: 'hit', gadget: p.id, target: 'coat', coat: c, effect, at }); }
+      for (const g of this.people?.list || []) if (dist(g.feet, at) <= L.radius) { if (effect) g.applyEffect(effect, secs); g.struckFrom(at); this.events.push({ type: 'hit', gadget: p.id, by: p.owner, from: p.from, target: 'grownup', who: g, effect, at }); }
+      for (const c of coats) if (dist(c.walker.feet, at) <= L.radius) { if (effect) c.applyEffect(effect, secs); this.events.push({ type: 'hit', gadget: p.id, by: p.owner, from: p.from, target: 'coat', coat: c, effect, at }); }
     }
-    this.events.push({ type: 'land', gadget: p.id, at });
+    this.events.push({ type: 'land', gadget: p.id, by: p.owner, at });
     this.send(L, at, p.id);
   }
 

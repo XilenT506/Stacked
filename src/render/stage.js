@@ -78,6 +78,7 @@ export class Stage {
       else if (e.k === 'say') this.voices.say(e.who, e.clip, { x: e.x, z: e.z });
       else if (e.k === 'announce') this.hud.announce(e.text, e.title);
       else if (e.k === 'shout') { const g = people.get(e.who); if (g) this.peopleView.shout(g, e.text, e.sec); }
+      else if (e.k === 'giggle') this.hud.giggle(e);
       else if (e.k === 'coat') { const c = coats.get(e.pid); if (c) { const l = this.pops.get(c) ?? []; l.push({ type: e.type }); this.pops.set(c, l); } }
     }
   }

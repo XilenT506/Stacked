@@ -25,13 +25,15 @@ import { Rescue } from '../systems/rescue.js';
 import { TeamMap } from '../systems/teamMap.js';
 import { Run, Shop } from '../systems/shop.js';
 import { Drinks } from '../systems/drinks.js';
+import { Giggles } from '../systems/giggles.js';
+import { snapshot } from '../net/snapshot.js';
 
 export const KIDS = [['sid', 'mo', 'tank'], ['pip', 'kit', 'bo'], ['ziggy', 'nell', 'ash'], ['dot', 'rex', 'flo']];
 const NO_INPUT = { move: { x: 0, z: 0 }, aim: null, run: false, use: false, natural: false, presses: {}, map: false, sc: [], shop: [] };
 const STILL = { x: 0, z: 0 };
 
 export class Game {
-  // D = { place, events, things, controls?, signals, balance, grownups, gadgets, loot, crayonmap, shop }
+  // D = { place, events, things, controls?, signals, balance, grownups, gadgets, loot, crayonmap, shop, giggles }
   constructor(R, D, { joinWindow = 20 } = {}) {
     this.R = R; this.D = D; this.joinWindow = joinWindow;
     this.order = []; this.waiting = []; this.out = []; this.jobNo = 0; this.players = [];
@@ -65,6 +67,9 @@ export class Game {
     this.jobEvents = new JobEvents(D.events.events, { signals: this.signals, things: this.things, spots: D.place.events, say: (text, title) => { this.emit({ k: 'announce', text, title }); this.emit({ k: 'sound', name: 'tannoy_ding' }); } }, B.events);
     this.map = new TeamMap(this.place, D.crayonmap);
     this.drinks = new Drinks(B, { people: this.people, things: this.things, signals: this.signals });
+    // Giggles watch every signal (chains) and keep the game state of the best moments for the highlight reel
+    this.giggles = new Giggles(B, D.giggles, { capture: () => snapshot(this, [], { withScribbles: false }) });
+    const heard = this.signals.onDeliver; this.signals.onDeliver = (sig) => { heard?.(sig); this.giggles.signal(sig, this.coats); };
     this.jobEvents.onFire = (e, at) => this.map.note(e.name, at);
     this.players = [];
     for (const id of this.order) this.spawnPlayer(id);
@@ -119,6 +124,7 @@ export class Game {
     if (this.job.over && (this.after += dt) >= B.shop.resultsSeconds) return this.job.why === 'all caught' ? this.newRun() : this.openShop();
     this.rescue.step(coats);
     this.people.step(dt, coats);
+    this.giggles.step(dt, { coats, people: this.people });
     for (const p of this.players) {
       const c = p.coat, I = p.input, h = p.hands;
       for (const sc of I.sc || []) this.map.add(p.id, sc, c.slot);
@@ -126,7 +132,7 @@ export class Game {
       c.mapOpen = !!I.map && !c.inCage && !c.hidden;
       if (this.pressed(p, 'stack')) c.toggleStack();
       let grab = this.pressed(p, 'grab');
-      if (grab && c.atGate && !this.job.over) { this.finish('got away'); grab = false; }
+      if (grab && c.atGate && !this.job.over) { this.giggles.getaway(c, { closing: this.closing, people: this.people }); this.finish('got away'); grab = false; }
       const sel = ['slot1', 'slot2', 'slot3', 'slot4', 'slot5'].findIndex((n) => this.pressed(p, n));
       if (this.pressed(p, 'drink') && !c.mapOpen) this.drinks.drink(c, coats);
       this.gadgets.use(c, dt, { fire: I.use && !h.held && !c.mapOpen, select: sel < 0 ? null : sel, cycle: this.pressed(p, 'switch') ? 1 : 0, aim: I.aim });
@@ -147,7 +153,15 @@ export class Game {
     this.present();
   }
 
-  finish(why) { if (!this.job.over) { this.job.finish(why, this.loot, this.sus); this.run.earn(this.job.result); this.emit({ k: 'result', result: this.job.result }); } }
+  finish(why) {
+    if (this.job.over) return;
+    this.job.finish(why, this.loot, this.sus);
+    // Giggles on the results screen; the best moments (with their game state) go on the run's highlight list
+    const r = this.job.result, G = this.giggles;
+    r.giggles = G.summary(); G.closed = true; r.best = G.best().slice(0, 3).map((m) => ({ label: m.label, reel: m.reel, giggles: m.giggles, by: m.by }));
+    this.run.highlights = [...(this.run.highlights ?? []), ...G.best().map((m) => ({ ...m, job: this.jobNo }))].sort((a, b) => b.giggles - a.giggles).slice(0, this.D.balance.giggles.record.keepPerRun);
+    this.run.earn(r); this.emit({ k: 'result', result: r });
+  }
 
   // Dodgy Del's stall in the alley: the shop world stands still while everyone shops
   openShop() {
@@ -173,6 +187,7 @@ export class Game {
     const S = this.D.balance;
     for (const p of this.players) { for (const e of p.events) if (['spill', 'hit', 'restack', 'unstack', 'stumble', 'effect'].includes(e.type)) this.emit({ k: 'coat', pid: p.id, type: e.type }); p.events = []; }
     for (const e of this.people.take()) {
+      if (e.type === 'slip') this.giggles.floored(e.who, this.coats);
       if (e.type === 'say' && e.clip) this.emit({ k: 'say', who: e.who.id, clip: e.clip, x: e.who.feet.x, z: e.who.feet.z });
       if (e.type === 'slip') this.emit({ k: 'sound', name: 'slip_whee', x: e.who.feet.x, z: e.who.feet.z });
     }
@@ -205,9 +220,19 @@ export class Game {
       this.emit({ k: 'coat', pid: e.coat.pid, type: e.id === 'burp_blaster' ? 'burp' : 'sugar' });
     }
     for (const e of this.gadgets.take()) {
+      this.giggles.gadget(e);
       if (e.type === 'fire' && e.sound) this.emit({ k: 'sound', name: e.sound, x: e.at.x, z: e.at.z });
       if (e.type === 'hit') this.emit({ k: 'sound', name: 'bonk', x: e.at.x, z: e.at.z });
       if (e.type === 'trigger') this.emit({ k: 'sound', name: this.D.gadgets.gadgets[e.gadget]?.triggerSound ?? 'slip_whee', x: e.at.x, z: e.at.z });
+    }
+    this.presentGiggles();
+  }
+
+  // Giggles: the shout, the meter, the Giggle Rush (drawn by the HUD)
+  presentGiggles() {
+    for (const e of this.giggles.take()) {
+      if (e.type === 'moment') { this.emit({ k: 'giggle', label: e.m.label, giggles: e.giggles, kind: e.m.kind, by: e.m.by, bigger: e.bigger }); this.emit({ k: 'sound', name: 'pose_ding' }); }
+      if (e.type === 'rush') { this.emit({ k: 'giggle', label: e.label, rush: true }); this.emit({ k: 'sound', name: 'fizz' }); }
     }
   }
 

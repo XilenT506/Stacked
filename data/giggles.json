@@ -1,0 +1,33 @@
+{
+  "_about": "What the game shouts for each funny moment ({n} = how many grown-ups a Domino floored), and a line for the highlight reel later.",
+  "moments": {
+    "domino": {
+      "shout": "DOMINO ×{n}!",
+      "reel": "One prank, {n} grown-ups on the floor."
+    },
+    "trickShot": {
+      "shout": "TRICK SHOT!",
+      "reel": "From right across the shop."
+    },
+    "soakFriend": {
+      "shout": "FRIENDLY FIRE!",
+      "reel": "Soaked by your own mate."
+    },
+    "mannequin": {
+      "shout": "NERVES OF STEEL!",
+      "reel": "Stood still as a mannequin, right under the guard's nose."
+    },
+    "lastSecond": {
+      "shout": "JUST IN TIME!",
+      "reel": "Out the door at the very last second."
+    },
+    "oneKid": {
+      "shout": "ONE KID SHOW!",
+      "reel": "Got away with just one kid left in the coat."
+    },
+    "sugarRush": {
+      "shout": "GIGGLE RUSH!",
+      "reel": "The Giggle meter is full: Sugar Rush for everyone!"
+    }
+  }
+}

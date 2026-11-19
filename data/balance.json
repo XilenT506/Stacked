@@ -210,5 +210,53 @@
       "thingKnock": 4,
       "noise": 14
     }
+  },
+  "giggles": {
+    "_about": "Giggles: the game rewards being funny. Each funny moment adds Giggles to the team's meter; a full meter starts a team Sugar Rush (everyone faster, endless ammo) and empties it. A chain is signals that follow each other closely (each within chain.range metres and chain.gap seconds of the last ones); a Domino is one chain flooring domino.min or more grown-ups. Labels: data/giggles.json.",
+    "meter": 100,
+    "superSeconds": 10,
+    "chain": {
+      "range": 5,
+      "gap": 3,
+      "maxSeconds": 25
+    },
+    "moments": {
+      "domino": {
+        "giggles": 30,
+        "perExtra": 10,
+        "min": 3
+      },
+      "trickShot": {
+        "giggles": 15,
+        "distance": 10,
+        "switchDistance": 6
+      },
+      "soakFriend": {
+        "giggles": 10
+      },
+      "mannequin": {
+        "giggles": 20,
+        "range": 2.5,
+        "who": [
+          "guard",
+          "caretaker"
+        ]
+      },
+      "lastSecond": {
+        "giggles": 25,
+        "chaseRange": 4,
+        "shutterSeconds": 12
+      },
+      "oneKid": {
+        "giggles": 15
+      }
+    },
+    "record": {
+      "every": 0.25,
+      "seconds": 10,
+      "after": 2,
+      "keepPerJob": 3,
+      "keepPerRun": 10
+    }
   }
 }

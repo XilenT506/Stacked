@@ -2,6 +2,23 @@
 
 Newest first. One entry per build session (one prompt from the Build guide in the doc "STACKED – Game Plan").
 
+## 2026-11-19 · Prompt 15 of 16 (M1-11): Giggles and results
+
+- **Giggles: the game now notices when something funny happens** (`src/systems/giggles.js`). It follows the **signal chains**: signals that come one after another close by (within 5 m and 3 seconds of the chain's last ones) belong to one chain, and every grown-up who falls over is counted in the chain they fell in. Funny moments:
+  - **DOMINO ×N!**: one chain floors 3 or more grown-ups (30 Giggles, +10 for each extra). It grows as more go over ("DOMINO ×3!" then "DOMINO ×4!"), and the player who started the chain gets the credit.
+  - **TRICK SHOT!**: a gadget hits a grown-up from 10 m or more, or flips a switch from 6 m or more.
+  - **FRIENDLY FIRE!**: you soak a teammate.
+  - **NERVES OF STEEL!**: you pose in the mannequin row while the guard (or the Caretaker) inspects you from up close, and he walks off none the wiser.
+  - **JUST IN TIME!**: you get away as the last shutters are about to come down, or with a grown-up right behind you.
+  - **ONE KID SHOW!**: you get away with only one kid left in the coat.
+- **The Giggle meter** (top right, under Heat) fills with every moment. **Full (100), it starts a Giggle Rush**: a Sugar Rush for the whole team (everyone 1.5× faster, **endless ammo**, sparks), then empties. Each moment pops up in big bouncy letters in the middle of the screen with its Giggles.
+- **The results screen** now shows: what you got out, the bonus, the total against the quota, and **Giggles: the total and each funny moment with its Giggles**.
+- **The highlight reel log:** the game keeps the last 10 seconds of game state (4 frames a second). Each of the best 3 moments of a job keeps those frames plus 2 seconds after. The run keeps its best 10 moments (`run.highlights`), each with its frames, its label and a line for the narrator. Every frame is a normal snapshot, so a Mirror can play it back. That's ready for the highlight reel in M4.
+- All numbers are in `data/balance.json` (`giggles`); the shouts and reel lines are in `data/giggles.json`.
+- Giggles go online too: the meter is in every snapshot, the shouts go to every screen, the Giggles are on everyone's results.
+- Tests: 90 logic tests pass (6 new). **A Domino from a real chain**: one water balloon thrown into a group at the tills soaks them and wets the floor; they go over one after another, each fall making a noise in the same chain. The test checks: DOMINO ×4, the thrower credited, the chain made of several kinds of signal, and a stored frame played in a Mirror shows them on the floor. Also tested: trick shot (and a short shot isn't one), soaking a friend, nerves of steel, a last-second getaway with the Giggles on the results, and a full meter starting a Giggle Rush with endless ammo that wears off.
+- Screenshots: `giggles_domino`, `giggles_results`.
+
 ## 2026-11-19 · Prompt 14 of 16 (M1-10): Dodgy Del's mini shop
 
 - **Between two jobs you go to Dodgy Del's stall in the alley** (`src/ui/shop/`): after the results (8 seconds), a full-screen crayon drawing of a brick alley, **Del** (a 12-year-old in sunglasses and a red cap) behind **a pram full of stock**, his speech bubble (a new bad joke each visit, and a reply to everything you do), and **the team's sweet jar**.

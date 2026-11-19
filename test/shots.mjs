@@ -287,6 +287,22 @@ await key('KeyF', 0.1); await wait2(0.25); await shot('drink_burp');
 const burp = await shop.evaluate(() => { const gr = __stacked2.game.people.list.find((p) => p.typeName === 'granny'); return { state: gr.state, drinks: __stacked2.coat.drinks }; });
 console.log('burp', JSON.stringify(burp), ['slipped', 'stunned'].includes(burp.state) && burp.drinks.length === 0 ? 'OK' : 'FAIL');
 
+// Giggles: a water balloon into a group at the tills floors them one after another (DOMINO!), then get away: the results show the Giggles
+await go(0, 11); await wait2(0.3);
+await shop.evaluate(() => { const g = __stacked2.game, c = __stacked2.coat; c.sugar = 0;
+  const who = g.people.list.filter((p) => ['shopper', 'granny'].includes(p.typeName));
+  [[-0.6, 7], [0.6, 7], [0, 6.2], [0, 7.8], [0.8, 6.3]].forEach(([x, z], i) => { const p = who[i]; if (!p) return; p.walker.body.setTranslation({ x, y: 0.9, z }, true); p.walker.vel.x = p.walker.vel.z = 0; p.sus.clear(); p.hostile.clear(); p.set('idle', 3); });
+  g.gadgets.fire(c, 'water_balloon', 0.25, { x: 0, z: -1 }); });
+await shop.waitForFunction(() => __stacked2.game.giggles.moments.some((m) => m.kind === 'domino'), null, { timeout: 60000, polling: 100 }).catch(() => {});
+await shot('giggles_domino');
+const dom = await shop.evaluate(() => { const m = __stacked2.game.giggles.moments.find((x) => x.kind === 'domino'); return m ? { n: m.n, giggles: m.giggles, signals: m.signals, frames: m.frames?.length } : null; });
+console.log('domino', JSON.stringify(dom), dom && dom.n >= 3 ? 'OK' : 'FAIL');
+await go(...JSON.parse(await (await import('node:fs/promises')).readFile('data/places/supermarket.json', 'utf8')).getaway.at); await wait2(0.5);
+await key('KeyE', 0.1); await wait2(1); await shot('giggles_results');
+const gres = await shop.evaluate(() => __stacked2.job.result?.giggles);
+const gtext = await shop.evaluate(() => document.getElementById('results').innerText);
+console.log('results giggles', JSON.stringify(gres), gres?.total > 0 && /Giggles/.test(gtext) ? 'OK' : 'FAIL');
+
 console.log(errors.length ? 'ERRORS ' + errors.join(' | ') : 'no errors');
 await browser.close(); server.close();
 if (errors.length) process.exit(1);

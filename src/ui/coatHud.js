@@ -23,6 +23,23 @@ export class CoatHud {
     this.closeEl.className = closing.started ? 'urgent' : '';
   }
 
+  // the team's Giggle meter, under Heat; it shakes during a Giggle Rush
+  giggleMeter(g, max, rush) {
+    const el = this.gigEl ??= document.getElementById('giggles');
+    if (!g) { el.style.display = 'none'; return; }
+    el.style.display = 'block'; el.className = rush ? 'rush' : '';
+    const html = `<b>GIGGLES</b> ${g.total}${rush ? ' · <b>GIGGLE RUSH!</b>' : ''}<div class="gb"><div style="width:${Math.min(100, (g.meter / max) * 100)}%"></div></div>`;
+    if (html !== this.lastGig) { el.innerHTML = html; this.lastGig = html; }
+  }
+
+  // a funny moment: big bouncy words in the middle of the screen
+  giggle(e) {
+    const el = this.popEl ??= document.getElementById('giggle');
+    el.innerHTML = `${e.label}${e.giggles ? `<small>+${e.giggles} Giggles</small>` : ''}`;
+    el.animate([{ opacity: 0, transform: 'translate(-50%, -50%) rotate(-4deg) scale(0.3)' }, { opacity: 1, transform: 'translate(-50%, -50%) rotate(-4deg) scale(1.15)', offset: 0.15 },
+      { opacity: 1, transform: 'translate(-50%, -50%) rotate(-4deg) scale(1)', offset: 0.3 }, { opacity: 1, offset: 0.85 }, { opacity: 0, transform: 'translate(-50%, -60%) rotate(-4deg) scale(1)' }], { duration: 2200, easing: 'ease-out' });
+  }
+
   // the gadget slots, bottom right: name, ammo, the one in hand, and the slingshot's charge
   gadgets(coat, data) {
     const G = coat.gadgets, el = this.gadEl ??= document.getElementById('gadgets');
@@ -59,6 +76,7 @@ export class CoatHud {
     el.innerHTML = `<h2>${r.why === 'got away' ? 'You got away!' : r.why === 'all caught' ? 'Everyone got caught!' : 'Shut in at Closing Time!'}</h2>
       <ul>${r.items.map((i) => `<li>${i.name}<b>${i.value}${i.value < i.base ? ` <s>${i.base}</s>` : ''}</b></li>`).join('') || '<li>Nothing at all...</li>'}</ul>
       <p>Loot <b>${r.banked}</b> × ${r.mult} ${r.bonusName ? `(${r.bonusName}${r.clean ? '' : `, Heat ${r.heat}`})` : ''} = <b>${r.total}</b> sweets</p>
+      ${r.giggles ? `<p class="gg">Giggles: ${r.giggles.total}</p><ul class="gg">${r.giggles.moments.map((m) => `<li>${m.label}${m.count > 1 ? ` ×${m.count}` : ''}<b>+${m.giggles}</b></li>`).join('') || '<li>No funny business. Suspicious.</li>'}</ul>` : ''}
       <p class="${r.met ? 'ok' : 'no'}">${r.met ? `Quota met! (${r.quota})` : `Quota missed by ${r.short} (needed ${r.quota}). Detention cards come later.`}</p>
       <p class="small">${next}</p>`;
   }

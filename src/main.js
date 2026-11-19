@@ -34,8 +34,9 @@ import GADGETS from '../data/gadgets.json';
 import LOOT from '../data/loot.json';
 import CRAYONMAP from '../data/crayonmap.json';
 import DEL from '../data/shop.json';
+import GIGGLES from '../data/giggles.json';
 
-const DATA = { place: SUPERMARKET, events: SHOP_EVENTS, things: THINGS, signals: SIGNALS, balance: BALANCE, grownups: GROWNUPS, gadgets: GADGETS, loot: LOOT, crayonmap: CRAYONMAP, shop: DEL };
+const DATA = { place: SUPERMARKET, events: SHOP_EVENTS, things: THINGS, signals: SIGNALS, balance: BALANCE, grownups: GROWNUPS, gadgets: GADGETS, loot: LOOT, crayonmap: CRAYONMAP, shop: DEL, giggles: GIGGLES };
 const params = new URLSearchParams(location.search);
 const quality = params.get('q') || 'high';                       // chosen, never switched behind the player's back
 const PRESS = ['grab', 'throw', 'stack', 'slot1', 'slot2', 'slot3', 'slot4', 'slot5', 'switch', 'drink'];
@@ -180,7 +181,7 @@ function frame(now) {
     hud.update(dt, watch, [], areaNow, game ? game.hint(watch.pid) : watch.hint ?? '');
     hud.gadgets(watch, { ...GADGETS, drinks: DEL.drinks });
   }
-  hud.status(model.sus, model.closing, model.rescue); hud.quota(model.job, model.loot, model.sus); hud.results(shopping ? null : model.job?.result, model.run?.sweets);
+  hud.status(model.sus, model.closing, model.rescue); hud.giggleMeter(shopping ? null : model.giggles, BALANCE.giggles.meter, model.coats.some((c) => c.superT > 0)); hud.quota(model.job, model.loot, model.sus); hud.results(shopping ? null : model.job?.result, model.run?.sweets);
   sfx.listener = voices.listener = { x: focus.x, z: focus.z };
   renderer.render(stage.scene, camera);
   frames++; fpsT += dt;
