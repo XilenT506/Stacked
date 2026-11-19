@@ -2,6 +2,15 @@
 
 Newest first. One entry per build session (one prompt from the Build guide in the doc "STACKED – Game Plan").
 
+## 2026-11-19 · Task 17: M1 playtest and gate
+
+- No game code changed.
+- Playtest run as an agent playtest at Nick's request: Claude in Nick's seat, plus two AI agents as first-time friends (one solo, one in online co-op on one computer), through a slow headless browser without sound.
+- Scores 5, 5, 5 (average 5.0) and 0 of 3 said Yes to another round, so the M1 gate **failed** (rule: average 7 or more and at least 2 of 3 Yes).
+- Loved: the grown-ups' lines ("THAT'S NOT A GROWN-UP!"), Del's jokes, burp and pile-over slapstick, FRIENDLY FIRE confetti.
+- Confused: where to go and which cake is Nan's, getting caught fast without knowing why, sweets and Giggles numbers. Top bug: typing a room code moves the coat.
+- Results, the gate decision and six fix prompts (M1-F1 to M1-F6) are in the Game Plan under "M1 playtest results and gate" and "M1 fixes". A human playtest should follow the fixes.
+
 ## 2026-11-19 · Prompt 16 of 16 (M1-12): Juice pass and playtest build
 
 - **Every action and every interactive thing now has a sound and something to see** (`data/juice.json`, `src/render/juice.js`, `src/render/fx/particles.js`):
