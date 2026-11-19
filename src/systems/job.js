@@ -1,7 +1,14 @@
 // One job: the briefing (target and quota), the clock, and the sums at the end.
 //   The loot you banked at the getaway gate × the Heat multiplier: a Clean Job (Heat 0 at the end) gets
 //   +50%; otherwise the Chaos Bonus for the Heat you ended on (×1, ×1.2, ×1.5, ×2 from data).
-//   Missing the quota does not end the run (Detention cards come later).
+//   Missing the quota does not end the run.
+//   moneyLine: the one money line the HUD and the getaway gate both show ("Banked 42 · Holding 15 ·
+//   Quota 150"), raw sweets; the bonus only shows on the results screen.
+export function moneyLine(loot, job) {
+  const banked = Math.round(loot.bankedValue), holding = Math.round(loot.inHand()), quota = job?.quota ?? 0;
+  return { banked, holding, quota, text: `Banked ${banked} · Holding ${holding} · Quota ${quota}` };
+}
+
 export function jobResult({ banked, heat, quota, balance }) {
   const clean = heat === 0, mult = clean ? 1 + balance.job.cleanBonus : balance.heat.chaosBonus[heat];
   const total = Math.round(banked * mult);

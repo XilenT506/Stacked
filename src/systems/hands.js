@@ -72,6 +72,7 @@ export class Hands {
 
   pickUp(t) {
     this.held = t; t.holder = this.coat; t.setCarried(true);
+    for (const col of t.colliders) this.walker.ignore.add(col.handle);   // walk through what you hold (M1-F3: it shoved the coat across the shop)
     this.coat.carryKg = t.def.mass || 0;
     this.coat.disguiseProp = t.def.disguise || null;
     this.coat.carrySilly = !t.def.disguise;                             // a grown-up carrying a melon about looks odd
@@ -80,6 +81,7 @@ export class Hands {
 
   release(vel) {
     const t = this.held; this.held = null; t.holder = null; t.setCarried(false);
+    for (const col of t.colliders) this.walker.ignore.delete(col.handle);
     t.body.setLinvel(vel, true); t.prevVel = { ...vel };
     this.coat.carryKg = 0; this.coat.disguiseProp = null; this.coat.carrySilly = false;
     return t;

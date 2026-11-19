@@ -47,13 +47,13 @@ function setup({ people = [], coats = [[-14.5, 0, 16]] } = {}) {
 const item = (s, id) => s.loot.items.find((it) => it.id === id);
 
 test('quota maths: Clean Job +50% at Heat 0, Chaos Bonus ×1.2 / ×1.5 / ×2 at Heat 1 to 3', () => {
-  assert.deepEqual([0, 1, 2, 3].map((h) => jobResult({ banked: 1000, heat: h, quota: 1500, balance: B }).total), [1500, 1200, 1500, 2000]);
-  const clean = jobResult({ banked: 1000, heat: 0, quota: 1500, balance: B });
+  assert.deepEqual([0, 1, 2, 3].map((h) => jobResult({ banked: 100, heat: h, quota: 150, balance: B }).total), [150, 120, 150, 200]);   // M1-F3: sweets at the plan's scale
+  const clean = jobResult({ banked: 100, heat: 0, quota: 150, balance: B });
   assert.ok(clean.clean && clean.met && clean.bonusName === 'Clean Job');
-  const r1 = jobResult({ banked: 1000, heat: 1, quota: 1500, balance: B });
-  assert.ok(!r1.met); assert.equal(r1.short, 300); assert.equal(r1.bonusName, 'Chaos Bonus');
-  assert.equal(jobResult({ banked: 0, heat: 3, quota: 1500, balance: B }).total, 0);
-  assert.equal(jobResult({ banked: 333, heat: 1, quota: 0, balance: B }).total, 400);      // rounded to whole sweets
+  const r1 = jobResult({ banked: 100, heat: 1, quota: 150, balance: B });
+  assert.ok(!r1.met); assert.equal(r1.short, 30); assert.equal(r1.bonusName, 'Chaos Bonus');
+  assert.equal(jobResult({ banked: 0, heat: 3, quota: 150, balance: B }).total, 0);
+  assert.equal(jobResult({ banked: 33, heat: 1, quota: 0, balance: B }).total, 40);      // rounded to whole sweets
 });
 
 test('small loot goes in your pockets (up to the pocket limit), big loot is carried and slows you down', () => {
@@ -76,9 +76,9 @@ test('small loot goes in your pockets (up to the pocket limit), big loot is carr
 test('dropping loot loses value (never below 40%); a kid falling out drops what you carry', () => {
   const s = setup({ coats: [[0.5, 0, 2.7]] }); const c = s.coats[0], it = item(s, 'giant_lolly');
   s.run(0.05, [{ grab: true }]); assert.equal(it.state, 'carried');
-  s.run(0.05, [{ grab: true }]); assert.equal(it.state, 'lying'); assert.equal(it.value, 340);
+  s.run(0.05, [{ grab: true }]); assert.equal(it.state, 'lying'); assert.equal(it.value, 34);
   for (let i = 0; i < 10; i++) s.loot.drop(it, 'test');
-  assert.equal(it.value, 160, 'floored at 40% of 400');
+  assert.equal(it.value, 16, 'floored at 40% of 40');
   s.run(0.05, [{ grab: true }]); assert.equal(it.state, 'carried');
   c.hit(10); s.run(0.05);
   assert.equal(it.state, 'lying', 'a kid fell out and the lolly went flying'); assert.equal(c.carryKg, 0);
@@ -97,9 +97,9 @@ test('the getaway gate banks everything you bring, and the job adds it up', () =
   const s = setup({ coats: [[16, 0, 16]] }); const c = s.coats[0];
   for (const id of ['chocolate', 'coin_jar']) Object.assign(item(s, id), { state: 'pocket', owner: c });
   s.run(1, [{ move: { x: 0, z: 1 } }], () => s.loot.banked.length === 2);
-  assert.equal(s.loot.bankedValue, 450);
+  assert.equal(s.loot.bankedValue, 45);
   const r = s.job.finish('got away', s.loot, s.sus);
-  assert.equal(r.total, 675); assert.ok(r.clean); assert.ok(!r.met);
+  assert.equal(r.total, 68); assert.ok(r.clean); assert.ok(!r.met);
 });
 
 test('a bot finishes a job: sneaks past the grown-ups, grabs sweets and the giant lolly, and gets them out', () => {
@@ -115,7 +115,7 @@ test('a bot finishes a job: sneaks past the grown-ups, grabs sweets and the gian
   assert.ok(bot.done, `the bot got stuck: ${bot.log.at(-1)} (step ${bot.i})`);
   s.run(0.5);
   const r = s.job.finish('got away', s.loot, s.sus);
-  assert.ok(r.banked >= 400 + 150 + 80 + 120 - 80, `banked only ${r.banked}`);
+  assert.ok(r.banked >= 40 + 15 + 8 + 12 - 8, `banked only ${r.banked}`);
   assert.ok(s.loot.banked.some((it) => it.id === 'giant_lolly'), 'brought the giant lolly out');
   console.log(`bot job: ${t.toFixed(0)} s, banked ${r.banked}, Heat ${r.heat}, ×${r.mult} = ${r.total} of ${r.quota}`);
 });

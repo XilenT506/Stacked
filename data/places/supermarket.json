@@ -140,24 +140,24 @@
     "guard": [-4.9, -14.2], "drop": [-4.9, -14.6]
   },
 
-  "job": { "_about": "the job in this place: what the briefing asks for. targetLoot is the loot id the pointer and the floating sign show; goal is the one-sentence goal on the start card", "target": "Nan's birthday cake from the bakery", "quota": 1500, "targetLoot": "birthday_cake", "sign": "NAN'S CAKE", "goal": "Get Nan's birthday cake from the bakery and bring it out through the gate in the car park." },
+  "job": { "_about": "the job in this place: what the briefing asks for. targetLoot is the loot id the pointer and the floating sign show; goal is the one-sentence goal on the start card", "target": "Nan's birthday cake from the bakery", "quota": 150, "targetLoot": "birthday_cake", "sign": "NAN'S CAKE", "goal": "Get Nan's birthday cake from the bakery and bring it out through the gate in the car park." },
 
   "loot": {
-    "_about": "small fits in a pocket, big is carried (two players can carry together). value in sweets. Names and looks in data/loot.json.",
+    "_about": "small fits in a pocket, big is carried (two players can carry together). value in sweets (M1-F3: to the plan's scale, so Del's prices of 30 to 55 matter; all of it together is 298 against a quota of 150). Names and looks in data/loot.json.",
     "list": [
-      { "id": "pick_n_mix",   "kind": "small", "value": 120, "at": [-0.8, 1.1, -4] },
-      { "id": "lollies",      "kind": "small", "value": 80,  "at": [-0.8, 1.1, -0.5] },
-      { "id": "chocolate",    "kind": "small", "value": 150, "at": [-0.8, 1.1, 2.5] },
-      { "id": "gummy_worms",  "kind": "small", "value": 90,  "at": [1.8, 1.1, -3] },
-      { "id": "fizzy_cola",   "kind": "small", "value": 100, "at": [1.8, 1.1, 0.5] },
-      { "id": "giant_lolly",  "kind": "big",   "value": 400, "at": [0.5, 0, 3.5] },
-      { "id": "birthday_cake","kind": "big",   "value": 800, "at": [13.5, 1.05, -5] },
-      { "id": "coin_jar",     "kind": "small", "value": 300, "at": [-4, 0.95, 6.4] },
-      { "id": "ice_lollies",  "kind": "small", "value": 110, "at": [5.9, 1.1, -3.5] },
-      { "id": "biscuit_tin",  "kind": "small", "value": 200, "at": [-8, 0.85, -14] },
-      { "id": "pop_crate",    "kind": "big",   "value": 500, "at": [6, 0, -14] },
-      { "id": "tin_beans",    "kind": "small", "value": 60,  "at": [-14.8, 1.1, 1] },
-      { "id": "cereal_box",   "kind": "small", "value": 70,  "at": [-12.8, 1.1, -3] }
+      { "id": "pick_n_mix",   "kind": "small", "value": 12, "at": [-0.8, 1.1, -4] },
+      { "id": "lollies",      "kind": "small", "value": 8,  "at": [-0.8, 1.1, -0.5] },
+      { "id": "chocolate",    "kind": "small", "value": 15, "at": [-0.8, 1.1, 2.5] },
+      { "id": "gummy_worms",  "kind": "small", "value": 9,  "at": [1.8, 1.1, -3] },
+      { "id": "fizzy_cola",   "kind": "small", "value": 10, "at": [1.8, 1.1, 0.5] },
+      { "id": "giant_lolly",  "kind": "big",   "value": 40, "at": [0.5, 0, 3.5] },
+      { "id": "birthday_cake","kind": "big",   "value": 80, "at": [13.5, 1.05, -5] },
+      { "id": "coin_jar",     "kind": "small", "value": 30, "at": [-4, 0.95, 6.4] },
+      { "id": "ice_lollies",  "kind": "small", "value": 11, "at": [5.9, 1.1, -3.5] },
+      { "id": "biscuit_tin",  "kind": "small", "value": 20, "at": [-8, 0.85, -14] },
+      { "id": "pop_crate",    "kind": "big",   "value": 50, "at": [6, 0, -14] },
+      { "id": "tin_beans",    "kind": "small", "value": 6,  "at": [-14.8, 1.1, 1] },
+      { "id": "cereal_box",   "kind": "small", "value": 7,  "at": [-12.8, 1.1, -3] }
     ]
   },
 

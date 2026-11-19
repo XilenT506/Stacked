@@ -20,7 +20,7 @@ import { ClosingTime } from '../systems/closingTime.js';
 import { Security } from '../systems/security.js';
 import { Gadgets } from '../systems/gadgets.js';
 import { Loot } from '../systems/loot.js';
-import { Job } from '../systems/job.js';
+import { Job, moneyLine } from '../systems/job.js';
 import { Rescue } from '../systems/rescue.js';
 import { TeamMap } from '../systems/teamMap.js';
 import { Run, Shop } from '../systems/shop.js';
@@ -276,7 +276,7 @@ export class Game {
   // what E does for this player right now (shown at the bottom of their screen)
   hint(id) {
     const p = this.player(id); if (!p) return '';
-    if (p.coat.atGate && !this.job.over) return `E: get away! (${this.loot.bankedValue} sweets banked; this ends the job)`;
+    if (p.coat.atGate && !this.job.over) return `E: get away! ${moneyLine(this.loot, this.job).text} (this ends the job)`;
     return p.hands.hint();
   }
 

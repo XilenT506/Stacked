@@ -34,9 +34,16 @@ export class Loot {
 
   hint(coat) {
     const it = this.near(coat); if (!it) return '';
+    // carrying big loot with small loot in reach: say why E won't pocket it
+    if (it.state === 'carried' && it.carriers.includes(coat) && this.smallInReach(coat)) return `Hands full: drop the ${it.name.toLowerCase()} first (E)`;
     if (it.state === 'carried' && it.carriers.includes(coat)) return `${it.name} (${it.value}): E put it down${it.carriers.length > 1 ? ' (you are carrying it together)' : ''}`;
     if (it.state === 'carried') return `E: help carry the ${it.name.toLowerCase()}`;
     return `E: ${it.kind === 'small' ? 'pocket' : 'pick up'} the ${it.name.toLowerCase()} (${it.value} sweets)`;
+  }
+
+  smallInReach(coat) {
+    const f = coat.walker.feet;
+    return this.items.some((o) => o.kind === 'small' && o.state === 'lying' && Math.hypot(o.x - f.x, o.z - f.z) < this.L.reach);
   }
 
   // E on loot; returns true when loot used the key press

@@ -2,6 +2,15 @@
 
 Newest first. One entry per build session (one prompt from the Build guide in the doc "STACKED – Game Plan").
 
+## 2026-11-19 · Fix 3 of 6 (M1-F3): Sweets and loot that make sense
+
+- **Sweets to the plan's scale** (data only, `data/places/supermarket.json`): every loot value divided by 10 (Nan's cake 80, giant lolly 40, pop crate 50, coin jar 30, small sweets 6 to 20; all of it together 298) and the quota 1500 → 150. Del's prices (30 to 55) now matter: a job that just meets the quota buys two or three things, not the whole stall.
+- **The 7 m cake push, found and fixed.** A held thing floats half a metre in front of the coat, and the coat's own movement treated it as a wall to push off, so the coat kept shoving itself away (in a test it slid 13 m, from the bakery to the tills, holding still). The coat now walks through whatever it holds (`src/systems/hands.js`). It happened with any held thing, not just the cream cake. Side effect: the online-play logic test had only passed *because* of this bug (a coat holding a mop slid into things and made a mess), so its bot now makes its mess on purpose with a ketchup bottle.
+- **Cream cakes are props:** they were never loot, but their hint said "E: pick up the cake". Now: "E: pick up a cream cake (a prop to throw, not loot)". Next to Nan's cake, the loot hint for the real cake still wins.
+- **Hands full:** carrying big loot with small loot in reach, the hint says "Hands full: drop the giant lolly first (E)".
+- **One money line:** the HUD shows "Banked 42 · Holding 15 · Quota 150" (bigger and bold) over the quota bar, in raw sweets. The getaway gate's hint shows the very same line: both come from `moneyLine()` in `src/systems/job.js` (HUD drawing in the new `src/ui/quotaBar.js`). The Clean Job / Chaos bonus only shows on the results screen. "Detention cards come later" is gone from the results.
+- Tests: new `test/logic/sweets.test.mjs` (the new scale and prices, cream cakes are not loot and say so, no push after picking one up, the hands-full hint, the gate and HUD show the same line, no bonus on the HUD). The quota maths and loot tests use the new numbers. New screenshots `money_hud.png`, `money_gate.png`, `money_results.png`.
+
 ## 2026-11-19 · Fix 2 of 6 (M1-F2): Getting caught: fair, readable, funny
 
 - **Why bubbles:** every time a grown-up's "?" starts rising (or rises for a new reason) a short bubble says why: "Running in a shop?!", "Is that coat... wobbling?", "Was that a CHILD falling out?!", "Oi! Watch where you're going!" and more. The words are in the new `data/why.json`; `src/systems/suspicion.js` now tracks the main reason for each meter. When Heat rises the HUD line says what gave you away: "People are starting to stare. A baker saw you running."

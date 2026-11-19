@@ -206,7 +206,7 @@
       "reaction": "\"Oh! Is this an inspection?\""
     },
     "cream_cake": {
-      "kind": "food", "name": "Cream cake", "body": "dynamic", "verb": "pick up the cake",
+      "kind": "food", "name": "Cream cake", "body": "dynamic", "verb": "pick up a cream cake (a prop to throw, not loot)",
       "shape": { "type": "cylinder", "radius": 0.16, "height": 0.12 },
       "mass": 0.6, "friction": 0.9, "bounce": 0, "color": "#fbe3ea", "splat": "#fff1f4",
       "impact": { "minSpeed": 1.5, "cooldown": 1, "signals": ["food", "spill", "slippery"], "breaks": true, "event": "splat", "range": 1.2 },

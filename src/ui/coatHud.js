@@ -1,5 +1,6 @@
 // The HUD: the top line (place, fps, keys), three heads and the wobble bar, the area and height label,
 // a hint for what E does here, and tannoy announcements across the top of the screen.
+import { quotaHtml } from './quotaBar.js';
 import { KID_COLORS } from '../render/coatView.js';
 
 export class CoatHud {
@@ -63,14 +64,12 @@ export class CoatHud {
     this.blindEl.style.opacity = (coat.effects?.blinded ?? 0) > 0 ? 0.85 : 0;
   }
 
-  // the quota bar, top middle: banked loot (gold) and loot in hand (pale), against the quota
-  quota(job, loot, sus) {
+  // the quota bar, top middle (src/ui/quotaBar.js): the same money line as the getaway gate, no bonus
+  quota(job, loot) {
     const el = this.quotaEl ??= document.getElementById('quota');
     if (!job) { el.style.display = 'none'; return; }
     el.style.display = 'block';
-    const banked = loot.bankedValue, hand = loot.inHand(), q = job.quota || 1, mult = sus?.level ? sus.chaosBonus : 1.5;
-    const w1 = Math.min(100, banked * mult / q * 100), w2 = Math.min(100 - w1, hand * mult / q * 100);
-    const html = `<div class="qt">${job.target} · <b>${Math.round(banked * mult)}</b> / ${q} sweets${hand ? ` <span>(+${Math.round(hand * mult)} in hand)</span>` : ''} · ${sus?.level ? `Chaos Bonus ×${sus.chaosBonus}` : 'Clean Job +50%'}</div><div class="qb"><div style="width:${w1}%"></div><div class="hand" style="width:${w2}%"></div><i></i></div>`;
+    const html = quotaHtml(job, loot);
     if (html !== this.lastQ) { el.innerHTML = html; this.lastQ = html; }
   }
 
@@ -85,7 +84,7 @@ export class CoatHud {
       <ul>${r.items.map((i) => `<li>${i.name}<b>${i.value}${i.value < i.base ? ` <s>${i.base}</s>` : ''}</b></li>`).join('') || '<li>Nothing at all...</li>'}</ul>
       <p>Loot <b>${r.banked}</b> × ${r.mult} ${r.bonusName ? `(${r.bonusName}${r.clean ? '' : `, Heat ${r.heat}`})` : ''} = <b>${r.total}</b> sweets</p>
       ${r.giggles ? `<p class="gg">Giggles: ${r.giggles.total}</p><ul class="gg">${r.giggles.moments.map((m) => `<li>${m.label}${m.count > 1 ? ` ×${m.count}` : ''}<b>+${m.giggles}</b></li>`).join('') || '<li>No funny business. Suspicious.</li>'}</ul>` : ''}
-      <p class="${r.met ? 'ok' : 'no'}">${r.met ? `Quota met! (${r.quota})` : `Quota missed by ${r.short} (needed ${r.quota}). Detention cards come later.`}</p>
+      <p class="${r.met ? 'ok' : 'no'}">${r.met ? `Quota met! (${r.quota})` : `Quota missed by ${r.short} (needed ${r.quota}).`}</p>
       <p class="small">${next}</p>`;
   }
 

@@ -35,9 +35,11 @@ test('host plus two clients play one job: each steers their own coat, and everyo
   assert.deepEqual(game.order, ['host', clients[0].id, clients[1].id], 'both friends are in');
   const [a, b] = clients;
   const nav = game.people.nav, ca = () => a.mirror.coatMap.get(a.id), cb = () => b.mirror.coatMap.get(b.id);
-  // A walks to the vending machine and kicks it; B waits for the mess, then walks out to the getaway gate
+  // A walks to the ketchup shelf, picks up a bottle and squirts a trail; B waits for the mess, then walks out
+  // to the getaway gate. (Until M1-F3 A 'kicked the vending machine', but the mess there only came from a bug
+  // that shoved a coat holding a mop across the floor.)
   const kicked = () => game.mess.patches.some((p) => p.color === DATA.things.things.ketchup.splat);
-  const botA = new Bot(ca(), nav, [{ go: [-14.5, 10] }, { go: [-16, 5] }, { go: [-15.5, -8] }, { go: [-4.4, -8.3], within: 0.5 }, { press: true }, { until: kicked }]);
+  const botA = new Bot(ca(), nav, [{ go: [-14.5, 10] }, { go: [-6, 5] }, { go: [-4.1, -1.4], within: 0.4 }, { press: true }, { wait: 0.3 }, { fire: { hold: 1.5 } }, { until: kicked }]);
   const botB = new Bot(cb(), nav, [{ until: kicked }, { wait: 2 }, { go: [-11, 13] }, { go: [16, 18.5], within: 0.8 }, { press: true }]);
   const cA = {}, cB = {};
   let t = 0;
@@ -45,7 +47,7 @@ test('host plus two clients play one job: each steers their own coat, and everyo
     botA.coat = ca(); botB.coat = cb();
     tick({ [a.id]: botInput(botA.input(DT, []), cA), [b.id]: botInput(botB.input(DT, []), cB) }); t += DT;
   }
-  assert.ok(botA.done, `A got stuck: ${botA.log.at(-1)}`); assert.ok(botB.done, `B got stuck: ${botB.log.at(-1)}`);
+  assert.ok(botA.done, `A got stuck: ${botA.log.at(-1)} (hint: ${game.hint(a.id)}, at ${JSON.stringify(game.player(a.id).coat.walker.feet)}, held ${game.player(a.id).hands.held?.def.name})`); assert.ok(botB.done, `B got stuck: ${botB.log.at(-1)}`);
   for (let i = 0; i < 20; i++) tick();
   assert.ok(game.job.over && game.job.why === 'got away', 'B ended the job at the gate');
   // the same mess on every screen

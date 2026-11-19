@@ -109,7 +109,7 @@ console.log('pile', JSON.stringify(cs), cs.count === 1 && cs.pile ? 'OK' : 'FAIL
 // M1-F2, getting caught: a "why" bubble when a grown-up sees you run, loose kids with markers (in the shop,
 // at the screen edge and on the crayon map), your coat's outline through a pile-on, and the Spare Kid
 // coming in through the back door when Panic has locked the front.
-if (!process.env.FIRSTONLY) {
+if (!process.env.FIRSTONLY && !process.env.MONEYONLY) {
   const f = await browser.newPage({ viewport: { width: 1280, height: 720 }, deviceScaleFactor: 1 });
   f.on('pageerror', (e) => { errors.push(String(e)); console.log('PAGE ERROR', String(e)); });
   await f.goto('http://localhost:8481/?q=high&dev=1');
@@ -155,6 +155,34 @@ if (!process.env.FIRSTONLY) {
   console.log('spare kid at the back door', JSON.stringify(spare), spare.at === 'yard' && /through the back door/.test(spare.msg) ? 'OK' : 'FAIL');
   await f.close();
   if (process.env.CAUGHTONLY) { console.log(errors.length ? 'ERRORS ' + errors.join(' | ') : 'no page errors'); await browser.close(); server.close(); process.exit(0); }
+}
+
+// M1-F3, sweets that make sense: one money line on the HUD, the same numbers at the getaway gate, and the
+// bonus only on the results screen.
+if (!process.env.FIRSTONLY && !process.env.CAUGHTONLY) {
+  const f = await browser.newPage({ viewport: { width: 1280, height: 720 }, deviceScaleFactor: 1 });
+  f.on('pageerror', (e) => { errors.push(String(e)); console.log('PAGE ERROR', String(e)); });
+  await f.goto('http://localhost:8481/?q=high&dev=1');
+  await f.waitForFunction(() => globalThis.__stacked2?.clock.time > 1, null, { timeout: 120000 });
+  const fw = (sec) => f.evaluate((s) => new Promise((res) => { const t0 = __stacked2.clock.time; const g = () => (__stacked2.clock.time - t0 >= s ? res() : requestAnimationFrame(g)); g(); }), sec);
+  const fgo = (x, z) => f.evaluate(([x, z]) => { const w = __stacked2.walker; w.body.setTranslation({ x, y: 1.2, z }, true); w.body.setNextKinematicTranslation({ x, y: 1.2, z }); if (w.vel) { w.vel.x = 0; w.vel.z = 0; } }, [x, z]);
+  await f.evaluate(() => { const S = __stacked2, c = S.coat; S.game.D.balance.shop.resultsSeconds = 1e9; for (const id of ['chocolate', 'lollies']) Object.assign(S.loot.items.find((i) => i.id === id), { state: 'pocket', owner: c }); });
+  await fgo(13.5, -4.3); await fw(0.6);
+  await f.keyboard.down('KeyE'); await fw(0.25); await f.keyboard.up('KeyE'); await fw(0.6);
+  const hud = await f.evaluate(() => document.querySelector('#quota .qt').textContent);
+  await f.screenshot({ path: 'test/shots/money_hud.png' });
+  console.log('HUD money line', hud, hud === 'Banked 0 · Holding 103 · Quota 150' ? 'OK' : 'FAIL');
+  const [gx, gz] = await f.evaluate(() => __stacked2.game.D.place.getaway.at);
+  await fgo(gx, gz); await fw(1);
+  const gate = await f.evaluate(() => ({ hud: document.querySelector('#quota .qt').textContent, hint: __stacked2.game.hint(__stacked2.game.players[0].id) }));
+  await f.screenshot({ path: 'test/shots/money_gate.png' });
+  console.log('gate and HUD agree', JSON.stringify(gate), gate.hint.includes(gate.hud) && gate.hud.startsWith('Banked 103') ? 'OK' : 'FAIL');
+  await f.keyboard.down('KeyE'); await fw(0.25); await f.keyboard.up('KeyE'); await fw(1.5);
+  const res = await f.evaluate(() => document.getElementById('results').textContent);
+  await f.screenshot({ path: 'test/shots/money_results.png' });
+  console.log('results', res.replace(/\s+/g, ' ').slice(0, 220), /Quota met!/.test(res) && !/Detention/.test(res) ? 'OK' : 'FAIL');
+  await f.close();
+  if (process.env.MONEYONLY) { console.log(errors.length ? 'ERRORS ' + errors.join(' | ') : 'no page errors'); await browser.close(); server.close(); process.exit(0); }
 }
 
 // the supermarket: an overview with the planning overlay, then every area seen from the coat's camera
