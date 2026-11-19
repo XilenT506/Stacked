@@ -2,6 +2,26 @@
 
 Newest first. One entry per build session (one prompt from the Build guide in the doc "STACKED – Game Plan").
 
+## 2026-11-19 · Prompt 16 of 16 (M1-12): Juice pass and playtest build
+
+- **Every action and every interactive thing now has a sound and something to see** (`data/juice.json`, `src/render/juice.js`, `src/render/fx/particles.js`):
+  - **Every control** has its own reaction: gadget, throw, grab, act natural, drink, gadget slots, run, unstack and restack, point, crayon map, and Next at Del's.
+  - **Every sound** (all 37, from every interactive thing and gadget) comes with a visual where it plays: splashes in the right colour, dust, puffs, dizzy stars, sparkles, coins, paper scraps, rings and whooshes.
+  - **Every game moment** has a sound and a visual: coat bursts, hits, loot pocketed and banked, grown-ups slipping or busting you, getting caught, Heat rising, Closing Time, the shutters, Giggles, the Giggle Rush, results and Del's.
+- **Big hits feel big:**
+  - **A tiny freeze-frame** (60 to 80 ms) when a coat bursts, a coat gets hit, a grown-up goes over, a burp goes off, or a Giggle happens. Playing alone the game waits too; hosting, the friends' game carries on.
+  - **Screen shake**, strongest when it happens near you.
+  - **Confetti** for Giggles, getting away, opening the cage and the quota; splashes for water and ketchup.
+- **Middle click (right stick click on a pad) points:** a bouncing yellow arrow everyone sees, with a "ping" and a kid shouting "Left! No, your other left!".
+- **The narrator and the kids talk** (`src/audio/callouts.js`, built from the old game's callouts and its recorded lines; 56 clips):
+  - The narrator: "Ready? Stack up!", "Timber!", "Busted!", "Phew.", "Errand complete!", "The afternoon is over."
+  - The kids: "Scatter!", "Restack, restack!", "Got it!", "Oops! Dropped it.", "Shhh! Act natural!", "Slippy!", "Run!", "Hee hee hee!", and mutters while you walk.
+- **Music with three layers that rise with Heat** (`src/audio/music.js`, the old game's tracks as placeholders): calm jazz at Heat 0, the sneaky tune joins as people stare, and the chase music takes over at Panic. Closing Time keeps it at least sneaky, a Giggle Rush speeds it up, and a results tune plays between jobs. **M** turns all sound on or off.
+- Two hidden bugs found on the way: unstacking and restacking with R, and getting hit by a friend's gadget, never reached the screen as events, so they had no reaction. They do now.
+- **Playtest:** a one-page sheet, "STACKED – M1 Playtest Sheet" (a Claude Doc). It covers how to start a 3-player game, then four questions per player (what made you laugh, where were you confused, another round?, score 1 to 10) and a proposed gate rule. The Game Plan has a new "M1 playtest results and gate" section, waiting for your answers. **The gate is not decided yet**: that needs the real playtest.
+- Tests: 95 logic tests pass (5 new). Every sound has a visual; every control has a reaction with a sound and a visual; every game moment has a real sound, visual and voice line (and every voice file exists); the music layers only get more frantic with Heat; and in a real game each action really produces a reaction event.
+- Screenshots: `juice_spill`, `juice_splash`, `juice_confetti`.
+
 ## 2026-11-19 · Prompt 15 of 16 (M1-11): Giggles and results
 
 - **Giggles: the game now notices when something funny happens** (`src/systems/giggles.js`). It follows the **signal chains**: signals that come one after another close by (within 5 m and 3 seconds of the chain's last ones) belong to one chain, and every grown-up who falls over is counted in the chain they fell in. Funny moments:

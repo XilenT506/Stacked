@@ -13,10 +13,11 @@ import { LootView } from './lootView.js';
 import { CageView } from './cageView.js';
 import { WallFade } from './wallFade.js';
 import { ChalkView } from './chalkView.js';
+import { Juice } from './juice.js';
 
 export class Stage {
-  constructor({ place, data, hud, sfx, voices }) {
-    this.place = place; this.data = data; this.hud = hud; this.sfx = sfx; this.voices = voices; this.jobNo = -1;
+  constructor({ place, data, hud, sfx, voices, callouts = null, camRig = null }) {
+    this.place = place; this.data = data; this.hud = hud; this.sfx = sfx; this.voices = voices; this.callouts = callouts; this.camRig = camRig; this.jobNo = -1;
   }
 
   build(model) {
@@ -35,6 +36,7 @@ export class Stage {
     this.lootView = new LootView(scene, model.loot);
     this.cageView = new CageView(scene, model.rescue);
     this.chalkView = new ChalkView(scene, this.data.crayonmap.playerColors);
+    this.juice = new Juice(scene, this.data.juice, { sfx: this.sfx, callouts: this.callouts, camRig: this.camRig });
     this.coatViews = new Map();
     this.aimMarks = [];
     this.hud.results(null);
@@ -50,11 +52,12 @@ export class Stage {
   }
 
   // draw one frame. watch = the coat whose HUD and meters are shown; focus = where the camera looks
-  update(dt, { watch, focus, aims = [], camera, events = [] }) {
+  update(dt, { watch, focus, aims = [], camera, events = [], me = [] }) {
     if (this.model.jobNo !== this.jobNo) this.build(this.model);
     this.syncCoats();
     this.peopleView.watch = watch;
     this.present(events);
+    this.juice.handle(events, { me, focus }); this.juice.update(dt, camera);
     this.thingsView.update(dt); this.peopleView.update(dt); this.shutterView.update(dt); this.gadgetView.update(); this.lootView.update(dt); this.cageView.update(dt); this.chalkView.update(this.model.map);
     for (const [c, v] of this.coatViews) v.update(dt, this.pops?.get(c) ?? []);
     this.pops = new Map();

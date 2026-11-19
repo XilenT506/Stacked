@@ -1,6 +1,6 @@
 // The angled follow camera: about 55 degrees down, 14 m away, always from the same side (screen up =
 // away from the camera), looking a little ahead of where the player aims.
-// Also turns the player's input into world directions (move and aim are screen-relative).
+// Also turns the player's input into world directions (move and aim are screen-relative), and shakes.
 import * as T from 'three';
 
 export const CAM = { tilt: 55, distance: 14, lookAhead: 2.2, follow: 6, fov: 42 };
@@ -39,5 +39,15 @@ export class FollowCamera {
     this.focus.lerp(want, Math.min(1, dt * this.o.follow));
     this.cam.position.copy(this.focus).addScaledVector(this.offset, this.zoom);
     this.cam.lookAt(this.focus);
+    // screen shake: a quick wobble that dies away (trauma squared feels punchier)
+    this.trauma = Math.max(0, (this.trauma ?? 0) - dt * (this.shakeDecay ?? 3.5)); this.t = (this.t ?? 0) + dt;
+    if (this.trauma > 0) {
+      const k = this.trauma * this.trauma * 0.45, t = this.t * 38;
+      this.cam.position.x += Math.sin(t * 1.1) * k; this.cam.position.y += Math.sin(t * 1.7 + 1) * k * 0.6; this.cam.position.z += Math.sin(t * 1.3 + 2) * k;
+      this.cam.rotation.z += Math.sin(t * 0.9) * k * 0.05;
+    }
   }
+
+  // add some shake (0..1); several at once add up, to a limit
+  shake(amount) { this.trauma = Math.min(1, (this.trauma ?? 0) + amount); }
 }

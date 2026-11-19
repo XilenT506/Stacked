@@ -31,6 +31,8 @@ import { snapshot } from '../net/snapshot.js';
 export const KIDS = [['sid', 'mo', 'tank'], ['pip', 'kit', 'bo'], ['ziggy', 'nell', 'ash'], ['dot', 'rex', 'flo']];
 const NO_INPUT = { move: { x: 0, z: 0 }, aim: null, run: false, use: false, natural: false, presses: {}, map: false, sc: [], shop: [] };
 const STILL = { x: 0, z: 0 };
+const ACTS = new Set(['pickUp', 'drop', 'throw', 'use', 'hide', 'unhide', 'ride', 'letGo', 'belt', 'offBelt', 'loot', 'openCage']);
+const GROWNUP = new Set(['slip', 'soaked', 'chase', 'grabCoat', 'grabKid']), LOOT = new Set(['pocket', 'carry', 'coCarry', 'bank', 'drop']);
 
 export class Game {
   // D = { place, events, things, controls?, signals, balance, grownups, gadgets, loot, crayonmap, shop, giggles }
@@ -73,7 +75,7 @@ export class Game {
     this.jobEvents.onFire = (e, at) => this.map.note(e.name, at);
     this.players = [];
     for (const id of this.order) this.spawnPlayer(id);
-    this.emit({ k: 'newJob', job: this.jobNo });
+    this.emit({ k: 'newJob', job: this.jobNo }); this.fx('job:start', this.place.data.spawns.players[0] && { x: this.place.data.spawns.players[0][0], z: this.place.data.spawns.players[0][1] });
   }
 
   spawnPlayer(id) {
@@ -129,17 +131,23 @@ export class Game {
       const c = p.coat, I = p.input, h = p.hands;
       for (const sc of I.sc || []) this.map.add(p.id, sc, c.slot);
       // with the map open the coat stands still behind a big sheet of paper
-      c.mapOpen = !!I.map && !c.inCage && !c.hidden;
-      if (this.pressed(p, 'stack')) c.toggleStack();
+      const wasMap = c.mapOpen; c.mapOpen = !!I.map && !c.inCage && !c.hidden;
+      if (c.mapOpen && !wasMap) this.fx('act:map', c, p.id);
+      if (this.pressed(p, 'stack')) { c.toggleStack(); p.events.push(...c.events); c.events = []; }      // (the coat's step clears its events)
       let grab = this.pressed(p, 'grab');
-      if (grab && c.atGate && !this.job.over) { this.giggles.getaway(c, { closing: this.closing, people: this.people }); this.finish('got away'); grab = false; }
+      if (grab && c.atGate && !this.job.over) { this.fx('act:getaway', c, p.id); this.giggles.getaway(c, { closing: this.closing, people: this.people }); this.finish('got away'); grab = false; }
       const sel = ['slot1', 'slot2', 'slot3', 'slot4', 'slot5'].findIndex((n) => this.pressed(p, n));
-      if (this.pressed(p, 'drink') && !c.mapOpen) this.drinks.drink(c, coats);
-      this.gadgets.use(c, dt, { fire: I.use && !h.held && !c.mapOpen, select: sel < 0 ? null : sel, cycle: this.pressed(p, 'switch') ? 1 : 0, aim: I.aim });
+      if (this.pressed(p, 'drink') && !c.mapOpen && this.drinks.drink(c, coats)) this.fx('act:drink', c, p.id);
+      const cycle = this.pressed(p, 'switch'); if (sel >= 0 || cycle) this.fx('act:slot', c, p.id);
+      if (this.pressed(p, 'point')) { const a = I.aim ?? { x: Math.sin(c.walker.yaw), z: Math.cos(c.walker.yaw) }; this.fx('act:point', { x: c.walker.feet.x + a.x * 3, z: c.walker.feet.z + a.z * 3 }, p.id); }
+      this.gadgets.use(c, dt, { fire: I.use && !h.held && !c.mapOpen, select: sel < 0 ? null : sel, cycle: cycle ? 1 : 0, aim: I.aim });
       h.step(dt, { grab, throwIt: this.pressed(p, 'throw'), use: I.use, natural: I.natural, aim: I.aim });
       c.step(dt, c.mapOpen ? STILL : I.move, I.run && !c.mapOpen, I.aim, I.natural);
-      p.events.push(...c.events);
-      for (const e of h.events) if (e.type === 'throw') this.sus.instant(this.people, c, B.suspicion.throw);
+      p.events.push(...c.events); p.evN = c.events.length;
+      for (const e of h.events) { if (e.type === 'throw') this.sus.instant(this.people, c, B.suspicion.throw); if (ACTS.has(e.type)) this.fx('act:' + e.type, c, p.id); }
+      // the start of Act Natural and of running get their own little reaction
+      if (c.actingNatural && !p.nat) this.fx('act:natural', c, p.id); p.nat = c.actingNatural;
+      if (c.running && !p.ran) this.fx('act:run', c, p.id); p.ran = c.running;
     }
     this.sus.step(dt, this.people, coats);
     this.closing.step(dt); this.security.step(); this.gadgets.step(dt, coats); this.drinks.step(dt, coats);
@@ -148,7 +156,7 @@ export class Game {
     if (!this.job.over && !this.closing.endedJob && this.closing.next >= this.closing.sections.length) { this.closing.endedJob = true; this.finish('shut in'); }
     for (const p of this.players) p.hands.carry();
     this.world.step();
-    for (const p of this.players) { const c = p.coat; c.events = []; c.checkHits(this.world); p.events.push(...c.events); }
+    for (const p of this.players) { const c = p.coat; p.events.push(...c.events.slice(p.evN ?? 0)); c.events = []; c.checkHits(this.world); p.events.push(...c.events); }
     this.things.step(dt); this.signals.flush(dt); this.mess.step(dt); this.jobEvents.step(dt);
     this.present();
   }
@@ -160,20 +168,21 @@ export class Game {
     const r = this.job.result, G = this.giggles;
     r.giggles = G.summary(); G.closed = true; r.best = G.best().slice(0, 3).map((m) => ({ label: m.label, reel: m.reel, giggles: m.giggles, by: m.by }));
     this.run.highlights = [...(this.run.highlights ?? []), ...G.best().map((m) => ({ ...m, job: this.jobNo }))].sort((a, b) => b.giggles - a.giggles).slice(0, this.D.balance.giggles.record.keepPerRun);
-    this.run.earn(r); this.emit({ k: 'result', result: r });
+    this.run.earn(r); this.emit({ k: 'result', result: r }); this.fx('result:' + why); if (r.met) this.fx('result:quota');
   }
 
   // Dodgy Del's stall in the alley: the shop world stands still while everyone shops
   openShop() {
     this.phase = 'shop'; this.shop = new Shop(this.D, this.run, { seed: this.seed++ });
-    this.emit({ k: 'shop' }); this.emit({ k: 'sound', name: 'kaching' });
+    this.emit({ k: 'shop' }); this.fx('shop:open');
   }
 
   stepShop() {
     for (const p of this.players) for (const o of p.input.shop || []) {
       const r = this.shop.order(p.id, o); if (!r) continue;
       this.emit({ k: 'sound', name: r.ok ? (r.a === 'ready' ? 'pose_ding' : 'kaching') : 'squeak' });
-      if (r.a === 'buy' && r.ok) this.emit({ k: 'bought', pid: p.id, id: r.id });
+      if (r.ok && r.a === 'ready') this.fx('shop:ready', null, p.id);
+      if (r.a === 'buy' && r.ok) { this.emit({ k: 'bought', pid: p.id, id: r.id }); this.fx('shop:bought', null, p.id); }
     }
     if (this.shop.allReady(this.players.map((p) => p.id))) this.reset();
     this.present();
@@ -185,24 +194,28 @@ export class Game {
   // turn what happened into things to see and hear (the same list goes to every screen)
   present() {
     const S = this.D.balance;
-    for (const p of this.players) { for (const e of p.events) if (['spill', 'hit', 'restack', 'unstack', 'stumble', 'effect'].includes(e.type)) this.emit({ k: 'coat', pid: p.id, type: e.type }); p.events = []; }
+    for (const p of this.players) { for (const e of p.events) if (['spill', 'hit', 'restack', 'unstack', 'stumble', 'effect'].includes(e.type)) { this.emit({ k: 'coat', pid: p.id, type: e.type }); this.fx('coat:' + e.type, p.coat, p.id); } p.events = []; }
     for (const e of this.people.take()) {
       if (e.type === 'slip') this.giggles.floored(e.who, this.coats);
+      if (GROWNUP.has(e.type)) this.fx('grownup:' + (e.type === 'grabCoat' || e.type === 'grabKid' ? 'grab' : e.type), e.who.feet);
       if (e.type === 'say' && e.clip) this.emit({ k: 'say', who: e.who.id, clip: e.clip, x: e.who.feet.x, z: e.who.feet.z });
       if (e.type === 'slip') this.emit({ k: 'sound', name: 'slip_whee', x: e.who.feet.x, z: e.who.feet.z });
     }
     for (const e of this.sus.take()) {
-      if (e.type === 'bust') this.emit({ k: 'shout', who: e.who.id, text: "THAT'S NOT A GROWN-UP!" });
+      if (e.type === 'bust') { this.emit({ k: 'shout', who: e.who.id, text: "THAT'S NOT A GROWN-UP!" }); this.fx('grownup:bust', e.who.feet); }
+      if (e.type === 'heat' && e.level > 0) this.fx('heat:' + e.level);
       if (e.type === 'heat') this.emit({ k: 'announce', text: ['', 'People are starting to stare.', 'Security has been called!', 'PANIC! The front doors are locked!'][e.level], title: `Heat ${e.level}: ${S.heat.names[e.level]}` });
     }
     for (const e of this.security.take()) {
       if (e.type === 'caretaker') { this.emit({ k: 'announce', text: e.why === 'closing' ? 'The Caretaker is doing his rounds. Get out!' : 'Someone has called the Caretaker!', title: 'Uh oh' }); this.emit({ k: 'shout', who: this.security.caretaker.id, text: "Right. Who's still in here?", sec: 3 }); }
+      if (e.type === 'start' || e.type === 'shut') this.fx('closing:' + e.type);
       if (e.type === 'start') { this.map.note('Closing Time!', this.place.data.getaway.at); this.emit({ k: 'announce', text: 'Closing Time! The shutters are coming down, section by section.', title: 'Tannoy' }); this.emit({ k: 'sound', name: 'tannoy_ding' }); }
       if (e.type === 'warn') this.emit({ k: 'announce', text: `${e.section.name} closes in ${S.closingTime.warn} seconds!`, title: 'Tannoy' });
       if (e.type === 'shut') this.emit({ k: 'sound', name: 'machine_clunk' });
     }
     const g = this.rescue.gateAt;
     for (const e of this.rescue.take()) {
+      if (e.type === 'spareKid' || e.type === 'caught' || e.type === 'gateOpen') this.fx('rescue:' + e.type, e.type === 'gateOpen' ? g : null);
       if (e.type === 'spareKid') this.emit({ k: 'announce', text: `Caught! A Spare Kid comes in at the entrance (${e.left} left). Your kid is in the Lost & Found in the staff room.`, title: 'Got you!' });
       if (e.type === 'caught') this.emit({ k: 'announce', text: 'Caught! Off to the Lost & Found. A friend can get you out.', title: 'Got you!' });
       if (e.type === 'locked') this.emit({ k: 'sound', name: 'machine_clunk', x: g.x, z: g.z });
@@ -211,13 +224,15 @@ export class Game {
     }
     for (const e of this.loot.take()) {
       const at = e.coat ? e.coat.walker.feet : { x: e.item.x, z: e.item.z };
+      if (LOOT.has(e.type)) this.fx('loot:' + e.type, at, e.coat?.pid);
       if (e.type === 'pocket' || e.type === 'carry' || e.type === 'coCarry') this.emit({ k: 'sound', name: 'paper_flap', x: at.x, z: at.z });
       if (e.type === 'bank') this.emit({ k: 'sound', name: 'pose_ding', x: at.x, z: at.z });
       if (e.type === 'drop') this.emit({ k: 'sound', name: 'box_thud', x: at.x, z: at.z });
     }
     for (const e of this.drinks?.take() ?? []) {
       this.emit({ k: 'sound', name: 'gulp', x: e.at.x, z: e.at.z }); this.emit({ k: 'sound', name: this.D.shop.drinks[e.id].sound, x: e.at.x, z: e.at.z });
-      this.emit({ k: 'coat', pid: e.coat.pid, type: e.id === 'burp_blaster' ? 'burp' : 'sugar' });
+      const type = e.id === 'burp_blaster' ? 'burp' : 'sugar';
+      this.emit({ k: 'coat', pid: e.coat.pid, type }); this.fx('coat:' + type, e.coat, e.coat.pid);
     }
     for (const e of this.gadgets.take()) {
       this.giggles.gadget(e);
@@ -228,11 +243,14 @@ export class Game {
     this.presentGiggles();
   }
 
+  // a moment for the juice pass (data/juice.json events): a sound, a visual, maybe shake, a freeze-frame and a voice
+  fx(key, at = null, pid = null) { const f = at?.walker ? at.walker.feet : at; this.emit({ k: 'fx', key, x: f?.x, z: f?.z, pid }); }
+
   // Giggles: the shout, the meter, the Giggle Rush (drawn by the HUD)
   presentGiggles() {
     for (const e of this.giggles.take()) {
-      if (e.type === 'moment') { this.emit({ k: 'giggle', label: e.m.label, giggles: e.giggles, kind: e.m.kind, by: e.m.by, bigger: e.bigger }); this.emit({ k: 'sound', name: 'pose_ding' }); }
-      if (e.type === 'rush') { this.emit({ k: 'giggle', label: e.label, rush: true }); this.emit({ k: 'sound', name: 'fizz' }); }
+      if (e.type === 'moment') { this.emit({ k: 'giggle', label: e.m.label, giggles: e.giggles, kind: e.m.kind, by: e.m.by, bigger: e.bigger }); this.fx('giggle', e.m.at, e.m.by); }
+      if (e.type === 'rush') { this.emit({ k: 'giggle', label: e.label, rush: true }); this.fx('rush'); }
     }
   }
 
@@ -251,7 +269,7 @@ export class Game {
     const c = p.coat, a = p.input.aim || { x: 0, z: -1 }, f = c.walker.position;
     if (key === 'melon') { const m = this.things.spawn('melon', [f.x + a.x, 0.3, f.z + a.z]); m.body.setLinvel({ x: 7 * a.x, y: 0, z: 7 * a.z }, true); }
     if (key === 'puddle') this.signals.emit({ type: 'slippery', position: { x: f.x + a.x * 2, y: 0, z: f.z + a.z * 2 }, range: 1.4 });
-    if (key === 'whack') c.hit(8);
+    if (key === 'whack') { c.hit(8); p.events.push(...c.events); c.events = []; }
     if (key === 'event' && this.jobEvents.upcoming) this.jobEvents.fire(this.jobEvents.upcoming.id);
     if (key === 'heat') this.sus.addHeat(1, 'test key');
     if (key === 'closing') this.closing.start();

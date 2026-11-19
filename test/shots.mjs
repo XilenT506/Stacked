@@ -309,6 +309,17 @@ const gres = await shop.evaluate(() => __stacked2.job.result?.giggles);
 const gtext = await shop.evaluate(() => document.getElementById('results').innerText);
 console.log('results giggles', JSON.stringify(gres), gres?.total > 0 && /Giggles/.test(gtext) ? 'OK' : 'FAIL');
 
+// the juice pass: a coat bursting (shake, freeze-frame, burst, "Timber!"), a water balloon splash, confetti; the music follows Heat
+await key('Backspace', 0.1); await wait2(0.6);
+await go(-12, 6); await wait2(0.5);
+await key('KeyK', 0.1); await wait2(0.15); await shot('juice_spill');
+await shop.evaluate(() => { const g = __stacked2.game, c = __stacked2.coat; g.gadgets.arm(c, [...g.D.gadgets.loadout.slots, 'water_balloon']); g.gadgets.fire(c, 'water_balloon', 0.3, { x: 1, z: 0 }); });
+await wait2(0.9); await shot('juice_splash');
+await shop.evaluate(() => __stacked2.game.giggles.moment('trickShot', { at: { x: -10, z: 5 }, by: 'p1' })); await wait2(0.35); await shot('juice_confetti');
+await shop.evaluate(() => { __stacked2.game.sus.addHeat(100, 'test'); }); await wait2(0.5);
+const juice = await shop.evaluate(() => ({ log: [...new Set(__stacked2.juice.log)], said: __stacked2.callouts.said, music: { level: __stacked2.music.level, mix: __stacked2.music.mix() } }));
+console.log('juice', JSON.stringify(juice), ['coat:spill', 'job:start', 'giggle'].every((k) => juice.log.includes(k)) && juice.said.length > 0 && juice.music.level === 3 ? 'OK' : 'FAIL');
+
 console.log(errors.length ? 'ERRORS ' + errors.join(' | ') : 'no errors');
 await browser.close(); server.close();
 if (errors.length) process.exit(1);

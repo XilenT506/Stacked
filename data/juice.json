@@ -1,0 +1,728 @@
+{
+  "_about": "The juice pass: what you see and hear when anything happens. sounds: every placeholder sound also gets a visual (fx) where it plays. events: game moments (key = kind:type) with a sound, a visual (fx), and optionally screen shake (0..1), a freeze-frame (ms, big hits only), a kid line and a narrator line. fx: splash, splashSmall, dust, puff, stars, sparkle, confetti, burst, coins, ping, ring, paper, exclaim, whoosh. kids/narrator: the recorded lines (legacy voices) by name. music: three layers that fade in with Heat (calm, alert, panic).",
+  "sounds": {
+    "tin_clang": {
+      "fx": "sparkle"
+    },
+    "can_rattle": {
+      "fx": "dust"
+    },
+    "box_thud": {
+      "fx": "dust"
+    },
+    "plastic_clack": {
+      "fx": "puff"
+    },
+    "switch_click": {
+      "fx": "sparkle"
+    },
+    "machine_clunk": {
+      "fx": "dust",
+      "shake": 0.15
+    },
+    "tannoy_ding": {
+      "fx": "ring"
+    },
+    "freezer_whoosh": {
+      "fx": "puff",
+      "color": "#e8f6ff"
+    },
+    "trolley_rattle": {
+      "fx": "dust"
+    },
+    "belt_hum": {
+      "fx": "puff"
+    },
+    "box_rustle": {
+      "fx": "puff",
+      "color": "#c9a46b"
+    },
+    "pose_ding": {
+      "fx": "sparkle"
+    },
+    "coat_rustle": {
+      "fx": "puff",
+      "color": "#a77b52"
+    },
+    "squeak": {
+      "fx": "puff"
+    },
+    "mop_clack": {
+      "fx": "splashSmall"
+    },
+    "paper_flap": {
+      "fx": "paper"
+    },
+    "splat": {
+      "fx": "splash",
+      "shake": 0.1
+    },
+    "squelch": {
+      "fx": "splashSmall"
+    },
+    "melon_thump": {
+      "fx": "splash",
+      "color": "#e2455a",
+      "shake": 0.15
+    },
+    "slip_whee": {
+      "fx": "stars"
+    },
+    "squirt": {
+      "fx": "splashSmall",
+      "color": "#7fc8ff"
+    },
+    "twang": {
+      "fx": "puff"
+    },
+    "bonk": {
+      "fx": "stars"
+    },
+    "burp": {
+      "fx": "ring",
+      "color": "#7fbf5f",
+      "shake": 0.5
+    },
+    "fizz": {
+      "fx": "sparkle",
+      "color": "#e2557a"
+    },
+    "gulp": {
+      "fx": "puff"
+    },
+    "kaching": {
+      "fx": "coins"
+    },
+    "whoopee": {
+      "fx": "puff",
+      "color": "#e2557a"
+    },
+    "pop_pop": {
+      "fx": "sparkle"
+    },
+    "whoosh": {
+      "fx": "whoosh"
+    },
+    "patter": {
+      "fx": "dust"
+    },
+    "click": {
+      "fx": "sparkle"
+    },
+    "ping": {
+      "fx": "ping"
+    },
+    "alarm": {
+      "fx": "exclaim"
+    },
+    "fanfare": {
+      "fx": "confetti"
+    },
+    "boing": {
+      "fx": "puff"
+    },
+    "gasp": {
+      "fx": "exclaim"
+    }
+  },
+  "events": {
+    "coat:spill": {
+      "sound": "boing",
+      "fx": "burst",
+      "shake": 0.7,
+      "freeze": 60,
+      "kid": "scatter",
+      "narrator": "timber"
+    },
+    "coat:restack": {
+      "sound": "coat_rustle",
+      "fx": "puff",
+      "kid": "restack"
+    },
+    "coat:unstack": {
+      "sound": "coat_rustle",
+      "fx": "puff",
+      "kid": "unstack"
+    },
+    "coat:stumble": {
+      "sound": "squeak",
+      "fx": "dust",
+      "shake": 0.15,
+      "kid": "wobble"
+    },
+    "coat:hit": {
+      "sound": "bonk",
+      "fx": "stars",
+      "shake": 0.35,
+      "freeze": 60,
+      "kid": "ow"
+    },
+    "coat:effect": {
+      "sound": "squelch",
+      "fx": "splashSmall",
+      "kid": "slippy"
+    },
+    "coat:burp": {
+      "sound": "burp",
+      "fx": "ring",
+      "shake": 0.6,
+      "freeze": 60
+    },
+    "coat:sugar": {
+      "sound": "fizz",
+      "fx": "sparkle",
+      "kid": "faster"
+    },
+    "act:pickUp": {
+      "sound": "plastic_clack",
+      "fx": "puff",
+      "kid": "gotIt"
+    },
+    "act:drop": {
+      "sound": "box_thud",
+      "fx": "dust",
+      "kid": "oops"
+    },
+    "act:throw": {
+      "sound": "whoosh",
+      "fx": "whoosh"
+    },
+    "act:use": {
+      "sound": "click",
+      "fx": "puff"
+    },
+    "act:hide": {
+      "sound": "box_rustle",
+      "fx": "puff",
+      "kid": "shh"
+    },
+    "act:unhide": {
+      "sound": "box_rustle",
+      "fx": "puff"
+    },
+    "act:ride": {
+      "sound": "trolley_rattle",
+      "fx": "dust",
+      "kid": "faster"
+    },
+    "act:letGo": {
+      "sound": "whoosh",
+      "fx": "whoosh"
+    },
+    "act:belt": {
+      "sound": "belt_hum",
+      "fx": "puff"
+    },
+    "act:offBelt": {
+      "sound": "boing",
+      "fx": "dust"
+    },
+    "act:loot": {
+      "sound": "paper_flap",
+      "fx": "sparkle",
+      "kid": "gotIt"
+    },
+    "act:openCage": {
+      "sound": "switch_click",
+      "fx": "confetti",
+      "kid": "teamwork"
+    },
+    "act:natural": {
+      "sound": "pose_ding",
+      "fx": "sparkle",
+      "kid": "natural"
+    },
+    "act:run": {
+      "sound": "patter",
+      "fx": "dust"
+    },
+    "act:slot": {
+      "sound": "click",
+      "fx": "sparkle"
+    },
+    "act:map": {
+      "sound": "paper_flap",
+      "fx": "paper"
+    },
+    "act:point": {
+      "sound": "ping",
+      "fx": "ping",
+      "kid": "look"
+    },
+    "act:drink": {
+      "sound": "gulp",
+      "fx": "puff"
+    },
+    "act:getaway": {
+      "sound": "fanfare",
+      "fx": "confetti",
+      "kid": "madeIt"
+    },
+    "loot:pocket": {
+      "sound": "paper_flap",
+      "fx": "sparkle",
+      "kid": "gotIt"
+    },
+    "loot:carry": {
+      "sound": "paper_flap",
+      "fx": "sparkle",
+      "kid": "heavy"
+    },
+    "loot:coCarry": {
+      "sound": "paper_flap",
+      "fx": "sparkle",
+      "kid": "teamwork"
+    },
+    "loot:bank": {
+      "sound": "kaching",
+      "fx": "coins",
+      "kid": "didIt"
+    },
+    "loot:drop": {
+      "sound": "box_thud",
+      "fx": "dust",
+      "kid": "oops"
+    },
+    "grownup:slip": {
+      "sound": "slip_whee",
+      "fx": "stars",
+      "shake": 0.2,
+      "freeze": 60
+    },
+    "grownup:soaked": {
+      "sound": "squelch",
+      "fx": "splashSmall"
+    },
+    "grownup:bust": {
+      "sound": "gasp",
+      "fx": "exclaim",
+      "shake": 0.35,
+      "kid": "run"
+    },
+    "grownup:chase": {
+      "sound": "alarm",
+      "fx": "exclaim",
+      "kid": "run"
+    },
+    "grownup:grab": {
+      "sound": "gasp",
+      "fx": "exclaim",
+      "shake": 0.3
+    },
+    "rescue:caught": {
+      "sound": "gasp",
+      "fx": "exclaim",
+      "shake": 0.4,
+      "narrator": "busted",
+      "kid": "waitForMe"
+    },
+    "rescue:spareKid": {
+      "sound": "boing",
+      "fx": "puff"
+    },
+    "rescue:gateOpen": {
+      "sound": "switch_click",
+      "fx": "confetti",
+      "kid": "teamwork"
+    },
+    "heat:1": {
+      "sound": "gasp",
+      "fx": "exclaim",
+      "shake": 0.15,
+      "kid": "close"
+    },
+    "heat:2": {
+      "sound": "alarm",
+      "fx": "exclaim",
+      "shake": 0.3,
+      "kid": "run"
+    },
+    "heat:3": {
+      "sound": "alarm",
+      "fx": "exclaim",
+      "shake": 0.5,
+      "kid": "run"
+    },
+    "closing:start": {
+      "sound": "tannoy_ding",
+      "fx": "ring",
+      "narrator": "afternoonOver"
+    },
+    "closing:shut": {
+      "sound": "machine_clunk",
+      "fx": "dust",
+      "shake": 0.25
+    },
+    "giggle": {
+      "sound": "pose_ding",
+      "fx": "confetti",
+      "freeze": 80,
+      "kid": "giggle"
+    },
+    "rush": {
+      "sound": "fizz",
+      "fx": "confetti",
+      "shake": 0.3,
+      "kid": "faster"
+    },
+    "job:start": {
+      "sound": "tannoy_ding",
+      "fx": "ring",
+      "narrator": "ready"
+    },
+    "result:got away": {
+      "sound": "fanfare",
+      "fx": "confetti",
+      "narrator": "phew"
+    },
+    "result:shut in": {
+      "sound": "machine_clunk",
+      "fx": "dust",
+      "narrator": "busted"
+    },
+    "result:all caught": {
+      "sound": "gasp",
+      "fx": "exclaim",
+      "narrator": "busted"
+    },
+    "result:quota": {
+      "narrator": "complete"
+    },
+    "shop:bought": {
+      "sound": "kaching",
+      "fx": "coins"
+    },
+    "shop:open": {
+      "sound": "kaching",
+      "fx": "coins"
+    },
+    "shop:ready": {
+      "sound": "pose_ding",
+      "fx": "sparkle"
+    }
+  },
+  "kids": {
+    "scatter": [
+      [
+        "kid_top",
+        2
+      ],
+      [
+        "kid_middle",
+        7
+      ],
+      [
+        "kid_top",
+        1
+      ]
+    ],
+    "restack": [
+      [
+        "kid_top",
+        3
+      ],
+      [
+        "kid_middle",
+        8
+      ]
+    ],
+    "unstack": [
+      [
+        "kid_bottom",
+        9
+      ],
+      [
+        "kid_top",
+        0
+      ]
+    ],
+    "wobble": [
+      [
+        "kid_middle",
+        3
+      ],
+      [
+        "kid_bottom",
+        3
+      ],
+      [
+        "kid_bottom",
+        4
+      ],
+      [
+        "kid_top",
+        10
+      ]
+    ],
+    "ow": [
+      [
+        "kid_top",
+        5
+      ],
+      [
+        "kid_bottom",
+        6
+      ],
+      [
+        "kid_top",
+        11
+      ]
+    ],
+    "slippy": [
+      [
+        "kid_bottom",
+        8
+      ]
+    ],
+    "faster": [
+      [
+        "kid_bottom",
+        10
+      ]
+    ],
+    "gotIt": [
+      [
+        "kid_middle",
+        1
+      ],
+      [
+        "kid_middle",
+        5
+      ]
+    ],
+    "oops": [
+      [
+        "kid_middle",
+        6
+      ]
+    ],
+    "shh": [
+      [
+        "kid_bottom",
+        14
+      ],
+      [
+        "kid_bottom",
+        7
+      ]
+    ],
+    "teamwork": [
+      [
+        "kid_middle",
+        12
+      ],
+      [
+        "kid_middle",
+        13
+      ]
+    ],
+    "natural": [
+      [
+        "kid_top",
+        4
+      ],
+      [
+        "kid_top",
+        12
+      ],
+      [
+        "kid_middle",
+        14
+      ],
+      [
+        "kid_top",
+        14
+      ]
+    ],
+    "look": [
+      [
+        "kid_top",
+        10
+      ],
+      [
+        "kid_bottom",
+        4
+      ]
+    ],
+    "madeIt": [
+      [
+        "kid_bottom",
+        15
+      ],
+      [
+        "kid_top",
+        7
+      ]
+    ],
+    "heavy": [
+      [
+        "kid_bottom",
+        2
+      ],
+      [
+        "kid_middle",
+        2
+      ]
+    ],
+    "didIt": [
+      [
+        "kid_top",
+        7
+      ],
+      [
+        "kid_middle",
+        13
+      ]
+    ],
+    "run": [
+      [
+        "kid_top",
+        1
+      ],
+      [
+        "kid_middle",
+        7
+      ]
+    ],
+    "waitForMe": [
+      [
+        "kid_bottom",
+        9
+      ]
+    ],
+    "close": [
+      [
+        "kid_middle",
+        9
+      ]
+    ],
+    "giggle": [
+      [
+        "kid_top",
+        0
+      ],
+      [
+        "kid_middle",
+        0
+      ],
+      [
+        "kid_bottom",
+        0
+      ],
+      [
+        "kid_middle",
+        15
+      ]
+    ],
+    "idle": [
+      [
+        "kid_bottom",
+        1
+      ],
+      [
+        "kid_bottom",
+        13
+      ],
+      [
+        "kid_middle",
+        11
+      ],
+      [
+        "kid_top",
+        9
+      ],
+      [
+        "kid_bottom",
+        7
+      ],
+      [
+        "kid_top",
+        15
+      ],
+      [
+        "kid_middle",
+        4
+      ]
+    ]
+  },
+  "kidChance": {
+    "wobble": 0.35,
+    "gotIt": 0.5,
+    "natural": 0.6,
+    "faster": 0.6,
+    "giggle": 0.7
+  },
+  "narrator": {
+    "stacked": 0,
+    "timber": 10,
+    "busted": 11,
+    "phew": 12,
+    "scatter": 13,
+    "restack": 14,
+    "complete": 15,
+    "rankS": 16,
+    "rankA": 17,
+    "rankB": 18,
+    "rankC": 19,
+    "rankD": 20,
+    "dinner": 23,
+    "afternoonOver": 24,
+    "ready": 25
+  },
+  "music": {
+    "calm": "m_theme_jazz",
+    "alert": "m_sneaky",
+    "panic": "m_chase",
+    "results": "m_results",
+    "volume": 0.28,
+    "fade": 1.6,
+    "layers": [
+      [
+        1,
+        0,
+        0
+      ],
+      [
+        0.4,
+        0.9,
+        0
+      ],
+      [
+        0,
+        1,
+        0.45
+      ],
+      [
+        0,
+        0.25,
+        1
+      ]
+    ],
+    "closingTimeAtLeast": 1,
+    "rushRate": 1.15
+  },
+  "fx": {
+    "freezeMax": 120,
+    "shakeDecay": 3.5,
+    "maxParticles": 600
+  },
+  "actions": {
+    "_about": "every control and the reaction it gets (an event above, or 'gadget' = the gadget's own sound and its visual)",
+    "use": "gadget",
+    "throw": "act:throw",
+    "grab": "act:pickUp",
+    "natural": "act:natural",
+    "drink": "act:drink",
+    "slot1": "act:slot",
+    "slot2": "act:slot",
+    "slot3": "act:slot",
+    "slot4": "act:slot",
+    "slot5": "act:slot",
+    "switch": "act:slot",
+    "run": "act:run",
+    "stack": "coat:unstack",
+    "point": "act:point",
+    "map": "act:map",
+    "shopNext": "shop:ready"
+  }
+}
