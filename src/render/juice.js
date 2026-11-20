@@ -16,7 +16,7 @@ export class Juice {
   // events: this frame's presentation events; me: pids on this screen; focus: where the camera looks
   handle(events, { me = [], focus = { x: 0, z: 0 } } = {}) {
     for (const e of events) {
-      if (e.k === 'sound') { const s = this.J.sounds[e.name]; if (s && e.x !== undefined) this.visual(s.fx, e.x, e.z, s.color, s.shake ?? 0, 0, focus); continue; }
+      if (e.k === 'sound') { const s = this.J.sounds[e.name]; if (s && e.x !== undefined && !e.noFx) this.visual(s.fx, e.x, e.z, s.color, s.shake ?? 0, 0, focus); continue; }
       if (e.k !== 'fx') continue;
       const j = this.J.events[e.key]; if (!j) continue;
       this.log.push(e.key); if (this.log.length > 60) this.log.shift();          // the tests read this

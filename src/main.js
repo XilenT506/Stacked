@@ -47,8 +47,9 @@ import CRAYONMAP from '../data/crayonmap.json';
 import DEL from '../data/shop.json';
 import GIGGLES from '../data/giggles.json';
 import WHY from '../data/why.json';
+import REACTIONS from '../data/reactions.json';
 
-const DATA = { place: SUPERMARKET, events: SHOP_EVENTS, things: THINGS, signals: SIGNALS, balance: BALANCE, grownups: GROWNUPS, gadgets: GADGETS, loot: LOOT, crayonmap: CRAYONMAP, shop: DEL, giggles: GIGGLES, juice: JUICE, why: WHY };
+const DATA = { place: SUPERMARKET, events: SHOP_EVENTS, things: THINGS, signals: SIGNALS, balance: BALANCE, grownups: GROWNUPS, gadgets: GADGETS, loot: LOOT, crayonmap: CRAYONMAP, shop: DEL, giggles: GIGGLES, juice: JUICE, why: WHY, reactions: REACTIONS };
 const params = new URLSearchParams(location.search);
 const quality = params.get('q') || 'high';                       // chosen, never switched behind the player's back
 const dev = params.get('dev') === '1';

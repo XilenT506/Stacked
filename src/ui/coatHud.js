@@ -34,14 +34,18 @@ export class CoatHud {
   }
 
   // a funny moment: big bouncy words in the middle of the screen
+  // (a small moment gets a smaller shout; while the results card is up the shout waits for it to go)
   giggle(e) {
+    if (this.resEl?.style.display === 'block') { (this.popQueue ??= []).push(e); return; }
     const el = this.popEl ??= document.getElementById('giggle');
     el.innerHTML = `${e.label}${e.giggles ? `<small>+${e.giggles} Giggles</small>` : ''}`;
+    el.classList.toggle('small', !!e.small);
     this.popT = 2.4;                                                      // drawn frame by frame in tickPop
   }
 
   // the shout pops in big, settles, then floats up and fades
   tickPop(dt) {
+    if (this.popQueue?.length && this.resEl?.style.display !== 'block' && !(this.popT > 0)) this.giggle(this.popQueue.shift());
     const el = this.popEl; if (!el || !(this.popT > 0)) { if (el) el.style.opacity = 0; return; }
     this.popT -= dt; const age = 2.4 - this.popT;
     const scale = age < 0.15 ? 0.3 + (age / 0.15) * 0.9 : age < 0.3 ? 1.2 - ((age - 0.15) / 0.15) * 0.2 : 1;

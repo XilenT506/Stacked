@@ -28,6 +28,21 @@
     "sugarRush": {
       "shout": "GIGGLE RUSH!",
       "reel": "The Giggle meter is full: Sugar Rush for everyone!"
+    },
+    "firstSoak": {
+      "shout": "SPLOSH!",
+      "reel": "A grown-up, soaked to the socks.",
+      "small": true
+    },
+    "burpKnock": {
+      "shout": "BUUURP!",
+      "reel": "Knocked flat by a burp.",
+      "small": true
+    },
+    "peelSlip": {
+      "shout": "BANANA!",
+      "reel": "The oldest trick in the book.",
+      "small": true
     }
   }
 }

@@ -76,7 +76,7 @@ console.log('pile', JSON.stringify(cs), cs.count === 1 && cs.pile ? 'OK' : 'FAIL
 // M1-F1, the first minute, opened like a player would (no ?dev=1): the very first frame is only the start
 // card over the shop; R closes it without unstacking; the arrow points to Nan's cake, the sign floats over
 // it, and once the cake is carried the arrow points to the gate. The crayon map knows the bakery and the gate.
-if (!process.env.CAUGHTONLY && !process.env.MONEYONLY && !process.env.WAYONLY) {
+if (!process.env.CAUGHTONLY && !process.env.MONEYONLY && !process.env.WAYONLY && !process.env.PRANKONLY) {
   const f = await browser.newPage({ viewport: { width: 1280, height: 720 }, deviceScaleFactor: 1 });
   f.on('pageerror', (e) => { errors.push(String(e)); console.log('PAGE ERROR', String(e)); });
   await f.goto('http://localhost:8481/?q=high');
@@ -109,7 +109,7 @@ if (!process.env.CAUGHTONLY && !process.env.MONEYONLY && !process.env.WAYONLY) {
 // M1-F2, getting caught: a "why" bubble when a grown-up sees you run, loose kids with markers (in the shop,
 // at the screen edge and on the crayon map), your coat's outline through a pile-on, and the Spare Kid
 // coming in through the back door when Panic has locked the front.
-if (!process.env.FIRSTONLY && !process.env.MONEYONLY && !process.env.WAYONLY) {
+if (!process.env.FIRSTONLY && !process.env.MONEYONLY && !process.env.WAYONLY && !process.env.PRANKONLY) {
   const f = await browser.newPage({ viewport: { width: 1280, height: 720 }, deviceScaleFactor: 1 });
   f.on('pageerror', (e) => { errors.push(String(e)); console.log('PAGE ERROR', String(e)); });
   await f.goto('http://localhost:8481/?q=high&dev=1');
@@ -159,7 +159,7 @@ if (!process.env.FIRSTONLY && !process.env.MONEYONLY && !process.env.WAYONLY) {
 
 // M1-F3, sweets that make sense: one money line on the HUD, the same numbers at the getaway gate, and the
 // bonus only on the results screen.
-if (!process.env.FIRSTONLY && !process.env.CAUGHTONLY && !process.env.WAYONLY) {
+if (!process.env.FIRSTONLY && !process.env.CAUGHTONLY && !process.env.WAYONLY && !process.env.PRANKONLY) {
   const f = await browser.newPage({ viewport: { width: 1280, height: 720 }, deviceScaleFactor: 1 });
   f.on('pageerror', (e) => { errors.push(String(e)); console.log('PAGE ERROR', String(e)); });
   await f.goto('http://localhost:8481/?q=high&dev=1');
@@ -188,7 +188,7 @@ if (!process.env.FIRSTONLY && !process.env.CAUGHTONLY && !process.env.WAYONLY) {
 // M1-F4, the way out: the café side exit onto the car park, the parked cars out of the way, two coats
 // carrying Nan's cake together (the cake between them, both coats' arms on it), and the gate's warning
 // about kids still inside.
-if (!process.env.FIRSTONLY && !process.env.CAUGHTONLY && !process.env.MONEYONLY) {
+if (!process.env.FIRSTONLY && !process.env.CAUGHTONLY && !process.env.MONEYONLY && !process.env.PRANKONLY) {
   const f = await browser.newPage({ viewport: { width: 1280, height: 720 }, deviceScaleFactor: 1 });
   f.on('pageerror', (e) => { errors.push(String(e)); console.log('PAGE ERROR', String(e)); });
   await f.goto('http://localhost:8481/?q=high&dev=1');
@@ -222,6 +222,50 @@ if (!process.env.FIRSTONLY && !process.env.CAUGHTONLY && !process.env.MONEYONLY)
   console.log('gate warning', JSON.stringify(warn), !warn.over && /3 kids still inside! E again to leave without them/.test(warn.msg) ? 'OK' : 'FAIL');
   await f.close();
   if (process.env.WAYONLY) { console.log(errors.length ? 'ERRORS ' + errors.join(' | ') : 'no page errors'); await browser.close(); server.close(); process.exit(0); }
+}
+
+// M1-F5, pranks that pay off: a soaked grown-up dripping where the water landed (and saying so), acting
+// natural (whistling, the "?" turning green as it drains), and Del's cards with no text over the price,
+// at the full size and at the small window the testers used.
+if (!process.env.FIRSTONLY && !process.env.CAUGHTONLY && !process.env.MONEYONLY && !process.env.WAYONLY) {
+  for (const [vw, vh] of [[1280, 720], [960, 540]]) {
+    const f = await browser.newPage({ viewport: { width: vw, height: vh }, deviceScaleFactor: 1 });
+    f.on('pageerror', (e) => { errors.push(String(e)); console.log('PAGE ERROR', String(e)); });
+    await f.goto('http://localhost:8481/?q=high&dev=1');
+    await f.waitForFunction(() => globalThis.__stacked2?.clock.time > 1, null, { timeout: 120000 });
+    const fw = (sec) => f.evaluate((s) => new Promise((res) => { const t0 = __stacked2.clock.time; const g = () => (__stacked2.clock.time - t0 >= s ? res() : requestAnimationFrame(g)); g(); }), sec);
+    if (vw === 1280) {
+      // a shopper three metres away, the water pistol on them
+      await f.evaluate(() => { const G = __stacked2.game, c = G.coats[0], gu = G.people.byType('shopper')[0];
+        const mv = (w, x, z) => { const p = { x, y: w.half + w.radius + 0.02, z }; w.body.setTranslation(p, true); w.body.setNextKinematicTranslation(p); w.vel.x = w.vel.z = 0; };
+        for (const p of G.people.list) if (p !== gu) mv(p.walker, p.feet.x + 60, p.feet.z);
+        mv(c.walker, 0.5, 2.6); mv(gu.walker, 0.5, -0.6); gu.set('idle'); globalThis.__gu = gu; });
+      await fw(0.4);
+      const shouts = []; await f.exposeFunction('__shout2', (t) => shouts.push(t));
+      await f.evaluate(() => { const P = __stacked2.peopleView, s = P.shout.bind(P); P.shout = (g, text, sec) => { globalThis.__shout2(text); return s(g, text, sec); }; });
+      const [ax, ay] = await f.evaluate(() => { const v = __gu.feet, p = new __stacked2.camRig.cam.position.constructor(v.x, 1, v.z).project(__stacked2.camRig.cam); return [(p.x + 1) / 2 * innerWidth, (1 - p.y) / 2 * innerHeight]; });
+      await f.mouse.move(ax, ay); await fw(0.2); await f.mouse.down(); await fw(0.5); await f.mouse.up(); await fw(0.5);
+      const soak = await f.evaluate(() => ({ soaked: +(__gu.effects.soaked ?? 0).toFixed(1), drips: __stacked2.peopleView.views?.find((v) => v.g === __gu)?.drips?.visible, giggles: __stacked2.game.giggles.moments.map((m) => m.kind) }));
+      await f.screenshot({ path: 'test/shots/prank_soaked.png' });
+      console.log('soaked grown-up', JSON.stringify({ ...soak, shouts }), soak.soaked > 0 && soak.drips && soak.giggles.includes('firstSoak') && shouts.some((t) => /SOAKED|cardigan|leaking|did that|shoes/.test(t)) ? 'OK' : 'FAIL');
+      // acting natural next to a suspicious grown-up: whistling, and the "?" goes green as it drains
+      await f.evaluate(() => { const c = __stacked2.coat; __gu.hostile.clear(); __gu.set("idle"); __gu.target = null; __gu.sus.set(c, 0.6); __gu.effects.soaked = 0; });
+      await f.keyboard.down('KeyQ'); await fw(1.0);
+      const nat = await f.evaluate(() => { const v = __stacked2.peopleView.views?.find((x) => x.g === __gu); return { sus: +(__gu.sus.get(__stacked2.coat) ?? 0).toFixed(2), falling: +(v?.falling ?? 0).toFixed(2), notes: (__stacked2.coatView.notes ?? []).filter((n) => n.visible).length }; });
+      await f.screenshot({ path: 'test/shots/prank_act_natural.png' });
+      await f.keyboard.up('KeyQ');
+      console.log('act natural shows it works', JSON.stringify(nat), nat.sus < 0.6 && nat.falling > 0.5 && nat.notes === 3 ? 'OK' : 'FAIL');
+    }
+    // Dodgy Del's, stocked with the wordiest things
+    await f.evaluate(() => { const G = __stacked2.game; G.D.balance.shop.resultsSeconds = 1e9; G.run.sweets = 220; G.test('shop');
+      const st = G.shop.stock; const ids = ['stink_bomb', 'water_balloon', 'whoopee_cushion', 'bubble_wrap']; ids.forEach((id, i) => { st[i] = { id, kind: 'gadget', left: 1 }; }); });
+    await fw(0.8);
+    const lay = await f.evaluate(() => __stacked2.delShop.layout?.map((l) => ({ gap: +(l.priceTop - l.blurbBottom).toFixed(1) })));
+    await f.screenshot({ path: `test/shots/prank_del_${vw}.png` });
+    console.log(`Del's cards at ${vw}x${vh}`, JSON.stringify(lay), lay?.length === 6 && lay.every((l) => l.gap >= 0) ? 'OK' : 'FAIL');
+    await f.close();
+  }
+  if (process.env.PRANKONLY) { console.log(errors.length ? 'ERRORS ' + errors.join(' | ') : 'no page errors'); await browser.close(); server.close(); process.exit(0); }
 }
 
 // the supermarket: an overview with the planning overlay, then every area seen from the coat's camera

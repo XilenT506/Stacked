@@ -2,7 +2,8 @@
 // spots funny moments:
 //   Domino      one chain of signals floors 3 or more grown-ups ("DOMINO ×4!")
 //   Trick shot  a gadget hits a grown-up from right across the shop, or flips a switch from far away
-//   Soak a friend  your water hits a teammate's coat
+//   Soak a friend  your water hits a teammate's coat (once per friend per soakFriend.every seconds)
+//   Small ones (M1-F5): the first soak of each grown-up, a burp that floors someone, a banana-peel slip
 //   Nerves of steel  posing in the mannequin row while the guard inspects you from up close, and he walks off
 //   Just in time    getting away as the last shutters come down, or with a grown-up right behind you
 //   One kid show    getting away with only one kid left in the coat
@@ -17,7 +18,7 @@ export class Giggles {
   constructor(B, labels, { capture = null } = {}) {
     this.G = B.giggles; this.L = labels.moments; this.capture = capture;
     this.meter = 0; this.total = 0; this.moments = []; this.chains = []; this.events = []; this.time = 0;
-    this.frames = []; this.recT = 0; this.watching = new Map(); this.chainSeq = 0;
+    this.frames = []; this.recT = 0; this.watching = new Map(); this.chainSeq = 0; this.soakedOnce = new Set(); this.friendly = new Map();
   }
 
   // ---- chains, from every signal delivered ----
@@ -61,12 +62,25 @@ export class Giggles {
   // ---- gadgets: trick shots and soaking a friend ----
   gadget(e) {
     if (e.by && e.at) { const ch = this.chainAt(e.at, this.time); if (ch && !ch.by) ch.by = e.by.pid; }     // whoever threw it started that chain
+    if (e.type === 'trigger') return this.trigger(e);
     if (e.type !== 'hit' || !e.by || !e.from) return;
     const M = this.G.moments, d = Math.hypot(e.at.x - e.from.x, e.at.z - e.from.z);
     if (e.target === 'grownup' && d >= M.trickShot.distance) this.moment('trickShot', { at: e.at, by: e.by.pid, dist: Math.round(d) });
     if (e.target === 'thing' && e.toggled && d >= M.trickShot.switchDistance) this.moment('trickShot', { at: e.at, by: e.by.pid, dist: Math.round(d) });
-    if (e.target === 'coat' && e.effect === 'soaked' && e.coat !== e.by) this.moment('soakFriend', { at: e.at, by: e.by.pid, who: e.coat.pid });
+    if (e.target === 'coat' && e.effect === 'soaked' && e.coat !== e.by) {
+      // FRIENDLY FIRE: once per friend per soakFriend.every seconds (holding the trigger on a mate is not a joke 30 times)
+      const key = `${e.by.pid}>${e.coat.pid}`, last = this.friendly.get(key);
+      if (last === undefined || this.time - last >= (M.soakFriend.every ?? 0)) { this.friendly.set(key, this.time); this.moment('soakFriend', { at: e.at, by: e.by.pid, who: e.coat.pid }); }
+    }
+    // the first soak of each grown-up this job
+    if (e.target === 'grownup' && e.effect === 'soaked' && !this.soakedOnce.has(e.who.id)) { this.soakedOnce.add(e.who.id); this.moment('firstSoak', { at: e.at, by: e.by.pid }); }
   }
+
+  // a grown-up stepped on your banana peel and went down
+  trigger(e) { if (e.target === 'grownup' && e.by && e.effect === 'slipped') this.moment('peelSlip', { at: e.at, by: e.by.pid }); }
+
+  // a burp floored someone (they also count in the chain they fell in, towards a Domino)
+  burp(coat, floored) { if (floored > 0) this.moment('burpKnock', { at: coat.walker.feet, by: coat.pid, n: floored }); }
 
   // ---- the getaway: just in time, or one kid left ----
   getaway(coat, { closing, people }) {
@@ -108,7 +122,7 @@ export class Giggles {
 
   moment(kind, { n = 0, at, by = null, giggles = this.G.moments[kind].giggles, ...detail }) {
     if (this.closed) return null;                                   // the job is over: the results are already counted
-    const m = { kind, n, label: this.shout(kind, n), reel: (this.L[kind]?.reel ?? '').replace('{n}', n), giggles, t: Math.round(this.time * 10) / 10, at: { x: at.x, z: at.z }, by, ...detail };
+    const m = { kind, n, small: !!this.L[kind]?.small, label: this.shout(kind, n), reel: (this.L[kind]?.reel ?? '').replace('{n}', n), giggles, t: Math.round(this.time * 10) / 10, at: { x: at.x, z: at.z }, by, ...detail };
     this.moments.push(m);
     this.keep(m);
     this.add(giggles, m);

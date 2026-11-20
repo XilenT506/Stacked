@@ -2,6 +2,21 @@
 
 Newest first. One entry per build session (one prompt from the Build guide in the doc "STACKED – Game Plan").
 
+## 2026-11-20 · Fix 5 of 6 (M1-F5): Pranks that pay off
+
+- **Hits show where they land.** Every gadget now has a `hit:<gadget>` and a `land:<gadget>` moment in `data/juice.json`: a big blue splash where the water pistol or a balloon hits, stars where a slingshot stone hits, a green puff for a stink bomb. The fire sound still plays at the coat but no longer splashes at your own feet (that was the "water pistol splashes at my feet" bug: every sound also drew its visual where it played). A soaked grown-up drips more and stands in a little puddle.
+- **Grown-ups react out loud:** a bubble ("I'm SOAKED!", "My hat! I can't see!", "Oi!": new `data/reactions.json`) and one of their recorded voice lines.
+- **Found a hidden bug while doing this:** each grown-up cleared its event list at the start of its own step, so anything that happened to it between steps was lost: a burp knocking it over, a gadget soaking it, a voice line. That is why a Burp Blaster knockdown never counted towards a Domino. Grown-up events are now cleared only after they have been passed on (`src/ai/people.js`). A burp that floors three grown-ups is now a Domino.
+- **FRIENDLY FIRE** counts once per friend per 20 seconds (`giggles.moments.soakFriend.every`). Holding the trigger on a mate for 3 seconds used to give 110 Giggles and a Giggle Rush; now it gives 10.
+- **Small Giggles for single pranks** (`data/balance.json` giggles.moments): SPLOSH! the first time each grown-up is soaked (4), BUUURP! when a burp floors someone (5), BANANA! when a grown-up slips on your peel (5). They get a smaller shout than the big moments. Rough sum: a playful team soaking a handful of grown-ups, a burp and a peel or two, plus one Domino, fills the 100 meter about once a job.
+- **Act natural shows it is working:** the coat whistles a little tune (two new placeholder sounds, `whistle_up` and `whistle_down`) with ♪ notes floating up, strolls with a bounce, and the "?" over nearby grown-ups (and its bar) turns green and shrinks while it drains.
+- **Slingshot:** a quick tap now fires a weak shot (before, a click shorter than 0.15 s did nothing: "sometimes doesn't fire"). The long dark lines: **I could not reproduce them** in about 45 frames of solo and online play. Stones in flight no longer cast a shadow (a fast stone's shadow is the likeliest cause) and anything in flight at a broken position is not drawn. If you see the lines again, a screenshot would help.
+- **Nothing overlaps:**
+  - The floating area signs also fade while they'd sit under the money line at the top of the screen.
+  - A Giggle shout that happens while the results card is up waits until the card is gone.
+  - Del's card blurbs fit in the space above the price: they shrink a little if needed, and are cut with "..." if they still don't fit. Checked at 1280×720 and 960×540.
+- Tests: new `test/logic/pranks.test.mjs` (a soak gives SPLOSH! once per grown-up, with the splash at the grown-up and not the coat, and a reaction; a burp knockdown gives BUUURP!, and three at once is a Domino; FRIENDLY FIRE once per 20 s; a banana-peel slip gives BANANA!; a slingshot tap fires). The Domino test now also counts the balloon's SPLOSH!es. New screenshots `prank_soaked.png`, `prank_act_natural.png`, `prank_del_1280.png`, `prank_del_960.png`.
+
 ## 2026-11-20 · Fix 4 of 6 (M1-F4): The way out, and carrying together
 
 - **Café side exit:** a 3 m gap in the shop's front wall at the café corner (`side` in the doors list) opens onto the car park right by the getaway gate. A bot carries Nan's cake from the bakery to the gate in 7.7 s. The exit is 3 m wide (not 2) so two coats carrying the cake side by side fit through. It shuts with the fruit and veg at Closing Time (that step is now "Fruit, veg and the café"); Panic does not lock it, and the Heat 3 line now says "the café side exit and the back door still work". One café table moved off the path.

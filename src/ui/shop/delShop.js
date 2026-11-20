@@ -155,7 +155,9 @@ export class DelShop {
     icon(ctx, s.id, x + w / 2, y + h * 0.3, h * 0.24, this.t);
     write(ctx, def?.name ?? s.id, x + w / 2, y + h * 0.58, 24 * k, INK, 110 + i);
     const blurb = isDrink ? def.blurb : (def?.useful ?? '').split(/[.:;,]/)[0];
-    this.small(ctx, blurb, x + w / 2, y + h * 0.71, w - 20 * k, 15 * k);
+    // the blurb fits between the name and the price (M1-F5: it used to run into the price on short cards)
+    this.small(ctx, blurb, x + w / 2, y + h * 0.58 + 15 * k, w - 20 * k, 15 * k, (y + h - 38 * k) - (y + h * 0.58 + 15 * k));
+    (this.layout ??= [])[i] = { blurbBottom: this.lastLines.bottom, priceTop: y + h - 35 * k };       // (the screenshot check reads this)
     // price, with a little sweet
     ring(ctx, x + w / 2 - 36 * k, y + h - 22 * k, 8 * k, '#e2557a', 4 * k, 120 + i, { passes: 2 });
     write(ctx, `${price}`, x + w / 2 + 4 * k, y + h - 22 * k, 26 * k, model.run.sweets >= price ? '#3f8a3a' : '#d0453a', 130 + i);
@@ -165,12 +167,21 @@ export class DelShop {
     if (s.left <= 0) write(ctx, 'SOLD!', x + w / 2, y + h / 2, 52 * k, '#d0453a', 160 + i, { rot: -0.3, outline: '#fbf6ea' });
   }
 
-  small(ctx, text, x, y, w, size) {
-    ctx.font = `700 ${size}px Gaegu, cursive`;
-    const words = text.split(' '), lines = []; let cur = '';
-    for (const wd of words) { const t = cur ? cur + ' ' + wd : wd; if (ctx.measureText(t).width > w && cur) { lines.push(cur); cur = wd; } else cur = t; }
-    if (cur) lines.push(cur);
-    lines.slice(0, 2).forEach((l, i) => write(ctx, l, x, y + i * size * 1.1, size, '#6b4a2e', 170 + i));
+  // small wrapped text in the box from top (y) down maxH: shrinks a little to fit, then cuts with "..."
+  small(ctx, text, x, y, w, size, maxH = size * 2.2) {
+    const wrap = (sz) => {
+      ctx.font = `700 ${sz}px Gaegu, cursive`;
+      const words = text.split(' '), lines = []; let cur = '';
+      for (const wd of words) { const t = cur ? cur + ' ' + wd : wd; if (ctx.measureText(t).width > w && cur) { lines.push(cur); cur = wd; } else cur = t; }
+      if (cur) lines.push(cur);
+      return lines;
+    };
+    let sz = size, lines = wrap(sz);
+    while (sz > size * 0.75 && lines.length * sz * 1.1 > maxH) lines = wrap(sz -= 1);
+    const fit = Math.max(1, Math.floor(maxH / (sz * 1.1)));
+    if (lines.length > fit) { lines = lines.slice(0, fit); lines[fit - 1] = lines[fit - 1].replace(/\s*\S*$/, '') + '...'; }
+    this.lastLines = { lines, sz, bottom: y + lines.length * sz * 1.1 };                  // (the tests read this)
+    lines.forEach((l, i) => write(ctx, l, x, y + sz * 0.55 + i * sz * 1.1, sz, '#6b4a2e', 170 + i));
   }
 
   button(ctx, x, y, w, h, label, color, i, k, off) {

@@ -32,7 +32,7 @@ export class People {
 
   step(dt, coats) {
     this.time += dt;
-    for (const g of this.list) { g.step(dt, { coats, time: this.time }); for (const e of g.events) this.events.push({ ...e, who: g }); }
+    for (const g of this.list) { g.step(dt, { coats, time: this.time }); for (const e of g.events) this.events.push({ ...e, who: g }); g.events = []; }   // (including what happened to them between steps: a burp, a soak)
   }
 
   // events since the last call (the frame loop plays voices from these)

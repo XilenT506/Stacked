@@ -123,6 +123,12 @@
     },
     "gasp": {
       "fx": "exclaim"
+    },
+    "whistle_up": {
+      "fx": "sparkle"
+    },
+    "whistle_down": {
+      "fx": "sparkle"
     }
   },
   "events": {
@@ -399,6 +405,71 @@
     "shop:ready": {
       "sound": "pose_ding",
       "fx": "sparkle"
+    },
+    "hit:water_pistol": {
+      "sound": "squelch",
+      "fx": "splash",
+      "color": "#7fc8ff"
+    },
+    "land:water_pistol": {
+      "sound": "patter",
+      "fx": "splashSmall",
+      "color": "#7fc8ff"
+    },
+    "hit:slingshot": {
+      "sound": "bonk",
+      "fx": "stars",
+      "shake": 0.08
+    },
+    "land:slingshot": {
+      "sound": "click",
+      "fx": "dust"
+    },
+    "hit:water_balloon": {
+      "sound": "splat",
+      "fx": "splash",
+      "color": "#7fc8ff",
+      "shake": 0.12
+    },
+    "land:water_balloon": {
+      "sound": "splat",
+      "fx": "splash",
+      "color": "#7fc8ff",
+      "shake": 0.1
+    },
+    "hit:stink_bomb": {
+      "sound": "splat",
+      "fx": "puff",
+      "color": "#a8c94a"
+    },
+    "land:stink_bomb": {
+      "sound": "splat",
+      "fx": "puff",
+      "color": "#a8c94a"
+    },
+    "hit:banana_peel": {
+      "sound": "bonk",
+      "fx": "stars"
+    },
+    "land:banana_peel": {
+      "sound": "click",
+      "fx": "dust"
+    },
+    "hit:whoopee_cushion": {
+      "sound": "bonk",
+      "fx": "stars"
+    },
+    "land:whoopee_cushion": {
+      "sound": "click",
+      "fx": "dust"
+    },
+    "hit:bubble_wrap": {
+      "sound": "bonk",
+      "fx": "stars"
+    },
+    "land:bubble_wrap": {
+      "sound": "click",
+      "fx": "dust"
     }
   },
   "kids": {
@@ -724,5 +795,17 @@
     "point": "act:point",
     "map": "act:map",
     "shopNext": "shop:ready"
+  },
+  "_hits": "hit:<gadget> plays where a gadget hits someone or something, land:<gadget> where it lands; the gadget's own fire sound plays at the coat with no splash (M1-F5)",
+  "whistle": {
+    "_about": "acting natural, the coat whistles this little tune, one note every 'every' seconds (played at the coat, no particles: the coat shows its own music notes)",
+    "notes": [
+      "whistle_up",
+      "whistle_down",
+      "whistle_up",
+      "whistle_up",
+      "whistle_down"
+    ],
+    "every": 0.32
   }
 }

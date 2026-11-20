@@ -147,14 +147,22 @@ export class PeopleView {
       v.stars.visible = !!down || blind;
       v.stars.children.forEach((s, i) => { const a = this.t * 4 + i * 2.1; s.position.set(Math.sin(a) * 0.35, blind ? v.height + 0.1 : 0.5, (blind ? 0 : -1.2) + Math.cos(a) * 0.35); });
       // soaked: drips falling off them
-      if (!v.drips) { v.drips = new T.Group(); for (let i = 0; i < 4; i++) { const d = new T.Mesh(new T.SphereGeometry(0.035, 6, 4), new T.MeshBasicMaterial({ color: 0x7fc8ff })); v.drips.add(d); } v.root.add(v.drips); }
+      if (!v.drips) {
+        v.drips = new T.Group(); for (let i = 0; i < 9; i++) { const d = new T.Mesh(new T.SphereGeometry(0.05, 6, 4), new T.MeshBasicMaterial({ color: 0x5fb4f0 })); v.drips.add(d); }
+        const pool = new T.Mesh(new T.CircleGeometry(0.55, 20), new T.MeshBasicMaterial({ color: 0x7fc8ff, transparent: true, opacity: 0.55, depthWrite: false })); pool.rotation.x = -Math.PI / 2; pool.position.y = 0.025; v.drips.add(pool); v.dripPool = pool;
+        v.root.add(v.drips);
+      }
       v.drips.visible = (g.effects?.soaked ?? 0) > 0;
-      if (v.drips.visible) v.drips.children.forEach((d, i) => { const k = (this.t * 1.6 + i * 0.27) % 1; d.position.set(Math.sin(i * 2.4) * 0.28, v.height * (0.85 - k * 0.8), Math.cos(i * 2.4) * 0.2); });
+      if (v.drips.visible) v.drips.children.forEach((d, i) => { if (d === v.dripPool) { d.scale.setScalar(0.9 + Math.sin(this.t * 3) * 0.08); return; } const k = (this.t * 1.8 + i * 0.21) % 1; d.position.set(Math.sin(i * 2.4) * 0.3, v.height * (0.9 - k * 0.88), Math.cos(i * 2.4) * 0.22); });   // soaked: dripping, standing in a puddle
       const sus = this.watch ? g.sus.get(this.watch) ?? 0 : 0, hostile = this.watch && g.hostile.has(this.watch);
       v.q.visible = (CURIOUS.has(st) || sus > 0.03) && !ALERT.has(st) && !hostile; v.ex.visible = ALERT.has(st) || (hostile && st !== 'slipped');
       v.bar.visible = v.barBg.visible = sus > 0.03 && !hostile;
-      v.bar.scale.x = 0.58 * sus; v.bar.material.color.setHex(sus > 0.75 ? 0xc4553d : sus > 0.45 ? 0xe07a3a : 0xe0a83a);
-      v.q.scale.setScalar(0.55 * (1 + sus * 0.5));
+      // a "?" that is going down (you are acting natural, or keeping away) turns green and shrinks: it is working
+      const falling = sus < (v.prevSus ?? 0) - 1e-4; v.prevSus = sus;
+      v.falling = falling ? Math.min(1, (v.falling ?? 0) + dt * 6) : Math.max(0, (v.falling ?? 0) - dt * 3);
+      v.bar.scale.x = 0.58 * sus; v.bar.material.color.setHex(v.falling > 0.5 ? 0x7fbf5f : sus > 0.75 ? 0xc4553d : sus > 0.45 ? 0xe07a3a : 0xe0a83a);
+      v.q.material.color.setRGB(1 - v.falling * 0.45, 1, 1 - v.falling * 0.55);
+      v.q.scale.setScalar(0.55 * (1 + sus * 0.5) * (1 - v.falling * 0.15 * (1 + Math.sin(this.t * 12))));
       if (v.bubble) { v.bubbleT -= dt; if (v.bubbleT <= 0) { v.root.remove(v.bubble); v.bubble = null; } }
       const pulse = 1 + Math.sin(this.t * 10) * 0.08; v.ex.scale.setScalar(0.55 * pulse);
       // the cone: red when they are after someone, hidden while they are down

@@ -50,9 +50,11 @@ export class PlaceView {
 
   // rows of coloured packets on both faces of a shelf
   // the area name signs fade away while a coat (or loot someone carries) is near one, so they never cover you
-  fadeSigns(points, dt) {
+  // (and while one would sit under the money line at the top of the screen: M1-F5)
+  fadeSigns(points, dt, camera = null) {
     for (const sg of this.signs ?? []) {
-      const p = sg.position, near = points.some((q) => Math.abs(q.x - p.x) < 2.2 && q.z > p.z - 2.6 && q.z < p.z + 1.6);
+      const p = sg.position, v = camera ? (this.v ??= p.clone()).copy(p).project(camera) : null, underTop = v && v.y > 0.78 && v.z < 1;
+      const near = underTop || points.some((q) => Math.abs(q.x - p.x) < 2.2 && q.z > p.z - 2.6 && q.z < p.z + 1.6);
       const o = sg.material.opacity + ((near ? 0.12 : 1) - sg.material.opacity) * Math.min(1, dt * 8);
       sg.material.opacity = o;
     }

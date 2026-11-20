@@ -41,6 +41,15 @@ function kidMarker(color) {
   return s;
 }
 
+// a music note (♪ or ♫) floating up from a whistling coat
+function noteSprite(i) {
+  const c = document.createElement('canvas'); c.width = c.height = 64; const g = c.getContext('2d');
+  g.font = 'bold 54px "Trebuchet MS", sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.lineWidth = 6; g.strokeStyle = '#fff3e2'; g.fillStyle = '#33201a';
+  const ch = i % 2 ? '\u266B' : '\u266A'; g.strokeText(ch, 32, 34); g.fillText(ch, 32, 34);
+  const t = new T.CanvasTexture(c); t.colorSpace = T.SRGBColorSpace;
+  const s = new T.Sprite(new T.SpriteMaterial({ map: t, transparent: true, depthTest: false })); s.renderOrder = 11; return s;
+}
+
 // run or wave the kid's arms and legs; phase in seconds
 function animateKid(k, t, running, waving) {
   const { legs, arms, torso, hat } = k.userData, s = running ? Math.sin(t * 16) : 0;
@@ -122,6 +131,14 @@ export class CoatView {
       this.natBubble.position.set(0, c.state.height + 0.9, 0); this.root.add(this.natBubble);
     } else if (!c.actingNatural && this.natBubble) { this.root.remove(this.natBubble); this.natBubble = null; }
     if (this.natBubble) this.natBubble.position.y = c.state.height + 0.9;
+    // acting natural: little music notes float up while the coat whistles (and it strolls with a bounce)
+    if (!this.notes) { this.notes = [0, 1, 2].map((i) => { const n = noteSprite(i); n.visible = false; this.root.add(n); return n; }); }
+    this.notes.forEach((n, i) => {
+      n.visible = !!c.actingNatural; if (!n.visible) return;
+      const k = (this.t * 0.9 + i / 3) % 1;
+      n.position.set(0.35 + Math.sin(k * 6 + i) * 0.18, c.state.height + 0.15 + k * 0.9, 0.1); n.material.opacity = 1 - k; n.scale.setScalar(0.32 + k * 0.12);
+    });
+    this.coatG.position.y = c.actingNatural && w.flatSpeed > 0.5 ? Math.abs(Math.sin(this.t * 7)) * 0.06 : 0;
     if (this.tag) this.tag.position.y = c.state.height + 0.55;
     this.t += dt;
     for (const e of events) if (e.type === 'spill' || e.type === 'restack' || e.type === 'unstack' || e.type === 'hit' || e.type === 'burp') this.pop = 1;

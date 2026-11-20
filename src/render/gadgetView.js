@@ -14,9 +14,11 @@ export class GadgetView {
 
   update() {
     const P = this.g.projectiles;
-    while (this.pool.length < P.length) { const m = new T.Mesh(this.ball); m.castShadow = true; this.scene.add(m); this.pool.push(m); }
+    // (things in flight cast no shadow: a fast stone's shadow may be what drew the long dark lines testers saw
+    // with the slingshot; and anything at a broken position is not drawn at all)
+    while (this.pool.length < P.length) { const m = new T.Mesh(this.ball); m.castShadow = false; this.scene.add(m); this.pool.push(m); }
     this.pool.forEach((m, i) => {
-      const p = P[i]; m.visible = !!p; if (!p) return;
+      const p = P[i]; m.visible = !!p && [p.x, p.y, p.z].every(Number.isFinite) && p.y > -1 && p.y < 30; if (!m.visible) return;
       m.material = this.mat(p.def.projectile.color || '#ffffff'); m.scale.setScalar(p.def.projectile.radius ?? 0.06);
       m.position.set(p.x, p.y, p.z);
     });

@@ -268,14 +268,25 @@ export class Game {
       this.emit({ k: 'sound', name: 'gulp', x: e.at.x, z: e.at.z }); this.emit({ k: 'sound', name: this.D.shop.drinks[e.id].sound, x: e.at.x, z: e.at.z });
       const type = e.id === 'burp_blaster' ? 'burp' : 'sugar';
       this.emit({ k: 'coat', pid: e.coat.pid, type }); this.fx('coat:' + type, e.coat, e.coat.pid);
+      if (e.floored) this.giggles.burp(e.coat, e.floored);
     }
     for (const e of this.gadgets.take()) {
       this.giggles.gadget(e);
-      if (e.type === 'fire' && e.sound) this.emit({ k: 'sound', name: e.sound, x: e.at.x, z: e.at.z });
-      if (e.type === 'hit') this.emit({ k: 'sound', name: 'bonk', x: e.at.x, z: e.at.z });
+      // the fire sound plays at the coat with no splash there: the effect shows where it lands (M1-F5)
+      if (e.type === 'fire' && e.sound) this.emit({ k: 'sound', name: e.sound, x: e.at.x, z: e.at.z, noFx: true });
+      if (e.type === 'hit' || e.type === 'land') this.fx(`${e.type}:${e.gadget}`, e.at, e.by?.pid);
+      if (e.type === 'hit' && e.target === 'grownup') this.react(e.who, e.effect);
       if (e.type === 'trigger') this.emit({ k: 'sound', name: this.D.gadgets.gadgets[e.gadget]?.triggerSound ?? 'slip_whee', x: e.at.x, z: e.at.z });
     }
     this.presentGiggles();
+  }
+
+  // a grown-up hit by a prank says so out loud: a bubble (data/reactions.json) and one of their voice lines
+  react(g, effect) {
+    const R = this.D.reactions, list = R?.[effect] ?? R?.hit; if (!list?.length || (g.reactT ?? -1) > this.time) return;
+    g.reactT = this.time + 1.5; g.reactN = ((g.reactN ?? -1) + 1) % list.length;
+    this.emit({ k: 'shout', who: g.id, text: list[g.reactN], sec: 2 });
+    if (effect !== 'blinded' && effect !== 'slipped') g.say('notice');
   }
 
   // a moment for the juice pass (data/juice.json events): a sound, a visual, maybe shake, a freeze-frame and a voice
@@ -284,7 +295,7 @@ export class Game {
   // Giggles: the shout, the meter, the Giggle Rush (drawn by the HUD)
   presentGiggles() {
     for (const e of this.giggles.take()) {
-      if (e.type === 'moment') { this.emit({ k: 'giggle', label: e.m.label, giggles: e.giggles, kind: e.m.kind, by: e.m.by, bigger: e.bigger }); this.fx('giggle', e.m.at, e.m.by); }
+      if (e.type === 'moment') { this.emit({ k: 'giggle', label: e.m.label, giggles: e.giggles, kind: e.m.kind, by: e.m.by, bigger: e.bigger, small: e.m.small }); this.fx('giggle', e.m.at, e.m.by); }
       if (e.type === 'rush') { this.emit({ k: 'giggle', label: e.label, rush: true }); this.fx('rush'); }
     }
   }

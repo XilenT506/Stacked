@@ -75,7 +75,7 @@ export class GrownUp {
   }
 
   step(dt, { coats = [], time = 0 } = {}) {
-    this.events = []; this.move = null; this.t -= dt; this.clock = time;
+    this.move = null; this.t -= dt; this.clock = time;                  // (events are cleared by People once passed on: M1-F5)
     this.look(coats);
     this.think(dt, coats, time);
     this.checkSlip();

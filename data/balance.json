@@ -218,7 +218,7 @@
     }
   },
   "giggles": {
-    "_about": "Giggles: the game rewards being funny. Each funny moment adds Giggles to the team's meter; a full meter starts a team Sugar Rush (everyone faster, endless ammo) and empties it. A chain is signals that follow each other closely (each within chain.range metres and chain.gap seconds of the last ones); a Domino is one chain flooring domino.min or more grown-ups. Labels: data/giggles.json.",
+    "_about": "Giggles: the game rewards being funny. Each funny moment adds Giggles to the team's meter; a full meter starts a team Sugar Rush (everyone faster, endless ammo) and empties it. A chain is signals that follow each other closely (each within chain.range metres and chain.gap seconds of the last ones); a Domino is one chain flooring domino.min or more grown-ups. Small Giggles for single pranks (firstSoak: the first time each grown-up gets soaked in a job; burpKnock: a burp that floors someone; peelSlip: a grown-up slipping on your banana peel), so the meter fills about once a job for a playful team. FRIENDLY FIRE (soakFriend) counts once per friend per soakFriend.every seconds. Labels: data/giggles.json.",
     "meter": 100,
     "superSeconds": 10,
     "chain": {
@@ -237,9 +237,7 @@
         "distance": 10,
         "switchDistance": 6
       },
-      "soakFriend": {
-        "giggles": 10
-      },
+      "soakFriend": {"giggles": 10, "every": 20}, "firstSoak": {"giggles": 4}, "burpKnock": {"giggles": 5}, "peelSlip": {"giggles": 5},
       "mannequin": {
         "giggles": 20,
         "range": 2.5,

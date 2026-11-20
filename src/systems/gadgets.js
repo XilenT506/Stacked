@@ -34,9 +34,9 @@ export class Gadgets {
     G.cool = Math.max(0, G.cool - dt);
     const id = G.slots[G.i], d = this.def(id), busy = coat.hidden || coat.grabbedBy;
     if (busy || (G.ammo[id] <= 0 && !(coat.superT > 0))) { G.wasDown = fire; G.charge = 0; return; }     // a Giggle Rush: endless ammo
-    if (d.charge) {                               // hold to wind up, let go to fire
+    if (d.charge) {                               // hold to wind up, let go to fire (a quick tap still fires a weak shot)
       if (fire) G.charge += dt;
-      else if (G.wasDown && G.charge >= d.charge.min) { this.fire(coat, id, Math.min(1, G.charge / d.charge.full), aim); G.charge = 0; }
+      else if (G.wasDown) { this.fire(coat, id, Math.min(1, Math.max(G.charge, d.charge.min) / d.charge.full), aim); G.charge = 0; }
       else G.charge = 0;
     } else if (fire && G.cool <= 0 && (d.auto || !G.wasDown)) {
       this.fire(coat, id, 1, aim); G.cool = d.auto ? 1 / d.fireRate : d.cooldown ?? 0.3;
@@ -159,7 +159,7 @@ export class Gadgets {
     for (const it of this.items) {
       it.arm -= dt; if (it.arm > 0 || it.uses <= 0) continue;
       const T = it.def.onTrigger || {}, r = it.def.item.radius ?? 0.45, effect = T.effect, secs = effect ? this.data.effects[effect].seconds : 0;
-      const trigger = (who, vel) => { it.uses--; const dir = norm(vel.x, vel.z); this.send(T, it, it.id); this.events.push({ type: 'trigger', gadget: it.id, ...who, at: { x: it.x, z: it.z }, dir }); return dir; };
+      const trigger = (who, vel) => { it.uses--; const dir = norm(vel.x, vel.z); this.send(T, it, it.id); this.events.push({ type: 'trigger', gadget: it.id, ...who, by: it.owner, effect: T?.effect ?? null, at: { x: it.x, z: it.z }, dir }); return dir; };
       for (const g of this.people?.list || []) {
         if (it.uses <= 0) break;
         if (g.walker.flatSpeed < 0.5 || dist(g.feet, it) > r) continue;

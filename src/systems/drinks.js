@@ -12,17 +12,18 @@ export class Drinks {
     coat.drinks.shift();
     const f = coat.walker.feet;
     if (id === 'sugar_rush') coat.sugar = this.B.sugar_rush.seconds;
-    if (id === 'burp_blaster') this.burp(coat, coats);
-    this.events.push({ type: 'drink', id, coat, at: { x: f.x, z: f.z } });
+    const floored = id === 'burp_blaster' ? this.burp(coat, coats) : 0;
+    this.events.push({ type: 'drink', id, coat, at: { x: f.x, z: f.z }, floored });
     return id;
   }
 
   burp(coat, coats) {
+    let floored = 0;
     const S = this.B.burp_blaster, f = coat.walker.feet, away = (p, k) => { const dx = p.x - f.x, dz = p.z - f.z, d = Math.hypot(dx, dz) || 1; return { x: (dx / d) * k * (1 - d / S.radius * 0.5), z: (dz / d) * k * (1 - d / S.radius * 0.5) }; };
     for (const g of this.people.list) {
       const d = Math.hypot(g.feet.x - f.x, g.feet.z - f.z); if (d > S.radius) continue;
       const v = away(g.feet, S.knock); g.walker.vel.x += v.x; g.walker.vel.z += v.z;
-      if (d <= S.slipRadius) g.applyEffect('slipped', 2.4); else g.applyEffect('embarrassed', 1.5);
+      if (d <= S.slipRadius) { if (g.state !== 'slipped') floored++; g.applyEffect('slipped', 2.4); } else g.applyEffect('embarrassed', 1.5);
       g.struckFrom(f);
     }
     for (const c of coats) {
@@ -36,6 +37,7 @@ export class Drinks {
       const v = away(p, S.thingKnock), m = t.body.mass(); t.body.applyImpulse({ x: v.x * m, y: S.thingKnock * 0.4 * m, z: v.z * m }, true);
     }
     this.signals.emit({ type: 'noise', position: { x: f.x, y: 0, z: f.z }, range: S.noise, data: { event: 'burp' } });
+    return floored;
   }
 
   step(dt, coats) { for (const c of coats) if (c.sugar > 0) c.sugar = Math.max(0, c.sugar - dt); }

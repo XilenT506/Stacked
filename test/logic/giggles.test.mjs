@@ -38,7 +38,10 @@ test('a Domino from a real chain: one water balloon, and the grown-ups go over o
   assert.equal(dom.by, 'p1', 'the thrower gets the credit');
   assert.equal(dom.giggles, G.domino.giggles + G.domino.perExtra * (dom.n - G.domino.min));
   assert.ok(out.some((e) => e.label === `DOMINO ×${dom.n}!`), 'the game shouts it');
-  assert.equal(g.giggles.total, dom.giggles); assert.equal(g.giggles.meter, dom.giggles);
+  // (M1-F5: each grown-up the balloon soaks for the first time adds a small SPLOSH! too)
+  const soaks = g.giggles.moments.filter((m) => m.kind === 'firstSoak');
+  assert.ok(g.giggles.moments.every((m) => m.kind === 'domino' || m.kind === 'firstSoak'));
+  assert.equal(g.giggles.total, dom.giggles + soaks.length * G.firstSoak.giggles); assert.equal(g.giggles.meter, g.giggles.total);
   // the highlight reel: the moment kept the game state from before it (and a little after) ...
   assert.ok(dom.frames.length >= 8, `frames kept (${dom.frames.length})`);
   // ... and a Mirror can play a stored frame: the grown-ups lie on the floor in it

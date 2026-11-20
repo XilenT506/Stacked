@@ -1,0 +1,8 @@
+{
+  "_about": "What a grown-up shouts when a prank hits them (a bubble over them, plus one of their recorded voice lines). One list per effect; 'hit' is a plain bonk. Picked in turn, so the same line doesn't come twice in a row.",
+  "soaked": ["I'm SOAKED!", "My good cardigan!", "Is the roof leaking?!", "Who did that?!", "Ugh, it's in my shoes!"],
+  "blinded": ["My hat! I can't see!", "Who turned the lights off?!", "Argh! My eyes!"],
+  "slipped": ["Whoaaa!", "Not again!", "Mind the floor!"],
+  "embarrassed": ["Oh! How rude!", "Well, I never!", "Pardon ME!"],
+  "hit": ["Ow! Who threw that?", "Oi!", "Hey! Watch it!"]
+}
