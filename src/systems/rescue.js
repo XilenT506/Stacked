@@ -1,9 +1,10 @@
 // Caught and rescue. A grown-up who grabs your last kid carries you off to the Lost & Found cage in the
 // staff room (grabbed loose kids end up there too). A grown-up stands guard at it. A friend frees you by
 // luring the guard away (any noise will do) and opening the gate with E: everyone inside comes out, you
-// as one kid. Playing alone you have Spare Kids instead: a new kid walks in at the entrance and the
-// caught one waits in the cage for you to fetch (when Panic has locked the front doors, the Spare Kid comes
-// in through the back door instead). While a grown-up carries a caught player off, that player's coat rides
+// as one kid. Playing alone you have Spare Kids instead: a new kid walks in and the caught one waits in the
+// cage for you to fetch. The Spare Kid comes in safe (M1-F7): through the open door the fewest grown-ups
+// can see (the entrance, the café side exit or the back door; a door Closing Time or Panic has shut is
+// out), and grown-ups ignore it for its first few seconds (coat.safe). While a grown-up carries a caught player off, that player's coat rides
 // along with them, so their camera and HUD follow them to the cage. The job ends only when every player is caught at once.
 export class Rescue {
   constructor({ R, world, place, people, balance, solo = false, suspicion = null, closing = null }) {
@@ -39,9 +40,10 @@ export class Rescue {
     if (this.solo && this.spares > 0) {          // a Spare Kid takes over; the caught kid goes to the cage
       this.spares--;
       coat.loose.push(kid); g.carrying = kid;
-      const back = !!this.closing?.closed?.has('front') && this.D.spawns.backDoor, [x, z] = back ? this.D.spawns.backDoor[0] : this.D.spawns.players[0];
+      const door = this.spareDoor(g), [x, z] = door.at;
       this.respawn(coat, x, z, `spare${this.B.spareKids - this.spares}`);
-      this.events.push({ type: 'spareKid', coat, left: this.spares, n: this.B.spareKids - this.spares, of: this.B.spareKids, back: !!back, by: g });
+      coat.safe = this.B.spareSafe ?? 0;
+      this.events.push({ type: 'spareKid', coat, left: this.spares, n: this.B.spareKids - this.spares, of: this.B.spareKids, door: door.name, frontLocked: !!this.closing?.closed?.has('front'), by: g });
     } else {                                        // the whole player is carried off
       kid.coat = coat; g.carrying = kid;
       coat.caught = g; coat.grabbedBy = g; coat.mods = { frozen: true }; coat.walker.collider.setEnabled(false);
@@ -49,6 +51,19 @@ export class Rescue {
     }
     g.set('carry'); g.goal = { x: this.drop[0], z: this.drop[1] };
     this.checkAll();
+  }
+
+  // the open door that the fewest grown-ups can see (then the one furthest from them); the first in the list wins a tie
+  spareDoor(except = null) {
+    const shut = this.closing?.closed ?? new Set(), list = this.B.spareDoors ?? [{ spawn: 'players', name: 'at the entrance' }];
+    let best = null;
+    for (const d of list) {
+      const at = this.D.spawns[d.spawn]?.[0]; if (!at || (d.section && shut.has(d.section))) continue;
+      const p = { x: at[0], z: at[1] }, eyes = (this.people?.list ?? []).filter((g) => g !== except && !g.carrying && !g.warden && (g.type.chases || g.type.staff));
+      const seen = eyes.filter((g) => g.sees(p)).length, near = Math.min(99, ...eyes.map((g) => Math.hypot(g.feet.x - p.x, g.feet.z - p.z)));
+      if (!best || seen < best.seen || (seen === best.seen && near > best.near + 4)) best = { at, name: d.name, seen, near };
+    }
+    return best ?? { at: this.D.spawns.players[0], name: 'at the entrance' };
   }
 
   // the grown-up got there: shut them in
@@ -76,7 +91,8 @@ export class Rescue {
   }
 
   // E next to the closed gate: anyone outside the cage can open it (if the guard sees you, he knows)
-  canOpen(coat) { if (this.open || coat.inCage || coat.caught) return false; const f = coat.walker.feet, g = this.gateAt; return Math.hypot(f.x - g.x, f.z - g.z) <= this.B.gateReach; }
+  get occupied() { return (this.allCoats ?? this.coats).some((c) => c.inCage || c.loose?.some((k) => k.caged)); }
+  canOpen(coat) { if (this.open || coat.inCage || coat.caught || !this.occupied) return false; const f = coat.walker.feet, g = this.gateAt; return Math.hypot(f.x - g.x, f.z - g.z) <= this.B.gateReach; }
   openBy(coat) {
     if (!this.canOpen(coat)) return false;
     this.setGate(true);

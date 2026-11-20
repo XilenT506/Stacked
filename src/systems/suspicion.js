@@ -7,6 +7,8 @@
 // Every rise of a "?" has a reason (run, wobbly, spill, ...; the words are in data/why.json): when a meter
 // starts to rise, or rises for a new reason, a 'why' event goes out (a bubble over the grown-up), and a
 // bust remembers its reason so the Heat announcement can say what gave you away.
+// After a grown-up grabs a kid the shop takes a breath (M1-F7): calm(seconds) stops every "?" filling for a
+// moment, and coolDown() drops the Heat one level. Shouts about kids add Heat at most once every kidShoutEvery s.
 const IGNORE = new Set(['slipped', 'stunned', 'carry', 'grab']);
 
 // the biggest of the fills is the reason the "?" is going up
@@ -15,7 +17,7 @@ export function mainReason(parts) { let best = null, bv = 0; for (const [k, v] o
 export class Suspicion {
   constructor(balance) {
     this.S = balance.suspicion; this.H = balance.heat;
-    this.points = 0; this.level = 0; this.events = []; this.bumps = new Map(); this.time = 0; this.why = new Map(); this.said = new Map();
+    this.points = 0; this.level = 0; this.calmUntil = -1; this.lastShout = -1e9; this.events = []; this.bumps = new Map(); this.time = 0; this.why = new Map(); this.said = new Map();
     this.onLevel = null;          // called with the new Heat level
   }
 
@@ -30,6 +32,17 @@ export class Suspicion {
     if (lvl > this.level) { this.level = lvl; this.events.push({ type: 'heat', level: lvl, why, who }); this.onLevel?.(lvl); }
   }
 
+  get calming() { return this.time < this.calmUntil; }
+  calm(seconds) { this.calmUntil = Math.max(this.calmUntil, this.time + seconds); }
+
+  // the Heat goes down one level (points back to the start of the level below)
+  coolDown(why = 'breather') {
+    if (this.level <= 0) return false;
+    this.level--; this.points = this.level ? this.H.thresholds[this.level - 1] : 0;
+    this.events.push({ type: 'heat', level: this.level, why, down: true }); this.onLevel?.(this.level);
+    return true;
+  }
+
   // something everyone watching notices at once (a throw, an unstack): add to every meter that can see it
   instant(people, coat, amount, why = null) {
     if (coat.count <= 1) return;
@@ -37,6 +50,7 @@ export class Suspicion {
   }
 
   bump(g, coat, amount, why = null) {
+    if (this.calming || coat.safe > 0) return;
     const was = g.sus.get(coat) ?? 0, v = Math.min(1, was + amount);
     g.sus.set(coat, v);
     if (why) this.noticed(g, coat, why, was);
@@ -65,7 +79,7 @@ export class Suspicion {
   step(dt, people, coats) {
     const S = this.S; this.time += dt;
     // shouts about kids seen add a little Heat too
-    for (const e of people.events) if (e.type === 'kidShout') this.addHeat(this.H.kidShout, 'kids', e.who);
+    for (const e of people.events) if (e.type === 'kidShout' && this.time - this.lastShout >= (this.H.kidShoutEvery ?? 0)) { this.lastShout = this.time; this.addHeat(this.H.kidShout, 'kids', e.who); }
     for (const c of coats) {
       const cf = c.walker.feet;
       // what this coat did this step that anyone watching notices at once
@@ -85,6 +99,7 @@ export class Suspicion {
           this.events.push({ type: 'bump', who: g, coat: c });
         }
         if (c.count <= 1 || g.hostile.has(c) || c.inCage || c.caught) continue;        // a lone kid is not suspicious, it is obvious (grown-up.js)
+        if (this.calming) { g.sus.set(c, Math.max(0, (g.sus.get(c) ?? 0) - S.drainUnseen * dt)); continue; }     // the shop is taking a breath
         let v = g.sus.get(c) ?? 0;
         const seen = !c.hidden && !c.grabbedBy && g.sees(cf);
         if (seen) {

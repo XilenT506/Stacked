@@ -15,7 +15,7 @@ export function snapshot(game, events = [], { withScribbles = true } = {}) {
     const c = p.coat, f = c.walker.feet, G = c.gadgets;
     return {
       id: p.id, s: c.slot, x: r2(f.x), y: r2(f.y), z: r2(f.z), yaw: r2(c.walker.yaw), vx: r2(c.walker.vel.x), vz: r2(c.walker.vel.z),
-      st: c.stack, wb: r2(c.wobble), an: c.actingNatural ? 1 : 0, mo: c.mapOpen ? 1 : 0, sg: r2(c.sugar ?? 0), sp: c.superT > 0 ? 1 : 0, hd: c.hidden?.mode ?? null, gr: c.grabbedBy ? 1 : 0, cg: c.inCage ? 1 : 0, gate: c.atGate ? 1 : 0,
+      st: c.stack, wb: r2(c.wobble), an: c.actingNatural ? 1 : 0, mo: c.mapOpen ? 1 : 0, sg: r2(c.sugar ?? 0), sp: c.superT > 0 ? 1 : 0, hd: c.hidden?.mode ?? null, gr: c.grabbedBy ? 1 : 0, cg: c.inCage ? 1 : 0, gate: c.atGate ? 1 : 0, sf: c.safe > 0 ? 1 : 0,
       pile: c.pile ? [r2(c.pile.x), r2(c.pile.z), r2(c.pile.yaw), c.pile.kids] : null,
       loose: c.loose.map((k) => [k.id, r2(k.x), r2(k.z), r2(k.vx), r2(k.vz), (k.waiting ? 1 : 0) | (k.caged ? 2 : 0) | (k.carriedBy ? 4 : 0)]),
       eff: { blinded: r2(c.effects?.blinded ?? 0), soaked: r2(c.effects?.soaked ?? 0) },
@@ -91,7 +91,7 @@ export class MCoat {
     w.to = { x: s.x, y: s.y, z: s.z }; w.toYaw = s.yaw; w.vel = { x: s.vx, z: s.vz };
     if (this.first) { Object.assign(w, w.to); w.yaw = s.yaw; this.first = false; }
     this.stack = s.st; w.height = this.state.height; this.wobble = s.wb; this.actingNatural = !!s.an;
-    this.mapOpen = !!s.mo; this.sugar = s.sg ?? 0; this.superT = s.sp ? 1 : 0; this.hidden = s.hd ? { mode: s.hd } : null; this.grabbedBy = s.gr ? true : null; this.inCage = !!s.cg; this.atGate = !!s.gate;
+    this.mapOpen = !!s.mo; this.sugar = s.sg ?? 0; this.superT = s.sp ? 1 : 0; this.hidden = s.hd ? { mode: s.hd } : null; this.grabbedBy = s.gr ? true : null; this.inCage = !!s.cg; this.atGate = !!s.gate; this.safe = s.sf ? 1 : 0;
     this.pile = s.pile ? { x: s.pile[0], z: s.pile[1], yaw: s.pile[2], kids: s.pile[3] } : null;
     const old = new Map(this.loose.map((k) => [k.id, k]));
     this.loose = s.loose.map(([id, x, z, vx, vz, f]) => { const k = old.get(id) || { id, x, z }; k.to = { x, z }; k.vx = vx; k.vz = vz; k.waiting = !!(f & 1); k.caged = !!(f & 2); k.carriedBy = f & 4 ? true : null; return k; });

@@ -122,9 +122,10 @@
   },
 
   "spawns": {
-    "_about": "players: where coats start; backDoor: where a Spare Kid comes in when Panic has locked the front doors (the yard, just outside the back door); the rest: where the grown-ups start",
+    "_about": "players: where coats start; backDoor, sideDoor: other doors a Spare Kid can come in by (the yard outside the back door, the car park outside the caf\u00e9 side exit); the rest: where the grown-ups start",
     "players": [[-15.5, 15], [-13.5, 15], [-15.5, 17], [-13.5, 17]],
     "backDoor": [[6, -19.6]],
+    "sideDoor": [[15.9, 13.8]],
     "guard": [[-12, 10.2]],
     "cashiers": [[-11.2, 7.5], [-7.2, 7.5], [-3.2, 7.5], [0.8, 7.5]],
     "shoppers": [[-15.5, -3], [-11.5, 2], [-7.5, -4], [0.5, 1], [4.5, -1], [12, 4], [-4, 5], [-10, -8]],
@@ -195,7 +196,7 @@
 
   "events": {
     "_about": "named spots: where timed events and tannoy announcements send people",
-    "freeSamples": [13, -3], "cleanUp": [-3.5, 0], "delivery": [6, -19.5], "tannoy": [-9, 10.8],
+    "freeSamples": [16.4, -0.6], "cleanUp": [-3.5, 0], "delivery": [6, -19.5], "tannoy": [-9, 10.8],
     "carpark": [-2, 16], "aisle1": [-15.5, -1], "staffRoom": [-8, -12], "cafe": [14.4, 10.6], "lostAndFound": [-6, -15]
   },
 

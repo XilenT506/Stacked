@@ -147,7 +147,9 @@
       2,
       5
     ],
-    "shoutCooldown": 10
+    "shoutCooldown": 10,
+    "personalSpace": 1.0,
+    "stepAside": 1.4
   },
   "models": {
     "_about": "height in metres. voice: notice 'Hm?', children 'THOSE ARE CHILDREN!', gotYou 'Got you!', slip, food, smell, inspect, giveUp.",

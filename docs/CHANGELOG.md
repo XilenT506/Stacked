@@ -2,6 +2,31 @@
 
 Newest first. One entry per build session (one prompt from the Build guide in the doc "STACKED – Game Plan").
 
+## 2026-11-20 · Round 2 fix 1 of 5 (M1-F7): Caught, but not out
+
+- **The shop takes a breath after a grab.** When a grown-up grabs a kid, for 6 seconds nobody else starts a chase or a shout and no "?" fills. Everyone not carrying a kid gives up and forgets who they busted (their "?" drops to 0.5 at most). Heat drops one level, at most once every 20 seconds, with "Phew. The grown-ups calm down a little."
+- **Kid shouts:** "THOSE ARE CHILDREN!" from many grown-ups at once used to add 0.25 Heat each, which is how one burp could reach Panic. Now they add Heat at most once every 5 seconds.
+- **Loose kids get a 2-second head start** before a grown-up can grab them (they still go after them; they just can't grab yet).
+- **Spare Kids come in safe:** through the open door the fewest grown-ups can see (the entrance, the new café side exit spawn or the back door; doors shut by Panic or Closing Time are out). Grown-ups ignore them for 5 seconds; the kid twinkles, the hint says "Just arrived: the grown-ups haven't noticed you yet", and the message names the door.
+- **R next to a grown-up who can see you** (one who could catch a lone kid, within 8 m) only warns ("A grown-up is watching! R again to unstack anyway"); R again within 3 seconds unstacks.
+- **Crowds never pin a coat:** a grown-up standing about or strolling steps sideways out of a coat's way when it walks into them (personal space 1 m). The free samples crowd gathers at the east side of the bakery (16.4, -0.6) instead of in front of the counter (13, -3).
+- **A wipe after the quota is met** ends the job but keeps the banked sweets and the run: on to Del's, and the results card says "You had already met the quota, so the run goes on."
+- **Solo messages:** never "A friend can get you out". Caught with no Spare Kids left says "No Spare Kids left: that ends this job." The "E: open the Lost & Found cage" hint shows only when someone is in the cage.
+- **Before and after numbers** (`data/balance.json`, `data/grownups.json`):
+
+  | Number | Before | After |
+  | --- | --- | --- |
+  | `rescue.breather` (seconds / "?" after / Heat drop every) | none | 6 s / 0.5 / 20 s |
+  | `heat.kidShoutEvery` | every shout counts | 5 s |
+  | `looseKid.headStart` | 0 s | 2 s |
+  | `rescue.spareSafe` | 0 s | 5 s |
+  | `unstack.warnDistance` / `warnSeconds` | none | 8 m / 3 s |
+  | grown-ups `timing.personalSpace` / `stepAside` | none | 1 m / ×1.4 walking speed |
+
+- **The same mistake, before and after:** a bot picks up the giant lolly, runs along the tills to the entrance, then walks back in like a player would. Old code: 2 busts, Heat up to Panic, 4 kids grabbed, both Spare Kids used. New code: 1 bust, Heat no higher than Twitchy, no Spare Kid used, still playing after 60 seconds.
+- Tests: new `test/logic/notout.test.mjs` (the lolly run, the breather, the head start, a Spare Kid not grabbed in its first 5 seconds, the R warning, no "friend" in solo messages, the quota-met wipe). Changed: the Spare Kid door test (any open door, never the locked front), the loose-kid grab test (no head start there), and the bot job test (the bot stops exactly at its pickup spots, because E still picks the nearest loot; that is round 2 fix 5).
+- New screenshots `f7_spare_kid.png` and `f7_quota_met_wipe.png`.
+
 ## 2026-11-20 · Task 17b: M1 gate, round 2
 
 - **Gate failed again:** average score 6.0 (rule: 7 or more) and 0 of 3 would play another round (rule: at least 2). Up from 5.0 in round 1.

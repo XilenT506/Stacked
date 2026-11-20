@@ -35,6 +35,13 @@ export class People {
     for (const g of this.list) { g.step(dt, { coats, time: this.time }); for (const e of g.events) this.events.push({ ...e, who: g }); g.events = []; }   // (including what happened to them between steps: a burp, a soak)
   }
 
+  // the shop takes a breath (after a grab): for a few seconds nobody starts a chase or a shout, and anyone
+  // not carrying a kid gives up and forgets who they busted
+  calm(seconds, susAfter) {
+    this.ctx.calmUntil = Math.max(this.ctx.calmUntil ?? -1, this.time + seconds);
+    for (const g of this.list) g.calmDown(susAfter);
+  }
+
   // events since the last call (the frame loop plays voices from these)
   take() { const e = this.events; this.events = []; return e; }
   byType(t) { return this.list.filter((g) => g.typeName === t); }

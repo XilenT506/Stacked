@@ -78,16 +78,22 @@ test('caught: you ride along to the cage, and every screen is told who', () => {
   assert.equal(caught.others, "Player 2's coat was caught! They're off to the Lost & Found in the staff room.");
 });
 
-test('a Spare Kid comes in through the back door when Panic has locked the front', () => {
+test('a Spare Kid never comes in by a door Panic has locked', () => {
   const g = new Game(R, DATA); g.addPlayer('p1'); g.take();
   const c = g.players[0].coat, guard = g.people.byType('guard')[0];
   g.closing.lock('front');
   c.stack = [c.stack[0]]; c.applyHeight();
   g.rescue.caught(c, guard); g.present();
-  const f = c.walker.feet, [bx, bz] = DATA.place.spawns.backDoor[0];
-  assert.ok(Math.hypot(f.x - bx, f.z - bz) < 0.3, 'at the back door');
+  const f = c.walker.feet, at = (k) => { const [x, z] = DATA.place.spawns[k][0]; return Math.hypot(f.x - x, f.z - z) < 0.3; };
+  assert.ok(!at('players') && (at('sideDoor') || at('backDoor')), 'at the side exit or the back door, not the locked front');
   const msg = g.take().find((e) => e.k === 'announce' && e.to === 'p1');
-  assert.equal(msg.text, "You're Spare Kid 1 of 2, coming in through the back door (the front is locked). Your old kid waits in the Lost & Found in the staff room.");
+  assert.match(msg.text, /^You're Spare Kid 1 of 2, coming in (through the café side exit|through the back door) \(the front is locked\)\. Grown-ups won't notice you for a few seconds\./);
+  // with the side exit shut too (Closing Time), only the back door is left
+  const h = new Game(R, DATA); h.addPlayer('p1'); const d = h.players[0].coat;
+  h.closing.lock('front'); h.closing.lock('produce'); d.stack = [d.stack[0]]; d.applyHeight();
+  h.rescue.caught(d, h.people.byType('guard')[0]);
+  const [bx, bz] = DATA.place.spawns.backDoor[0];
+  assert.ok(Math.hypot(d.walker.feet.x - bx, d.walker.feet.z - bz) < 0.3, 'at the back door');
 });
 
 test('the cage says how to lure the guard away', () => {

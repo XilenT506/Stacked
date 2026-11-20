@@ -50,10 +50,14 @@
     "seconds": 10,
     "speed": 2.6,
     "pickupRadius": 0.75,
-    "spillSpeed": 3.5
+    "spillSpeed": 3.5,
+    "headStart": 2
   },
   "unstack": {
-    "restackRadius": 1.3
+    "_about": "warnDistance/warnSeconds: R with a grown-up watching within warnDistance m only warns (hint line); R again within warnSeconds unstacks anyway",
+    "restackRadius": 1.3,
+    "warnDistance": 8,
+    "warnSeconds": 3
   },
   "things": {
     "_about": "how things behave on the mess and in your hands",
@@ -132,7 +136,8 @@
     "caretakerAt": 3,
     "lockFrontAt": 3,
     "sameIncident": 6,
-    "bustSameIncident": 0.1
+    "bustSameIncident": 0.1,
+    "kidShoutEvery": 5
   },
   "closingTime": {
     "_about": "seconds into the job, then one section every sectionEvery seconds, with a warning first",
@@ -164,11 +169,23 @@
     "gateWarnSeconds": 6
   },
   "rescue": {
-    "_about": "solo players get spareKids per run instead of friends; a Spare Kid comes in at the player spawn as one kid. gateReach = how close you must be to open the cage.",
+    "_about": "solo players get spareKids per run instead of friends; a Spare Kid comes in as one kid through the open door (spareDoors: spawn list in the place file, Closing Time section that shuts it) that the fewest grown-ups can see, and grown-ups ignore it for spareSafe seconds. gateReach = how close you must be to open the cage.",
     "spareKids": 2,
     "gateReach": 1.3,
     "warden": "guard",
-    "openSeen": 1.0
+    "openSeen": 1.0,
+    "spareSafe": 5,
+    "spareDoors": [
+      { "spawn": "players", "section": "front", "name": "at the entrance" },
+      { "spawn": "sideDoor", "section": "produce", "name": "through the caf\u00e9 side exit" },
+      { "spawn": "backDoor", "section": "back", "name": "through the back door" }
+    ],
+    "breather": {
+      "_about": "after a grown-up grabs a kid the shop takes a breath: for seconds, nobody else starts a chase or a shout and no '?' fills; everyone not carrying a kid forgets who they busted (their '?' drops to susAfter at most); Heat drops one level, at most once every heatDropEvery seconds",
+      "seconds": 6,
+      "susAfter": 0.5,
+      "heatDropEvery": 20
+    }
   },
   "shop": {
     "_about": "Dodgy Del's stall in the alley, between jobs. Sweets banked in a job (with the Clean Job / Chaos bonus) go in the team's sweet jar; Del takes them. Prices in sweets. Buying a gadget you already have doubles up its ammo. A run ends when everyone is caught: the jar empties and everyone starts again with the starter gadgets.",

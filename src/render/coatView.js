@@ -148,7 +148,7 @@ export class CoatView {
     if (this.burpB) { this.burpBubble -= dt; this.burpB.position.set(0, c.state.height + 1.2, 0); if (this.burpBubble <= 0) { this.root.remove(this.burpB); this.burpB = null; } }
     this.pop = Math.max(0, this.pop - dt * 3);
     this.root.position.set(f.x, f.y, f.z);
-    this.root.visible = c.hidden?.mode !== 'inside' && !c.grabbedBy;     // in a box, or held up by a grown-up (drawn in their arms)                    // climbed into a box: only the box shows
+    this.root.visible = c.hidden?.mode !== 'inside' && !c.grabbedBy && !(c.safe > 0 && Math.floor(this.t * 10) % 3 === 0);   // a Spare Kid who just walked in twinkles     // in a box, or held up by a grown-up (drawn in their arms)                    // climbed into a box: only the box shows
     this.root.rotation.y = w.yaw;
     const n = c.count;
     updateMapSheet(this.sheet, dt, !!c.mapOpen && n >= 1, n === 1 ? 1.1 : c.state.height);

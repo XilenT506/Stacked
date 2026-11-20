@@ -32,6 +32,7 @@ export class Walker {
 
   // move: world-space {x, z} (length 0..1); run: bool; face: world {x, z} direction or null
   step(dt, move, run, face) {
+    this.wish = move;                                                  // where it is trying to go (even when blocked)
     const top = this.speed * (run ? this.runMul : 1), want = { x: move.x * top, z: move.z * top };
     const k = Math.min(1, ACCEL * this.grip * dt / Math.max(1, top));
     this.vel.x += (want.x - this.vel.x) * k; this.vel.z += (want.z - this.vel.z) * k;

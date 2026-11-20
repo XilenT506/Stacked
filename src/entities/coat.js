@@ -65,7 +65,7 @@ export class Coat {
   spill() {
     if (this.count <= 1) { this.stunned = 0.8; this.wobble = this.B.wobble.afterSpill; this.events.push({ type: 'stumble' }); return null; }
     const id = this.stack.pop(), p = this.walker.position, a = (kidSeq++ * 2.4) % (Math.PI * 2);
-    const kid = { id, x: p.x + Math.sin(a) * 1.1, z: p.z + Math.cos(a) * 1.1, vx: Math.sin(a) * this.B.looseKid.spillSpeed, vz: Math.cos(a) * this.B.looseKid.spillSpeed, t: this.B.looseKid.seconds, heading: a, waiting: false, grace: 1 };   // can't be picked up in the first second
+    const kid = { id, x: p.x + Math.sin(a) * 1.1, z: p.z + Math.cos(a) * 1.1, vx: Math.sin(a) * this.B.looseKid.spillSpeed, vz: Math.cos(a) * this.B.looseKid.spillSpeed, t: this.B.looseKid.seconds, heading: a, waiting: false, grace: 1, free: this.B.looseKid.headStart ?? 0 };   // can't be picked up in the first second; grown-ups can't grab it for headStart s
     this.loose.push(kid);
     this.wobble = this.B.wobble.afterSpill;
     this.applyHeight();
@@ -104,6 +104,7 @@ export class Coat {
 
   step(dt, move, run, face, actNatural = false) {
     this.time += dt; this.events = [];
+    if (this.safe > 0) this.safe = Math.max(0, this.safe - dt);       // a Spare Kid who just walked in: grown-ups ignore it
     if (this.ownMess) this.mess.step(dt);
     const B = this.B.wobble, M = this.mods, slip = this.onSlippery();
     const sugar = this.sugar > 0 ? this.B.drinks?.sugar_rush : null;          // a Sugar Rush drink: faster, wobblier
@@ -144,7 +145,7 @@ export class Coat {
   stepLoose(dt) {
     const p = this.walker.feet, L = this.B.looseKid;
     for (const k of this.loose) {
-      k.grace = Math.max(0, k.grace - dt);
+      k.grace = Math.max(0, k.grace - dt); if (k.free > 0) k.free = Math.max(0, k.free - dt);
       if (k.carriedBy || k.caged) continue;                             // a grown-up has got this one, or it is in the cage
       if (!k.waiting) {
         k.t -= dt;

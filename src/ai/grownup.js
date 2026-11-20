@@ -3,6 +3,9 @@
 // chase, search, carry, grab, slipped, stunned. Nothing is scripted: they follow their routine until a
 // signal or something they see changes their mind.
 //   step(dt, { coats, time }) before world.step(); this.events says what happened (voices, sounds, tests).
+// Fair catching (M1-F7): while the shop takes a breath (ctx.calmUntil) nobody starts a chase or a shout;
+// a kid who just fell out (kid.free) or a Spare Kid who just walked in (coat.safe) is left alone for a moment;
+// and a grown-up who is just standing about or strolling steps aside when a coat walks into their space.
 import { Walker } from '../entities/walker.js';
 
 const DEG = Math.PI / 180;
@@ -79,6 +82,7 @@ export class GrownUp {
     this.look(coats);
     this.think(dt, coats, time);
     this.checkSlip();
+    this.makeRoom(coats);
     for (const k of Object.keys(this.effects)) this.effects[k] = Math.max(0, this.effects[k] - dt);
     // soaked shoes: a sharp turn and they go over
     if (this.effects.soaked > 0 && this.state !== 'slipped' && this.walker.turnRate > 3 && this.walker.flatSpeed > 0.8) { this.effects.soaked = 0; this.slip('soaked'); }
@@ -91,13 +95,15 @@ export class GrownUp {
   // eyes: a kid on their own (no disguise), a loose kid, or a coat posing among the mannequins
   look(coats) {
     if (BUSY.has(this.state) && this.state !== 'chase') return;
+    if (this.clock < (this.ctx.calmUntil ?? -1) && this.state !== 'chase') return;     // the shop is taking a breath
     for (const c of coats) {
+      if (c.safe > 0) continue;                                         // a Spare Kid who just walked in
       const kids = [];
       // a lone kid, or a coat this grown-up knows is not a grown-up (the Caretaker treats every coat that way)
       if (c.caught || c.inCage) continue;                               // already on their way to (or in) the cage
       const knows = this.hostile.has(c) || this.type.hunts;
       if ((c.count === 1 || knows) && !c.hidden && !c.grabbedBy) kids.push({ coat: c, kid: null, p: c.walker.feet });
-      for (const k of c.loose) if (!k.carriedBy && !k.caged) kids.push({ coat: c, kid: k, p: { x: k.x, z: k.z } });
+      for (const k of c.loose) if (!k.carriedBy && !k.caged && !(k.free > 0)) kids.push({ coat: c, kid: k, p: { x: k.x, z: k.z } });
       for (const k of kids) {
         if (!this.sees(k.p)) continue;
         if (this.state === 'chase') { if (this.target.kid === k.kid && this.target.coat === k.coat) { this.lastSeen = { ...k.p }; this.lostT = 0; } continue; }
@@ -189,7 +195,8 @@ export class GrownUp {
     }
     const goalP = this.lostT < 0.2 ? live : this.lastSeen;
     this.goal = { x: goalP.x, z: goalP.z };
-    if (Math.hypot(live.x - f.x, live.z - f.z) < (this.type.grabRadius ?? 0.8)) return this.grab(tg);
+    const fair = tg.kid ? !(tg.kid.free > 0) : !(tg.coat.safe > 0);         // a head start for a kid who just fell out
+    if (fair && Math.hypot(live.x - f.x, live.z - f.z) < (this.type.grabRadius ?? 0.8)) return this.grab(tg);
     this.walkTo(dt, this.type.run);
   }
 
@@ -212,6 +219,32 @@ export class GrownUp {
       this.events.push({ type: 'grabCoat' });
     }
     this.target = null;
+  }
+
+  // the shop takes a breath after a grab: anyone not carrying a kid gives up the chase and forgets who they
+  // busted (their "?" drops to susAfter at most)
+  calmDown(susAfter) {
+    if (this.carrying || this.warden) return;
+    this.hostile.clear(); for (const [c, v] of this.sus) this.sus.set(c, Math.min(v, susAfter));
+    if (this.state === 'chase' || this.state === 'search' || this.state === 'shout') { this.target = null; this.say('giveUp'); this.back(); }
+  }
+
+  // personal space: someone just standing about or strolling steps aside when a coat walks into them, so a
+  // crowd never pins a coat (staff behind a till stay put; anyone chasing or carrying doesn't care)
+  makeRoom(coats) {
+    const T = this.T; if (!T.personalSpace || this.type.stays || BUSY.has(this.state) || this.state === 'search') return;
+    const f = this.feet;
+    for (const c of coats) {
+      if (c.caught || c.inCage) continue;
+      const p = c.walker.feet, dx = f.x - p.x, dz = f.z - p.z, d = Math.hypot(dx, dz);
+      const v = c.walker.wish ?? { x: 0, z: 0 };                         // where the coat is trying to go
+      if (d >= T.personalSpace || d < 1e-3 || Math.hypot(v.x, v.z) < 0.2 || v.x * dx + v.z * dz < 0) continue;
+      // out of the way: to the side of the way the coat is walking (only a little further along it)
+      const side = Math.sign(dx * v.z - dz * v.x) || 1, vl = Math.hypot(v.x, v.z);
+      const ax = side * v.z / vl + dx / d * 0.25, az = -side * v.x / vl + dz / d * 0.25, n = Math.hypot(ax, az) || 1;
+      this.move = { x: ax / n, z: az / n }; this.walker.speed = this.type.walk * T.stepAside;
+      return;
+    }
   }
 
   // the "?" meter is full: THAT'S NOT A GROWN-UP!

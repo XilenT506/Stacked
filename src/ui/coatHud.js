@@ -82,7 +82,8 @@ export class CoatHud {
     const el = this.resEl ??= document.getElementById('results');
     if (!r) { el.style.display = 'none'; return; }
     if (el.style.display === 'block') return;
-    const next = r.why === 'all caught' ? 'The run is over: a new run starts in a moment.' : `Next: Dodgy Del's stall in the alley. Sweet jar: <b>${jar ?? r.total}</b>`;
+    const over = r.why === 'all caught' && !r.met;          // a wipe after the quota was met keeps the run going
+    const next = over ? 'The run is over: a new run starts in a moment.' : `${r.why === 'all caught' ? 'You had already met the quota, so the run goes on. ' : ''}Next: Dodgy Del's stall in the alley. Sweet jar: <b>${jar ?? r.total}</b>`;
     el.style.display = 'block';
     el.innerHTML = `<h2>${r.why === 'got away' ? 'You got away!' : r.why === 'all caught' ? 'Everyone got caught!' : 'Shut in at Closing Time!'}</h2>
       <ul>${r.items.map((i) => `<li>${i.name}<b>${i.value}${i.value < i.base ? ` <s>${i.base}</s>` : ''}</b></li>`).join('') || '<li>Nothing at all...</li>'}</ul>

@@ -324,7 +324,7 @@
     },
     "rescue:spareKid": {
       "sound": "boing",
-      "fx": "puff"
+      "fx": "sparkle"
     },
     "rescue:gateOpen": {
       "sound": "switch_click",

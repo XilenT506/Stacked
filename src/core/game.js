@@ -131,7 +131,8 @@ export class Game {
     if (this.phase === 'shop') return this.stepShop();
     this.time += dt;
     // after the results: Del's shop, or (everyone caught) a fresh run
-    if (this.job.over && (this.after += dt) >= B.shop.resultsSeconds) return this.job.why === 'all caught' ? this.newRun() : this.openShop();
+    // (a wipe after the quota was met keeps the banked sweets and the run: M1-F7)
+    if (this.job.over && (this.after += dt) >= B.shop.resultsSeconds) return this.job.why === 'all caught' && !this.job.result?.met ? this.newRun() : this.openShop();
     this.rescue.step(coats);
     this.people.step(dt, coats); this.rescue.follow();
     this.giggles.step(dt, { coats, people: this.people });
@@ -141,7 +142,11 @@ export class Game {
       // with the map open the coat stands still behind a big sheet of paper
       const wasMap = c.mapOpen; c.mapOpen = !!I.map && !c.inCage && !c.hidden;
       if (c.mapOpen && !wasMap) this.fx('act:map', c, p.id);
-      if (this.pressed(p, 'stack')) { c.toggleStack(); p.events.push(...c.events); c.events = []; }      // (the coat's step clears its events)
+      // R next to a grown-up who can see you only warns first; R again (within warnSeconds) unstacks anyway
+      if (this.pressed(p, 'stack')) {
+        if (!c.pile && c.count > 1 && this.watched(c) && !(p.stackWarn > this.job.time)) { p.stackWarn = this.job.time + (B.unstack.warnSeconds ?? 3); this.emit({ k: 'sound', name: 'gasp' }); }
+        else { p.stackWarn = 0; c.toggleStack(); p.events.push(...c.events); c.events = []; }      // (the coat's step clears its events)
+      }
       let grab = this.pressed(p, 'grab');
       // the getaway: with kids still inside, the first E warns; E again leaves them (to the Lost & Found)
       if (grab && c.atGate && !this.job.over) {
@@ -173,6 +178,20 @@ export class Game {
     for (const p of this.players) { const c = p.coat; p.events.push(...c.events.slice(p.evN ?? 0)); c.events = []; c.checkHits(this.world); p.events.push(...c.events); }
     this.things.step(dt); this.signals.flush(dt); this.mess.step(dt); this.jobEvents.step(dt);
     this.present();
+  }
+
+  // a grown-up who could catch a lone kid is close and can see this coat
+  watched(c) {
+    const f = c.walker.feet, D = this.D.balance.unstack.warnDistance ?? 8;
+    return this.people.list.some((g) => (g.type.chases || g.type.staff) && !g.carrying && Math.hypot(g.feet.x - f.x, g.feet.z - f.z) < D && g.sees(f));
+  }
+
+  // a grown-up grabbed a kid: the shop takes a breath (nobody else starts a chase for a few seconds, the ones
+  // who busted you forget it) and the Heat drops one level, at most once every heatDropEvery seconds
+  breather() {
+    const b = this.D.balance.rescue.breather; if (!b) return;
+    this.people.calm(b.seconds, b.susAfter); this.sus.calm(b.seconds);
+    if (this.time - (this.lastDrop ?? -1e9) >= b.heatDropEvery && this.sus.coolDown()) this.lastDrop = this.time;
   }
 
   // kids still in the shop: every kid of a coat that is not at the gate, and every loose kid (not the ones
@@ -220,6 +239,7 @@ export class Game {
     const S = this.D.balance;
     for (const p of this.players) { for (const e of p.events) if (['spill', 'hit', 'restack', 'unstack', 'stumble', 'effect'].includes(e.type)) { this.emit({ k: 'coat', pid: p.id, type: e.type }); this.fx('coat:' + e.type, p.coat, p.id); } p.events = []; }
     for (const e of this.people.take()) {
+      if (e.type === 'grabKid' || e.type === 'grabCoat') this.breather();
       if (e.type === 'slip') this.giggles.floored(e.who, this.coats);
       if (GROWNUP.has(e.type)) this.fx('grownup:' + (e.type === 'grabCoat' || e.type === 'grabKid' ? 'grab' : e.type), e.who.feet);
       if (e.type === 'say' && e.clip) this.emit({ k: 'say', who: e.who.id, clip: e.clip, x: e.who.feet.x, z: e.who.feet.z });
@@ -231,7 +251,8 @@ export class Game {
       if (e.type === 'why' && W?.reasons[e.why]) this.emit({ k: 'shout', who: e.who.id, text: W.reasons[e.why].bubble, sec: 2.2 });
       if (e.type === 'bust') { this.emit({ k: 'shout', who: e.who.id, text: "THAT'S NOT A GROWN-UP!" }); this.fx('grownup:bust', e.who.feet); }
       if (e.type === 'heat' && e.level > 0) this.fx('heat:' + e.level);
-      if (e.type === 'heat') this.emit({ k: 'announce', text: heatLine(W, e), title: `Heat ${e.level}: ${S.heat.names[e.level]}` });
+      if (e.type === 'heat' && e.down) this.emit({ k: 'announce', text: W?.heatDown ?? 'Phew. The grown-ups calm down a little.', title: `Heat ${e.level}: ${S.heat.names[e.level]}` });
+      else if (e.type === 'heat') this.emit({ k: 'announce', text: heatLine(W, e), title: `Heat ${e.level}: ${S.heat.names[e.level]}` });
     }
     for (const e of this.security.take()) {
       if (e.type === 'caretaker') { this.emit({ k: 'announce', text: e.why === 'closing' ? 'The Caretaker is doing his rounds. Get out!' : 'Someone has called the Caretaker!', title: 'Uh oh' }); this.emit({ k: 'shout', who: this.security.caretaker.id, text: "Right. Who's still in here?", sec: 3 }); }
@@ -243,15 +264,16 @@ export class Game {
     }
     const g = this.rescue.gateAt;
     for (const e of this.rescue.take()) {
-      if (e.type === 'spareKid' || e.type === 'caught' || e.type === 'gateOpen') this.fx('rescue:' + e.type, e.type === 'gateOpen' ? g : null);
+      if (e.type === 'spareKid' || e.type === 'caught' || e.type === 'gateOpen') this.fx('rescue:' + e.type, e.type === 'gateOpen' ? g : e.type === 'spareKid' ? e.coat : null);
       // who was caught goes on every screen; the player it happened to is told plainly where they are now
       const name = (c) => `Player ${(c.slot ?? 0) + 1}`;
       if (e.type === 'spareKid') this.emit({ k: 'announce', to: e.coat.pid, title: 'Got you!',
-        text: `You're Spare Kid ${e.n} of ${e.of}, coming in ${e.back ? 'through the back door (the front is locked)' : 'at the entrance'}. Your old kid waits in the Lost & Found in the staff room.`,
-        others: `${name(e.coat)}'s kid was caught! A Spare Kid comes in ${e.back ? 'through the back door' : 'at the entrance'}.` });
-      if (e.type === 'caught') this.emit({ k: 'announce', to: e.coat.pid, title: 'Got you!', text: `Your coat was caught! A ${e.by.type.name.toLowerCase()} is carrying you to the Lost & Found in the staff room. A friend can get you out.`, others: `${name(e.coat)}'s coat was caught! They're off to the Lost & Found in the staff room.` });
+        text: `You're Spare Kid ${e.n} of ${e.of}, coming in ${e.door}${e.frontLocked && !/entrance/.test(e.door) ? ' (the front is locked)' : ''}. Grown-ups won't notice you for a few seconds. Your old kid waits in the Lost & Found in the staff room.`,
+        others: `${name(e.coat)}'s kid was caught! A Spare Kid comes in ${e.door}.` });
+      const solo = this.order.length <= 1;
+      if (e.type === 'caught') this.emit({ k: 'announce', to: e.coat.pid, title: 'Got you!', text: `Your coat was caught! A ${e.by.type.name.toLowerCase()} is carrying you to the Lost & Found in the staff room. ${solo ? 'No Spare Kids left: that ends this job.' : 'A friend can get you out.'}`, others: `${name(e.coat)}'s coat was caught! They're off to the Lost & Found in the staff room.` });
       if (e.type === 'locked') this.emit({ k: 'sound', name: 'machine_clunk', x: g.x, z: g.z });
-      if (e.type === 'locked' && e.coat) this.emit({ k: 'announce', to: e.coat.pid, title: 'Locked in', text: 'Locked in the Lost & Found. A friend can lure the guard away (a noise, a prank, or letting him see them somewhere else) and open the gate with E.', others: `${name(e.coat)} is locked in the Lost & Found (staff room). Lure the guard away, then E at the gate.` });
+      if (e.type === 'locked' && e.coat) this.emit({ k: 'announce', to: e.coat.pid, title: 'Locked in', text: solo ? 'Locked in the Lost & Found. No Spare Kids left this time.' : 'Locked in the Lost & Found. A friend can lure the guard away (a noise, a prank, or letting him see them somewhere else) and open the gate with E.', others: `${name(e.coat)} is locked in the Lost & Found (staff room). Lure the guard away, then E at the gate.` });
       if (e.type === 'freed' && e.coat) this.emit({ k: 'announce', to: e.coat.pid, title: 'Free!', text: `${e.by === e.coat ? 'You' : name(e.by)} opened the cage: you're out, as one kid. Find your coat's kids!`, others: `${name(e.coat)} is out of the cage!` });
       if (e.type === 'escaped') this.emit({ k: 'announce', to: e.coat.pid, title: 'Dropped!', text: 'The grown-up slipped and dropped you: run!', others: `${name(e.coat)} got away from the grown-up!` });
       if (e.type === 'gateOpen') { this.emit({ k: 'sound', name: 'switch_click', x: g.x, z: g.z }); this.emit({ k: 'announce', text: 'The Lost & Found is open: everyone out!', title: 'Rescue' }); }
@@ -308,6 +330,8 @@ export class Game {
       if (left && p.gateWarn > this.job.time) return `E again: leave ${left} kid${left > 1 ? 's' : ''} behind (they go to the Lost & Found)`;
       return `E: get away! ${moneyLine(this.loot, this.job).text} (this ends the job)${left ? ` · ${left} kid${left > 1 ? 's' : ''} still inside!` : ''}`;
     }
+    if (p.stackWarn > this.job.time) return 'A grown-up is watching! R again to unstack anyway';
+    if (p.coat.safe > 0) return 'Just arrived: the grown-ups haven\'t noticed you yet';
     return p.hands.hint();
   }
 

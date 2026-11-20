@@ -125,7 +125,7 @@ test('the guard grabs a loose kid and carries it off to Lost & Found; a slip mak
   g.walker.yaw = Math.PI;
   s.coat.hit(10);                                          // a kid falls out
   assert.equal(s.coat.loose.length, 1);
-  Object.assign(s.coat.loose[0], { x: -10, z: 5, heading: 1.6 });
+  Object.assign(s.coat.loose[0], { x: -10, z: 5, heading: 1.6, free: 0 });     // (no head start here: M1-F7 tests that in caught.test)
   s.coat.walker.body.setTranslation({ x: -16, y: 1.2, z: 15 }, true);   // the coat runs off outside; the kid is left
   assert.ok(s.run(12, () => s.events.some((e) => e.type === 'grabKid')), `no grab (${g.state})`);
   const kid = g.carrying; assert.ok(kid);
@@ -134,7 +134,7 @@ test('the guard grabs a loose kid and carries it off to Lost & Found; a slip mak
   // second go: slip while carrying
   const t = shop({ coatAt: [-12, 0, 6.5], only: (p) => p.type === 'guard' });
   const h = t.people.list[0]; h.walker.yaw = Math.PI; t.coat.hit(10);
-  Object.assign(t.coat.loose[0], { x: -10, z: 5, heading: 1.6 });
+  Object.assign(t.coat.loose[0], { x: -10, z: 5, heading: 1.6, free: 0 });
   t.coat.walker.body.setTranslation({ x: -16, y: 1.2, z: 15 }, true);
   assert.ok(t.run(12, () => !!h.carrying), 'grabbed');
   const f = h.feet;

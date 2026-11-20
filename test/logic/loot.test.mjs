@@ -106,7 +106,7 @@ test('a bot finishes a job: sneaks past the grown-ups, grabs sweets and the gian
   const s = setup({ people: SHOP.people.list });
   const bot = new Bot(s.coats[0], s.nav, [
     { go: [-14.5, 10] }, { go: [-6, 5] }, { go: [0.5, 4.6] },
-    { go: [-0.2, 2.5] }, { press: true }, { go: [-0.2, -0.5] }, { press: true }, { go: [-0.2, -4] }, { press: true },
+    { go: [-0.2, 2.5], within: 0.3 }, { press: true }, { go: [-0.2, -0.5], within: 0.3 }, { press: true }, { go: [-0.2, -4], within: 0.3 }, { press: true },
     { go: [0.5, 2.8], within: 0.6 }, { press: true },
     { go: [-6, 5] }, { go: [-14.5, 10.5] }, { go: [-14.5, 15] }, { go: [16, 18.5], within: 0.8 },
   ]);
