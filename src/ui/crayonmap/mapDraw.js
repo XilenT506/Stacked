@@ -26,6 +26,8 @@ export class MapView {
 export function drawBase(ctx, V, D, model) {
   const M = model.map, seen = M.seenAreas, s = V.s;
   const seenArea = seenTest(D, seen);
+  // the staff room (with the Lost & Found cage) is always drawn: everyone knows where caught kids go (M1-F6)
+  const known = new Set([...seen, 'staff']), knownArea = seenTest(D, known);
   const P = (pts) => pts.map(([x, z]) => V.px(x, z));
   const rectPts = (r) => P([[r[0], r[1]], [r[2], r[1]], [r[2], r[3]], [r[0], r[3]]]);
 
@@ -49,27 +51,27 @@ export function drawBase(ctx, V, D, model) {
   // inner walls and fences next to seen parts; the building outline always (everyone knows what the shop looks like from outside)
   for (const group of ['back', 'fence']) for (const [ax, az, bx, bz] of D.walls[group]?.list ?? []) {
     const mx = (ax + bx) / 2, mz = (az + bz) / 2, L = Math.hypot(bx - ax, bz - az) || 1, nx = -(bz - az) / L * 0.7, nz = (bx - ax) / L * 0.7;
-    if (seenArea(mx + nx, mz + nz) || seenArea(mx - nx, mz - nz)) line(ctx, P([[ax, az], [bx, bz]]), group === 'fence' ? '#5f7d4a' : INK, group === 'fence' ? 2.5 : 3.5, ax * 5 + az, { amp: 1.2 });
+    if (knownArea(mx + nx, mz + nz) || knownArea(mx - nx, mz - nz)) line(ctx, P([[ax, az], [bx, bz]]), group === 'fence' ? '#5f7d4a' : INK, group === 'fence' ? 2.5 : 3.5, ax * 5 + az, { amp: 1.2 });
   }
   if (D.map?.building) line(ctx, P(D.map.building), INK, 5, 7, { closed: true, amp: 1.4 });
   // doors: rub out a gap in the wall and draw a little swing
   for (const d of D.doors) {
-    if (!d.between.some((id) => seen.has(id))) continue;
+    if (!d.between.some((id) => known.has(id))) continue;
     const [ax, az, bx, bz] = d.span, [pa, pb] = P([[ax, az], [bx, bz]]);
     ctx.save(); ctx.strokeStyle = '#fbf6ea'; ctx.lineWidth = 9; ctx.lineCap = 'butt'; ctx.beginPath(); ctx.moveTo(pa[0] + (pb[0] - pa[0]) * 0.1, pa[1] + (pb[1] - pa[1]) * 0.1); ctx.lineTo(pb[0] - (pb[0] - pa[0]) * 0.1, pb[1] - (pb[1] - pa[1]) * 0.1); ctx.stroke(); ctx.restore();
     line(ctx, [pa, pb], '#e08a3a', 2, ax + bz, { passes: 1, amp: 2.5 });
   }
   // room names
   for (const a of D.areas) {
-    if (!seen.has(a.id) || a.id === 'getaway') continue;
+    if (!known.has(a.id) || a.id === 'getaway') continue;
     const r = rectsOf(a).reduce((b, q) => ((q[2] - q[0]) * (q[3] - q[1]) > (b[2] - b[0]) * (b[3] - b[1]) ? q : b));
-    const [cx, cy] = V.px((r[0] + r[2]) / 2, (r[1] + r[3]) / 2), w = (r[2] - r[0]) * s, h = (r[3] - r[1]) * s;
+    const at = D.map?.labels?.[a.id], [cx, cy] = at ? V.px(at[0], at[1]) : V.px((r[0] + r[2]) / 2, (r[1] + r[3]) / 2), w = (r[2] - r[0]) * s, h = (r[3] - r[1]) * s;
     const name = a.name.replace(/^Aisle (\d): /, 'Aisle $1 '), tall = h > w * 1.6, size = Math.min(22, Math.max(14, (tall ? h : w) / name.length * 1.5));
-    write(ctx, name, cx, cy + (tall ? 0 : -h * 0.3), size, '#6b4a2e', a.id.length * 31, { rot: tall ? -Math.PI / 2 : 0, outline: '#fbf6ea' });
+    write(ctx, name, cx, cy + (tall || at ? 0 : -h * 0.3), size, '#6b4a2e', a.id.length * 31, { rot: tall ? -Math.PI / 2 : 0, outline: '#fbf6ea' });
   }
   // the Lost & Found cage
   const LF = D.lostAndFound;
-  if (LF && seen.has('staff')) {
+  if (LF) {
     const r = rectPts(LF.rect); line(ctx, r, '#555', 2.5, 41, { closed: true, passes: 2 });
     for (let i = 1; i < 6; i++) { const t = i / 6; line(ctx, [[r[0][0] + (r[1][0] - r[0][0]) * t, r[0][1]], [r[0][0] + (r[1][0] - r[0][0]) * t, r[2][1]]], '#777', 1.5, 41 + i, { passes: 1 }); }
     write(ctx, 'LOST & FOUND', (r[0][0] + r[1][0]) / 2, r[2][1] + 12, 15, '#555', 44, { outline: '#fbf6ea' });
@@ -113,7 +115,9 @@ export function drawLive(ctx, V, D, model, { me, colors, time = 0 }) {
   // the team
   for (const c of model.coats) {
     const f = c.walker.feet, [x, y] = V.px(f.x, f.z), col = colors[(c.slot ?? 0) % colors.length];
-    coat(ctx, x, y, doodle * 1.25, col, c.pid === me ? 'YOU' : `P${(c.slot ?? 0) + 1}`, { kids: c.count, mapOpen: c.mapOpen, caged: c.inCage, seed: (c.slot ?? 0) * 19 + 5 });
+    // (in the cage: a smaller doodle, sitting inside the bars rather than poking out over the back wall)
+    const sz = c.inCage ? doodle * 0.62 : doodle * 1.25;
+    coat(ctx, x, c.inCage ? y + sz * 0.45 : y, sz, col, c.pid === me ? 'YOU' : `P${(c.slot ?? 0) + 1}`, { kids: c.count, mapOpen: c.mapOpen, caged: c.inCage, seed: (c.slot ?? 0) * 19 + 5 });
     // loose kids: a coloured blob with a dark ring and "KID!" (so a lost kid is easy to find)
     for (const k of c.loose ?? []) if (!k.caged) { const [kx, ky] = V.px(k.x, k.z); scribbleFill(ctx, ringPts(kx, ky, 8, k.x * 9), col, k.x * 9, { gap: 2.5, alpha: 0.95 }); ring(ctx, kx, ky, 10, INK, 2.5, k.x * 9 + 1, { passes: 1 }); write(ctx, 'KID!', kx, ky - 18, 15, col, k.x * 5, { outline: '#fbf6ea' }); }
   }

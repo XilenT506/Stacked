@@ -200,7 +200,8 @@
   },
 
   "map": {
-    "_about": "what the crayon map draws: the building outline, the fences, room labels come from areas, doors from doors",
+    "_about": "what the crayon map draws: the building outline, the fences, room labels come from areas (labels: where a room's name goes instead of the middle of the room, [x, z]), doors from doors",
+    "labels": { "staff": [-10.6, -12.2] },
     "building": [[-18, 12], [18, 12], [18, -10], [12, -10], [12, -18], [-14, -18], [-14, -10], [-18, -10]],
     "grounds": [[-22, 20], [22, 20], [22, -26], [-6, -26], [-6, -18], [-14, -18], [-14, -10], [-18, -10], [-18, 12], [-22, 12]]
   }

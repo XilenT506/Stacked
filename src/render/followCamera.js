@@ -1,6 +1,8 @@
 // The angled follow camera: about 55 degrees down, 14 m away, always from the same side (screen up =
 // away from the camera), looking a little ahead of where the player aims.
 // Also turns the player's input into world directions (move and aim are screen-relative), and shakes.
+// M1-F6: the camera's angle is fixed once and never changes (not for a ride, a pile-up or a shake: a
+// shake only moves it), so W is always up the screen.
 import * as T from 'three';
 
 export const CAM = { tilt: 55, distance: 14, lookAhead: 2.2, follow: 6, fov: 42 };
@@ -11,6 +13,9 @@ export class FollowCamera {
     const t = this.o.tilt * Math.PI / 180;
     this.offset = new T.Vector3(0, Math.sin(t) * this.o.distance, Math.cos(t) * this.o.distance);
     this.focus = new T.Vector3(); this.started = false;
+    // the one and only camera angle: looking from the offset back at the focus
+    const m = new T.Matrix4().lookAt(this.offset, new T.Vector3(0, 0, 0), new T.Vector3(0, 1, 0));
+    this.angle = new T.Quaternion().setFromRotationMatrix(m);
     this.ray = new T.Raycaster(); this.plane = new T.Plane(new T.Vector3(0, 1, 0), -1);   // aim at chest height
   }
 
@@ -38,13 +43,12 @@ export class FollowCamera {
     if (!this.started) { this.focus.copy(want); this.started = true; }
     this.focus.lerp(want, Math.min(1, dt * this.o.follow));
     this.cam.position.copy(this.focus).addScaledVector(this.offset, this.zoom);
-    this.cam.lookAt(this.focus);
+    this.cam.quaternion.copy(this.angle);
     // screen shake: a quick wobble that dies away (trauma squared feels punchier)
     this.trauma = Math.max(0, (this.trauma ?? 0) - dt * (this.shakeDecay ?? 3.5)); this.t = (this.t ?? 0) + dt;
     if (this.trauma > 0) {
       const k = this.trauma * this.trauma * 0.45, t = this.t * 38;
       this.cam.position.x += Math.sin(t * 1.1) * k; this.cam.position.y += Math.sin(t * 1.7 + 1) * k * 0.6; this.cam.position.z += Math.sin(t * 1.3 + 2) * k;
-      this.cam.rotation.z += Math.sin(t * 0.9) * k * 0.05;
     }
   }
 

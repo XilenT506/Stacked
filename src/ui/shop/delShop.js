@@ -193,15 +193,37 @@ export class DelShop {
 
   // a strip along the bottom: each player's colour, ready tick, gadgets and drinks
   bags(ctx, model, locals, W, H, k) {
-    const S = model.shop, n = model.coats.length, w = Math.min(300 * k, (W * 0.58) / Math.max(1, n)), y = H - 96 * k;
+    const S = model.shop, n = model.coats.length, w = Math.min(300 * k, (W * 0.58) / Math.max(1, n)), y = H - 124 * k;
     model.coats.forEach((c, i) => {
       const x = W * 0.4 + i * (w + 10 * k), col = this.colors[(c.slot ?? 0) % 4], kit = model.run.of(c.pid), ready = S.ready.has(c.pid);
       const me = locals.some((l) => l.pid === c.pid);
       write(ctx, `${me ? 'YOU' : 'P' + ((c.slot ?? 0) + 1)}${ready ? ' ✔ ready' : ''}`, x, y, 20 * k, col, 300 + i, { align: 'left', outline: '#fbf6ea' });
       const gs = kit.gadgets.map((g) => `${this.D.gadgets.gadgets[g.id]?.name ?? g.id}${g.copies > 1 ? ' ×' + g.copies : ''}`).join(', ');
       const ds = kit.drinks.map((d) => this.D.shop.drinks[d]?.name ?? d).join(', ');
-      write(ctx, gs, x, y + 22 * k, 15 * k, INK, 310 + i, { align: 'left' });
-      if (ds) write(ctx, `Drinks: ${ds}`, x, y + 42 * k, 15 * k, '#c4553d', 320 + i, { align: 'left' });
+      // (M1-F6: the lists wrap inside this player's column, so they never run into the next player's label)
+      const room = w - 12 * k, bottom = H - 30 * k;                                   // (above the help line at the bottom)
+      let yy = this.wrapLeft(ctx, gs, x, y + 14 * k, room, 15 * k, ds ? (bottom - y - 14 * k) * 0.62 : bottom - y - 14 * k, INK, 310 + i);
+      if (ds) yy = this.wrapLeft(ctx, `Drinks: ${ds}`, x, yy + 2 * k, room, 15 * k, bottom - yy - 2 * k, '#c4553d', 320 + i);
+      (this.bagLayout ??= [])[i] = { x, right: x + this.lastWidth, next: W * 0.4 + (i + 1) * (w + 10 * k), last: i === n - 1, bottom: yy, H };
     });
+    if (this.bagLayout) this.bagLayout.length = n;
+  }
+
+  // left-aligned wrapped text from (x, y) down, at most maxH tall: shrinks a little to fit, then cuts with "..."
+  wrapLeft(ctx, text, x, y, w, size, maxH, color, seed) {
+    const wrap = (sz) => {
+      ctx.font = `700 ${sz}px Gaegu, cursive`;
+      const words = text.split(' '), lines = []; let cur = '';
+      for (const wd of words) { const t = cur ? cur + ' ' + wd : wd; if (ctx.measureText(t).width > w && cur) { lines.push(cur); cur = wd; } else cur = t; }
+      if (cur) lines.push(cur);
+      return lines;
+    };
+    let sz = size, lines = wrap(sz);
+    while (sz > size * 0.75 && lines.length * sz * 1.1 > maxH) lines = wrap(sz -= 1);
+    const fit = Math.max(1, Math.floor(maxH / (sz * 1.1)));
+    if (lines.length > fit) { lines = lines.slice(0, fit); lines[fit - 1] = lines[fit - 1].replace(/\s*\S*$/, '') + '...'; }
+    this.lastWidth = 0;
+    lines.forEach((l, i) => { this.lastWidth = Math.max(this.lastWidth, write(ctx, l, x, y + sz * 0.55 + i * sz * 1.1, sz, color, seed + i, { align: 'left' })); });
+    return y + lines.length * sz * 1.1;
   }
 }

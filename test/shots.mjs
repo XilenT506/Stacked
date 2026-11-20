@@ -76,7 +76,7 @@ console.log('pile', JSON.stringify(cs), cs.count === 1 && cs.pile ? 'OK' : 'FAIL
 // M1-F1, the first minute, opened like a player would (no ?dev=1): the very first frame is only the start
 // card over the shop; R closes it without unstacking; the arrow points to Nan's cake, the sign floats over
 // it, and once the cake is carried the arrow points to the gate. The crayon map knows the bakery and the gate.
-if (!process.env.CAUGHTONLY && !process.env.MONEYONLY && !process.env.WAYONLY && !process.env.PRANKONLY) {
+if (!process.env.CAUGHTONLY && !process.env.MONEYONLY && !process.env.WAYONLY && !process.env.PRANKONLY && !process.env.F6ONLY) {
   const f = await browser.newPage({ viewport: { width: 1280, height: 720 }, deviceScaleFactor: 1 });
   f.on('pageerror', (e) => { errors.push(String(e)); console.log('PAGE ERROR', String(e)); });
   await f.goto('http://localhost:8481/?q=high');
@@ -109,7 +109,7 @@ if (!process.env.CAUGHTONLY && !process.env.MONEYONLY && !process.env.WAYONLY &&
 // M1-F2, getting caught: a "why" bubble when a grown-up sees you run, loose kids with markers (in the shop,
 // at the screen edge and on the crayon map), your coat's outline through a pile-on, and the Spare Kid
 // coming in through the back door when Panic has locked the front.
-if (!process.env.FIRSTONLY && !process.env.MONEYONLY && !process.env.WAYONLY && !process.env.PRANKONLY) {
+if (!process.env.FIRSTONLY && !process.env.MONEYONLY && !process.env.WAYONLY && !process.env.PRANKONLY && !process.env.F6ONLY) {
   const f = await browser.newPage({ viewport: { width: 1280, height: 720 }, deviceScaleFactor: 1 });
   f.on('pageerror', (e) => { errors.push(String(e)); console.log('PAGE ERROR', String(e)); });
   await f.goto('http://localhost:8481/?q=high&dev=1');
@@ -159,7 +159,7 @@ if (!process.env.FIRSTONLY && !process.env.MONEYONLY && !process.env.WAYONLY && 
 
 // M1-F3, sweets that make sense: one money line on the HUD, the same numbers at the getaway gate, and the
 // bonus only on the results screen.
-if (!process.env.FIRSTONLY && !process.env.CAUGHTONLY && !process.env.WAYONLY && !process.env.PRANKONLY) {
+if (!process.env.FIRSTONLY && !process.env.CAUGHTONLY && !process.env.WAYONLY && !process.env.PRANKONLY && !process.env.F6ONLY) {
   const f = await browser.newPage({ viewport: { width: 1280, height: 720 }, deviceScaleFactor: 1 });
   f.on('pageerror', (e) => { errors.push(String(e)); console.log('PAGE ERROR', String(e)); });
   await f.goto('http://localhost:8481/?q=high&dev=1');
@@ -188,7 +188,7 @@ if (!process.env.FIRSTONLY && !process.env.CAUGHTONLY && !process.env.WAYONLY &&
 // M1-F4, the way out: the café side exit onto the car park, the parked cars out of the way, two coats
 // carrying Nan's cake together (the cake between them, both coats' arms on it), and the gate's warning
 // about kids still inside.
-if (!process.env.FIRSTONLY && !process.env.CAUGHTONLY && !process.env.MONEYONLY && !process.env.PRANKONLY) {
+if (!process.env.FIRSTONLY && !process.env.CAUGHTONLY && !process.env.MONEYONLY && !process.env.PRANKONLY && !process.env.F6ONLY) {
   const f = await browser.newPage({ viewport: { width: 1280, height: 720 }, deviceScaleFactor: 1 });
   f.on('pageerror', (e) => { errors.push(String(e)); console.log('PAGE ERROR', String(e)); });
   await f.goto('http://localhost:8481/?q=high&dev=1');
@@ -227,7 +227,7 @@ if (!process.env.FIRSTONLY && !process.env.CAUGHTONLY && !process.env.MONEYONLY 
 // M1-F5, pranks that pay off: a soaked grown-up dripping where the water landed (and saying so), acting
 // natural (whistling, the "?" turning green as it drains), and Del's cards with no text over the price,
 // at the full size and at the small window the testers used.
-if (!process.env.FIRSTONLY && !process.env.CAUGHTONLY && !process.env.MONEYONLY && !process.env.WAYONLY) {
+if (!process.env.FIRSTONLY && !process.env.CAUGHTONLY && !process.env.MONEYONLY && !process.env.WAYONLY && !process.env.F6ONLY) {
   for (const [vw, vh] of [[1280, 720], [960, 540]]) {
     const f = await browser.newPage({ viewport: { width: vw, height: vh }, deviceScaleFactor: 1 });
     f.on('pageerror', (e) => { errors.push(String(e)); console.log('PAGE ERROR', String(e)); });
@@ -266,6 +266,34 @@ if (!process.env.FIRSTONLY && !process.env.CAUGHTONLY && !process.env.MONEYONLY 
     await f.close();
   }
   if (process.env.PRANKONLY) { console.log(errors.length ? 'ERRORS ' + errors.join(' | ') : 'no page errors'); await browser.close(); server.close(); process.exit(0); }
+}
+
+// M1-F6: the crayon map shows the staff room and the Lost & Found with "YOU" inside the cage (inside the
+// shop outline), and Del's with four players' long lists that never run into the next player's label.
+if (!process.env.FIRSTONLY && !process.env.CAUGHTONLY && !process.env.MONEYONLY && !process.env.WAYONLY && !process.env.PRANKONLY) {
+  const f = await browser.newPage({ viewport: { width: 960, height: 540 }, deviceScaleFactor: 1 });
+  f.on('pageerror', (e) => { errors.push(String(e)); console.log('PAGE ERROR', String(e)); });
+  await f.goto('http://localhost:8481/?q=high&dev=1');
+  await f.waitForFunction(() => globalThis.__stacked2?.clock.time > 1, null, { timeout: 120000 });
+  const fw = (sec) => f.evaluate((s) => new Promise((res) => { const t0 = __stacked2.clock.time; const g = () => (__stacked2.clock.time - t0 >= s ? res() : requestAnimationFrame(g)); g(); }), sec);
+  await f.evaluate(() => { const G = __stacked2.game; for (const id of ['p2', 'p3', 'p4']) G.addPlayer(id); const c = G.coats[0], p = G.rescue.inside(); c.inCage = true; c.walker.body.setTranslation({ x: p.x, y: 1.2, z: p.z }, true); });
+  await fw(0.5);
+  await f.keyboard.down('Tab'); await fw(0.2); await f.keyboard.up('Tab'); await fw(0.8);
+  const map = await f.evaluate(() => { const V = __stacked2.crayonMap.V, D = __stacked2.game.D.place, b = D.map.building, c = __stacked2.coat.walker.feet;
+    const xs = b.map((p) => p[0]), zs = b.map((p) => p[1]); return { inside: c.x > Math.min(...xs) && c.x < Math.max(...xs) && c.z > Math.min(...zs) && c.z < Math.max(...zs), staffSeen: __stacked2.map.seenAreas.has('staff') }; });
+  await f.screenshot({ path: 'test/shots/f6_map_cage.png' });
+  console.log('map: YOU in the cage, inside the outline', JSON.stringify(map), map.inside ? 'OK' : 'FAIL');
+  await f.keyboard.down('Tab'); await fw(0.2); await f.keyboard.up('Tab'); await fw(0.3);
+  // Del's with four players who bought a lot
+  await f.evaluate(() => { const G = __stacked2.game; G.D.balance.shop.resultsSeconds = 1e9; G.run.sweets = 400;
+    for (const c of G.coats) { const k = G.run.of(c.pid); k.gadgets = ['water_pistol', 'slingshot', 'banana_peel', 'water_balloon', 'stink_bomb'].map((id, i) => ({ id, copies: 1 + (i % 2) })); k.drinks = ['sugar_rush', 'burp_blaster', 'sugar_rush']; }
+    G.test('shop'); });
+  await fw(0.8);
+  const bags = await f.evaluate(() => (__stacked2.delShop.bagLayout ?? []).map((b) => ({ right: Math.round(b.right), next: Math.round(b.next), last: b.last, bottom: Math.round(b.bottom), H: b.H })));
+  await f.screenshot({ path: 'test/shots/f6_del_four_players.png' });
+  console.log("Del's lists don't overlap", JSON.stringify(bags), bags.length === 4 && bags.every((b) => (b.last || b.right <= b.next) && b.bottom <= b.H - 24) ? 'OK' : 'FAIL');
+  await f.close();
+  if (process.env.F6ONLY) { console.log(errors.length ? 'ERRORS ' + errors.join(' | ') : 'no page errors'); await browser.close(); server.close(); process.exit(0); }
 }
 
 // the supermarket: an overview with the planning overlay, then every area seen from the coat's camera

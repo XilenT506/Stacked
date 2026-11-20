@@ -2,6 +2,14 @@
 
 Newest first. One entry per build session (one prompt from the Build guide in the doc "STACKED – Game Plan").
 
+## 2026-11-20 · Fix 6 of 6 (M1-F6): Camera, co-op and the playtest build
+
+- **The camera never turns.** It never yawed (no ride, trolley or pile-up turns it, and WASD always meant the same screen directions), but screen shake added a small roll each shake, up to about 1 degree on a big hit. With hits coming one after another that reads as the camera tilting about. The camera's angle is now fixed once and copied every frame; a shake only moves it (`src/render/followCamera.js`). New `test/logic/camera.test.mjs`: a coat rides a trolley up and right, lets go, unstacks, gets piled on by four grown-ups, takes a whack and a full shake, and the camera's angle never changes (the test catches the old roll: 1.01°). W rides and walks up the screen throughout.
+- **Crayon map:** the staff room's walls and name and the Lost & Found cage are always drawn (everyone knows where caught kids go), not only after someone has been in there. A caught player's doodle is drawn smaller, inside the cage, instead of poking out over the shop's back wall. The staff room's name has its own spot (`map.labels` in the place data) so it doesn't sit on the cage.
+- **Del's:** each player's list of gadgets and drinks wraps inside that player's column (shrinking a little, or cut with "...", if needed) and stops above the help line, so it never runs into the next player's label. Checked with four players carrying everything at 960×540.
+- **Playtest:** the test build and the offline file are published again. "STACKED – M1 Playtest Sheet" is ready for round 2: its results table was still empty (the first round's AI answers went straight into the Game Plan), so it now just says Round 2 and today's date, and mentions the start card.
+- New screenshots `f6_map_cage.png` and `f6_del_four_players.png`.
+
 ## 2026-11-20 · Fix 5 of 6 (M1-F5): Pranks that pay off
 
 - **Hits show where they land.** Every gadget now has a `hit:<gadget>` and a `land:<gadget>` moment in `data/juice.json`: a big blue splash where the water pistol or a balloon hits, stars where a slingshot stone hits, a green puff for a stink bomb. The fire sound still plays at the coat but no longer splashes at your own feet (that was the "water pistol splashes at my feet" bug: every sound also drew its visual where it played). A soaked grown-up drips more and stands in a little puddle.
