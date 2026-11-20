@@ -62,6 +62,7 @@ export class Stage {
     // how many grown-ups are right on top of each coat (a pile-on): the coat's outline shows through them
     const crowd = (c) => { const f = c.walker.feet; return this.model.people.list.filter((g) => Math.hypot(g.feet.x - f.x, g.feet.z - f.z) < 1.5).length; };
     for (const [c, v] of this.coatViews) v.update(dt, this.pops?.get(c) ?? [], { crowd: crowd(c), mine: me.includes(c.pid) });
+    this.placeView.fadeSigns(this.model.coats.map((c) => c.walker.feet), dt);
     this.pops = new Map();
     // aim rings for local players
     while (this.aimMarks.length < aims.length) { const m = new T.Mesh(new T.RingGeometry(0.18, 0.26, 24), new T.MeshBasicMaterial({ color: 0xc4553d, transparent: true, opacity: 0.8 })); m.rotation.x = -Math.PI / 2; this.scene.add(m); this.aimMarks.push(m); }

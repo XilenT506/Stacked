@@ -15,6 +15,6 @@
     "cage":    { "bubble": "Oi! Leave that cage alone!",          "heat": "saw you open the cage" },
     "kids":    { "bubble": "There's kids running about!",         "heat": "spotted a loose kid" }
   },
-  "heatLevels": ["", "People are starting to stare.", "Security has been called!", "PANIC! The front doors are locked: the back door by the yard still works."],
+  "heatLevels": ["", "People are starting to stare.", "Security has been called!", "PANIC! The front doors are locked: the caf\u00e9 side exit and the back door still work."],
   "testKey": "pressed the test key"
 }

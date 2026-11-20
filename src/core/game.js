@@ -143,7 +143,13 @@ export class Game {
       if (c.mapOpen && !wasMap) this.fx('act:map', c, p.id);
       if (this.pressed(p, 'stack')) { c.toggleStack(); p.events.push(...c.events); c.events = []; }      // (the coat's step clears its events)
       let grab = this.pressed(p, 'grab');
-      if (grab && c.atGate && !this.job.over) { this.fx('act:getaway', c, p.id); this.giggles.getaway(c, { closing: this.closing, people: this.people }); this.finish('got away'); grab = false; }
+      // the getaway: with kids still inside, the first E warns; E again leaves them (to the Lost & Found)
+      if (grab && c.atGate && !this.job.over) {
+        const left = this.kidsInside();
+        if (left > 0 && !(p.gateWarn > this.job.time)) { p.gateWarn = this.job.time + this.D.balance.job.gateWarnSeconds; this.emit({ k: 'announce', to: p.id, title: 'Wait!', text: `${left} kid${left > 1 ? 's' : ''} still inside! E again to leave without them` }); this.emit({ k: 'sound', name: 'gasp' }); }
+        else { this.fx('act:getaway', c, p.id); this.giggles.getaway(c, { closing: this.closing, people: this.people }); this.finish('got away', left); }
+        grab = false;
+      }
       const sel = ['slot1', 'slot2', 'slot3', 'slot4', 'slot5'].findIndex((n) => this.pressed(p, n));
       if (this.pressed(p, 'drink') && !c.mapOpen && this.drinks.drink(c, coats)) this.fx('act:drink', c, p.id);
       const cycle = this.pressed(p, 'switch'); if (sel >= 0 || cycle) this.fx('act:slot', c, p.id);
@@ -169,9 +175,19 @@ export class Game {
     this.present();
   }
 
-  finish(why) {
+  // kids still in the shop: every kid of a coat that is not at the gate, and every loose kid (not the ones
+  // already in the Lost & Found)
+  kidsInside() {
+    let n = 0;
+    for (const c of this.coats) { if (!c.atGate && !c.inCage) n += c.count; n += (c.loose ?? []).filter((k) => !k.caged).length; }
+    return n;
+  }
+
+  finish(why, leftBehind = 0) {
     if (this.job.over) return;
     this.job.finish(why, this.loot, this.sus);
+    // kids left behind at the getaway go to the Lost & Found (and say so on the results screen)
+    if (leftBehind) { this.job.result.leftBehind = leftBehind; for (const c of this.coats) for (const k of c.loose ?? []) k.caged = true; }
     // Giggles on the results screen; the best moments (with their game state) go on the run's highlight list
     const r = this.job.result, G = this.giggles;
     r.giggles = G.summary(); G.closed = true; r.best = G.best().slice(0, 3).map((m) => ({ label: m.label, reel: m.reel, giggles: m.giggles, by: m.by }));
@@ -276,7 +292,11 @@ export class Game {
   // what E does for this player right now (shown at the bottom of their screen)
   hint(id) {
     const p = this.player(id); if (!p) return '';
-    if (p.coat.atGate && !this.job.over) return `E: get away! ${moneyLine(this.loot, this.job).text} (this ends the job)`;
+    if (p.coat.atGate && !this.job.over) {
+      const left = this.kidsInside();
+      if (left && p.gateWarn > this.job.time) return `E again: leave ${left} kid${left > 1 ? 's' : ''} behind (they go to the Lost & Found)`;
+      return `E: get away! ${moneyLine(this.loot, this.job).text} (this ends the job)${left ? ` · ${left} kid${left > 1 ? 's' : ''} still inside!` : ''}`;
+    }
     return p.hands.hint();
   }
 

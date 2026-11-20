@@ -246,7 +246,7 @@ globalThis.__stacked2 = {
   get things() { return game?.things ?? mirror?.things; }, get mess() { return (game ?? mirror).mess; }, get people() { return (game ?? mirror).people; }, get sus() { return (game ?? mirror).sus; },
   get closing() { return (game ?? mirror).closing; }, get security() { return game?.security; }, get rescue() { return (game ?? mirror).rescue; }, get loot() { return (game ?? mirror).loot; }, get job() { return (game ?? mirror).job; },
   get gadgets() { return (game ?? mirror).gadgets; }, get jobEvents() { return game?.jobEvents; }, get signals() { return game?.signals; },
-  get coatView() { return stage.coatViews.get(this.coat); }, get peopleView() { return stage.peopleView; }, get placeView() { return stage.placeView; }, get fade() { return stage.fade; },
+  get coatView() { return stage.coatViews.get(this.coat); }, get peopleView() { return stage.peopleView; }, get placeView() { return stage.placeView; }, get lootView() { return stage.lootView; }, get fade() { return stage.fade; },
   get place() { return place; }, get area() { return areaNow; }, get host() { return host; }, get client() { return client; },
   get aim() { return lastAim; }, crayonMap, delShop, callouts, music, get juice() { return stage.juice; }, get run() { return (game ?? mirror).run; }, get shop() { return (game ?? mirror).shop; }, get map() { return (game ?? mirror).map; }, camRig, input: keyboard, clock, quality, renderer, get fps() { return fps; }, hostGame, joinGame, card, get pointer() { return pointerHud.state; }, get pointers() { return pointerHud.states; },
 };

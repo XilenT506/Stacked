@@ -92,6 +92,10 @@ ok('the map closes again', await until(host, (id) => !__stacked2.game.player(id)
 // friend B gets away: the host puts B by the gate, B presses E
 await host.evaluate((id) => { const c = __stacked2.game.player(id).coat; c.walker.body.setTranslation({ x: 16, y: 1.2, z: 18.4 }, true); }, ids.b);
 await hostWait(0.6); await b.keyboard.down('KeyE'); await hostWait(0.3); await b.keyboard.up('KeyE');
+// (the others are still inside: the first E warns on B's screen only, E again leaves them behind)
+ok('the gate warns B about kids still inside', await until(b, () => /kids still inside! E again/.test(document.getElementById('announce').textContent), null, 15000) && !(await host.evaluate(() => __stacked2.game.job.over)) && !/still inside/.test(await a.evaluate(() => document.getElementById('announce').textContent)), await b.evaluate(() => document.getElementById('announce').textContent));
+await b.screenshot({ path: 'test/shots/online_gate_warning.png' });
+await hostWait(0.3); await b.keyboard.down('KeyE'); await hostWait(0.3); await b.keyboard.up('KeyE');
 ok('a friend ended the job at the gate', await until(host, () => __stacked2.game.job.over));
 ok('everyone sees the result', await until(a, () => __stacked2.mirror.job.result?.why === 'got away') && await until(b, () => __stacked2.mirror.job.result?.why === 'got away'));
 await b.screenshot({ path: 'test/shots/online_result.png' });

@@ -40,7 +40,7 @@ test('host plus two clients play one job: each steers their own coat, and everyo
   // that shoved a coat holding a mop across the floor.)
   const kicked = () => game.mess.patches.some((p) => p.color === DATA.things.things.ketchup.splat);
   const botA = new Bot(ca(), nav, [{ go: [-14.5, 10] }, { go: [-6, 5] }, { go: [-4.1, -1.4], within: 0.4 }, { press: true }, { wait: 0.3 }, { fire: { hold: 1.5 } }, { until: kicked }]);
-  const botB = new Bot(cb(), nav, [{ until: kicked }, { wait: 2 }, { go: [-11, 13] }, { go: [16, 18.5], within: 0.8 }, { press: true }]);
+  const botB = new Bot(cb(), nav, [{ until: kicked }, { wait: 2 }, { go: [-11, 13] }, { go: [16, 18.5], within: 0.8 }, { press: true }, { wait: 0.5 }, { press: true }]);   // E, 'kids still inside!', E again
   const cA = {}, cB = {};
   let t = 0;
   while (!(botA.done && botB.done) && t < 120) {
@@ -89,6 +89,13 @@ test('couch: two local players in one game play a job together (both pocket swee
   assert.ok(b1.done && b2.done, `stuck: ${b1.log.at(-1)} / ${b2.log.at(-1)}`);
   for (let i = 0; i < 30; i++) game.step();
   assert.equal(game.loot.banked.length, 2, 'both sweets banked');
+  // (a kid may have fallen out on the way: then the first E at the gate warns, and E again leaves it behind)
+  const left = game.kidsInside();
   k1.grab = (k1.grab ?? 0) + 1; game.setInput('p1', { move: { x: 0, z: 0 }, aim: null, presses: { ...k1 } }); game.step();
+  if (left) {
+    assert.ok(!game.job.over, 'warned first'); assert.match(game.hint('p1'), /^E again: leave \d kids? behind/);
+    k1.grab++; game.setInput('p1', { move: { x: 0, z: 0 }, aim: null, presses: { ...k1 } }); game.step();
+    assert.equal(game.job.result.leftBehind, left);
+  }
   assert.ok(game.job.over);
 });

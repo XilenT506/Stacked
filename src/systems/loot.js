@@ -61,9 +61,10 @@ export class Loot {
     for (const c of it.carriers) {
       const kg = it.mass / it.carriers.length;
       c.carryKg = kg; c.carrySilly = true; c.carrySpeedMul = Math.max(this.L.minSpeed, 1 - kg * this.L.perKg);
+      c.coCarry = it.carriers.length > 1;                                  // carrying together is steadier (src/entities/coat.js)
     }
   }
-  unload(c) { c.carryKg = 0; c.carrySpeedMul = 1; c.carrySilly = false; }
+  unload(c) { c.carryKg = 0; c.carrySpeedMul = 1; c.carrySilly = false; c.coCarry = false; }
 
   // dropped loot loses some value (never below minValue of what it was worth)
   drop(it, why, coat = null) {

@@ -5,9 +5,9 @@
 //   arrowFor(sx, sy, behind, w, h) -> { on, x, y, angle }   (pure, for the tests)
 import * as T from 'three';
 
-// how far from each edge the arrow sits: clear of the quota bar (top), the hint line and the coat HUD
+// how far from each edge the arrow sits: clear of the quota bar and announcements (top), the hint line and the coat HUD
 // (bottom); and it slides out of the Heat / Closing Time / Giggles boxes (top right) and the Online panel (bottom left)
-const M = { top: 92, bottom: 120, side: 60 };
+const M = { top: 122, bottom: 120, side: 60 };
 
 export function arrowFor(sx, sy, behind, w, h) {
   if (!behind && sx >= M.side && sx <= w - M.side && sy >= M.top && sy <= h - M.bottom) return { on: true, x: sx, y: sy, angle: 0 };

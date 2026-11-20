@@ -37,7 +37,9 @@
     "hitPerForce": 0.12,
     "spillHitForce": 6,
     "afterSpill": 0.35,
-    "actNaturalDrain": 0.9
+    "actNaturalDrain": 0.9,
+    "_coCarry": "while two coats carry one piece of loot together, every wobble fill is multiplied by this (steadier than alone)",
+    "coCarry": 0.45
   },
   "slippery": {
     "_about": "patchSeconds null = the mess stays for the whole job",
@@ -157,8 +159,9 @@
     "reach": 1.4
   },
   "job": {
-    "_about": "cleanBonus: +50% for finishing at Heat 0",
-    "cleanBonus": 0.5
+    "_about": "cleanBonus: +50% for finishing at Heat 0; gateWarnSeconds: after the 'kids still inside!' warning at the gate, E again within this many seconds leaves them behind",
+    "cleanBonus": 0.5,
+    "gateWarnSeconds": 6
   },
   "rescue": {
     "_about": "solo players get spareKids per run instead of friends; a Spare Kid comes in at the player spawn as one kid. gateReach = how close you must be to open the cage.",

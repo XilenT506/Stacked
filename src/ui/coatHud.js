@@ -83,6 +83,7 @@ export class CoatHud {
     el.innerHTML = `<h2>${r.why === 'got away' ? 'You got away!' : r.why === 'all caught' ? 'Everyone got caught!' : 'Shut in at Closing Time!'}</h2>
       <ul>${r.items.map((i) => `<li>${i.name}<b>${i.value}${i.value < i.base ? ` <s>${i.base}</s>` : ''}</b></li>`).join('') || '<li>Nothing at all...</li>'}</ul>
       <p>Loot <b>${r.banked}</b> × ${r.mult} ${r.bonusName ? `(${r.bonusName}${r.clean ? '' : `, Heat ${r.heat}`})` : ''} = <b>${r.total}</b> sweets</p>
+      ${r.leftBehind ? `<p class="no">Left behind: ${r.leftBehind} kid${r.leftBehind > 1 ? 's' : ''}. They're waiting in the Lost & Found.</p>` : ''}
       ${r.giggles ? `<p class="gg">Giggles: ${r.giggles.total}</p><ul class="gg">${r.giggles.moments.map((m) => `<li>${m.label}${m.count > 1 ? ` ×${m.count}` : ''}<b>+${m.giggles}</b></li>`).join('') || '<li>No funny business. Suspicious.</li>'}</ul>` : ''}
       <p class="${r.met ? 'ok' : 'no'}">${r.met ? `Quota met! (${r.quota})` : `Quota missed by ${r.short} (needed ${r.quota}).`}</p>
       <p class="small">${next}</p>`;

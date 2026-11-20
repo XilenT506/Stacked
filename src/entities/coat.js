@@ -132,6 +132,7 @@ export class Coat {
     if (sugar && moving) fill += sugar.wobble * sp / 8;
     if (this.effects.soaked > 0 && moving && this.walker.turnRate > 4) { this.effects.soaked = 0; this.wobble += this.B.gadgetsOnCoat.soakedTurnWobble; this.events.push({ type: 'stumble' }); }
     const scale = this.count === 3 ? 1 : this.count === 2 ? 0.7 : 0.3;     // a shorter stack is steadier
+    if (this.coCarry) fill *= B.coCarry ?? 1;                             // two coats holding one cake steady each other
     if (fill > 0) this.wobble += fill * scale * dt;
     else this.wobble -= (actNatural ? B.actNaturalDrain : B.calmDrain) * dt;
     this.wobble = Math.max(0, Math.min(1, this.wobble));

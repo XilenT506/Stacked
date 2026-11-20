@@ -76,7 +76,7 @@ console.log('pile', JSON.stringify(cs), cs.count === 1 && cs.pile ? 'OK' : 'FAIL
 // M1-F1, the first minute, opened like a player would (no ?dev=1): the very first frame is only the start
 // card over the shop; R closes it without unstacking; the arrow points to Nan's cake, the sign floats over
 // it, and once the cake is carried the arrow points to the gate. The crayon map knows the bakery and the gate.
-{
+if (!process.env.CAUGHTONLY && !process.env.MONEYONLY && !process.env.WAYONLY) {
   const f = await browser.newPage({ viewport: { width: 1280, height: 720 }, deviceScaleFactor: 1 });
   f.on('pageerror', (e) => { errors.push(String(e)); console.log('PAGE ERROR', String(e)); });
   await f.goto('http://localhost:8481/?q=high');
@@ -109,7 +109,7 @@ console.log('pile', JSON.stringify(cs), cs.count === 1 && cs.pile ? 'OK' : 'FAIL
 // M1-F2, getting caught: a "why" bubble when a grown-up sees you run, loose kids with markers (in the shop,
 // at the screen edge and on the crayon map), your coat's outline through a pile-on, and the Spare Kid
 // coming in through the back door when Panic has locked the front.
-if (!process.env.FIRSTONLY && !process.env.MONEYONLY) {
+if (!process.env.FIRSTONLY && !process.env.MONEYONLY && !process.env.WAYONLY) {
   const f = await browser.newPage({ viewport: { width: 1280, height: 720 }, deviceScaleFactor: 1 });
   f.on('pageerror', (e) => { errors.push(String(e)); console.log('PAGE ERROR', String(e)); });
   await f.goto('http://localhost:8481/?q=high&dev=1');
@@ -159,7 +159,7 @@ if (!process.env.FIRSTONLY && !process.env.MONEYONLY) {
 
 // M1-F3, sweets that make sense: one money line on the HUD, the same numbers at the getaway gate, and the
 // bonus only on the results screen.
-if (!process.env.FIRSTONLY && !process.env.CAUGHTONLY) {
+if (!process.env.FIRSTONLY && !process.env.CAUGHTONLY && !process.env.WAYONLY) {
   const f = await browser.newPage({ viewport: { width: 1280, height: 720 }, deviceScaleFactor: 1 });
   f.on('pageerror', (e) => { errors.push(String(e)); console.log('PAGE ERROR', String(e)); });
   await f.goto('http://localhost:8481/?q=high&dev=1');
@@ -183,6 +183,45 @@ if (!process.env.FIRSTONLY && !process.env.CAUGHTONLY) {
   console.log('results', res.replace(/\s+/g, ' ').slice(0, 220), /Quota met!/.test(res) && !/Detention/.test(res) ? 'OK' : 'FAIL');
   await f.close();
   if (process.env.MONEYONLY) { console.log(errors.length ? 'ERRORS ' + errors.join(' | ') : 'no page errors'); await browser.close(); server.close(); process.exit(0); }
+}
+
+// M1-F4, the way out: the café side exit onto the car park, the parked cars out of the way, two coats
+// carrying Nan's cake together (the cake between them, both coats' arms on it), and the gate's warning
+// about kids still inside.
+if (!process.env.FIRSTONLY && !process.env.CAUGHTONLY && !process.env.MONEYONLY) {
+  const f = await browser.newPage({ viewport: { width: 1280, height: 720 }, deviceScaleFactor: 1 });
+  f.on('pageerror', (e) => { errors.push(String(e)); console.log('PAGE ERROR', String(e)); });
+  await f.goto('http://localhost:8481/?q=high&dev=1');
+  await f.waitForFunction(() => globalThis.__stacked2?.clock.time > 1, null, { timeout: 120000 });
+  const fw = (sec) => f.evaluate((s) => new Promise((res) => { const t0 = __stacked2.clock.time; const g = () => (__stacked2.clock.time - t0 >= s ? res() : requestAnimationFrame(g)); g(); }), sec);
+  const put = (i, x, z) => f.evaluate(([i, x, z]) => { const w = __stacked2.game.coats[i].walker; w.body.setTranslation({ x, y: 1.2, z }, true); w.body.setNextKinematicTranslation({ x, y: 1.2, z }); w.vel.x = w.vel.z = 0; }, [i, x, z]);
+  await f.evaluate(() => { const G = __stacked2.game; for (const p of G.people.list) { const q = { x: p.feet.x, y: -50, z: p.feet.z }; p.walker.body.setTranslation(q, true); p.walker.body.setNextKinematicTranslation(q); } });
+  // the side exit, from the café
+  await put(0, 15.9, 9.6); await fw(0.8);
+  await f.screenshot({ path: 'test/shots/wayout_side_exit.png' });
+  // the car park: a clear lane past the parked cars to the gate
+  await put(0, 6, 13.6); await fw(0.8);
+  await f.screenshot({ path: 'test/shots/wayout_carpark.png' });
+  // a second player joins and the two coats carry the cake together
+  await f.evaluate(() => { __stacked2.game.addPlayer('p2'); });
+  await fw(0.3);
+  await put(0, 13.0, -4.1); await put(1, 14.4, -4.1); await fw(0.3);
+  const co = await f.evaluate(() => { const G = __stacked2.game, [a, b] = G.coats, cake = G.loot.items.find((i) => i.id === 'birthday_cake');
+    Object.assign(cake, { state: 'carried', carriers: [a, b] }); G.loot.load(cake); return { carriers: cake.carriers.length, co: a.coCarry && b.coCarry }; });
+  await put(0, 13.0, -2.6); await put(1, 14.6, -2.6); await fw(0.6);
+  const arms = await f.evaluate(() => { const v = __stacked2.lootView.views.find((x) => x.it.id === 'birthday_cake'); return { arms: v.arms.filter((a) => a.visible).length, cake: v.m.visible, x: +v.it.x.toFixed(2) }; });
+  await f.screenshot({ path: 'test/shots/wayout_cocarry.png' });
+  console.log('co-carry', JSON.stringify({ ...co, ...arms }), co.carriers === 2 && co.co && arms.arms === 2 && arms.cake && arms.x > 13.2 && arms.x < 14.4 ? 'OK' : 'FAIL');
+  // at the gate with the second coat still inside: the first E warns
+  await f.evaluate(() => { const G = __stacked2.game, cake = G.loot.items.find((i) => i.id === 'birthday_cake'); G.loot.drop(cake, 'test'); });
+  const [gx, gz] = await f.evaluate(() => __stacked2.game.D.place.getaway.at);
+  await put(0, gx, gz); await fw(0.6);
+  await f.keyboard.down('KeyE'); await fw(0.25); await f.keyboard.up('KeyE'); await fw(0.5);
+  const warn = await f.evaluate(() => ({ over: __stacked2.game.job.over, msg: document.getElementById('announce').textContent }));
+  await f.screenshot({ path: 'test/shots/wayout_gate_warning.png' });
+  console.log('gate warning', JSON.stringify(warn), !warn.over && /3 kids still inside! E again to leave without them/.test(warn.msg) ? 'OK' : 'FAIL');
+  await f.close();
+  if (process.env.WAYONLY) { console.log(errors.length ? 'ERRORS ' + errors.join(' | ') : 'no page errors'); await browser.close(); server.close(); process.exit(0); }
 }
 
 // the supermarket: an overview with the planning overlay, then every area seen from the coat's camera

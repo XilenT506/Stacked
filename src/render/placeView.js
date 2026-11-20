@@ -36,6 +36,7 @@ export class PlaceView {
       if (a.sign) {
         const sign = new T.Mesh(new T.PlaneGeometry(2.6, 0.65), new T.MeshBasicMaterial({ map: label(a.name), transparent: true }));
         sign.position.set(a.sign[0], a.outside ? 2.2 : 2.75, a.sign[1]); sign.rotation.x = -0.35; this.g.add(sign);
+        (this.signs ??= []).push(sign);
       }
     });
     // the freezer ice: shiny pale blue
@@ -48,6 +49,15 @@ export class PlaceView {
   }
 
   // rows of coloured packets on both faces of a shelf
+  // the area name signs fade away while a coat (or loot someone carries) is near one, so they never cover you
+  fadeSigns(points, dt) {
+    for (const sg of this.signs ?? []) {
+      const p = sg.position, near = points.some((q) => Math.abs(q.x - p.x) < 2.2 && q.z > p.z - 2.6 && q.z < p.z + 1.6);
+      const o = sg.material.opacity + ((near ? 0.12 : 1) - sg.material.opacity) * Math.min(1, dt * 8);
+      sg.material.opacity = o;
+    }
+  }
+
   stock(s) {
     const colors = s.kind === 'sweetshelf' ? [0xe2694f, 0xf4c542, 0x8e5bc4, 0x4fc98c, 0xff8fb0] : [0x4f9fc9, 0xe0a83a, 0x7fbf5f, 0xc4553d, 0xd9d0c0];
     const geo = new T.BoxGeometry(0.22, 0.3, 0.5), n = Math.floor(s.size[2] / 0.6), per = [];

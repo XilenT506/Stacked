@@ -28,7 +28,7 @@
   "walls": {
     "_about": "outer shop walls 3 m, back-room walls 2.6 m, outdoor fences 1.2 m. Gaps are the doors.",
     "shop": { "h": 3, "color": "#efd9bd", "list": [
-      [-18, 12, -16, 12], [-13, 12, 18, 12],
+      [-18, 12, -16, 12], [-13, 12, 14.4, 12], [17.4, 12, 18, 12],
       [-18, -10, -18, 12], [18, -10, 18, 12],
       [-18, -10, -10, -10], [-8, -10, 3, -10], [5, -10, 18, -10]
     ] },
@@ -49,6 +49,7 @@
     { "id": "storedoor", "name": "Swing doors",  "between": ["backwalk", "store"],  "span": [3, -10, 5, -10] },
     { "id": "inner",  "name": "Staff room to storeroom", "between": ["staff", "store"], "span": [-2, -15, -2, -13.5] },
     { "id": "back",   "name": "Back door",       "between": ["store", "yard"],      "span": [5, -18, 7, -18] },
+    { "id": "side",   "name": "Caf\u00e9 side exit", "between": ["cafe", "carpark"], "span": [14.4, 12, 17.4, 12] },
     { "id": "gate",   "name": "Getaway gate",    "between": ["carpark", "outside"], "span": [13, 20, 19, 20] }
   ],
 
@@ -64,8 +65,8 @@
       [-8, -14, 2.4, 0.8, 1.2, "table"], [-11, -17.2, 3, 0.8, 1, "sofa"], [-13.4, -12.5, 0.6, 2, 4, "lockers"],
       [2, -16.6, 4, 2.2, 0.8, "rack"], [9.5, -11, 3, 2.2, 0.8, "rack"], [1, -12.5, 1.6, 1.4, 1.6, "pallet"],
       [3, -22, 1.4, 1.3, 1, "bin"], [5, -22, 1.4, 1.3, 1, "bin"], [12, -21.5, 5, 2.2, 2.2, "van"],
-      [15.6, 10.4, 0.9, 0.75, 0.9, "table"], [17, 9.4, 0.9, 0.75, 0.9, "table"],
-      [-6, 16, 2, 1.4, 4.2, "car"], [1, 16.5, 2, 1.4, 4.2, "car"], [7, 15.5, 2, 1.4, 4.2, "car"], [-19.5, 16, 1, 2, 4, "trolleybay"]
+      [13.8, 10.4, 0.9, 0.75, 0.9, "table"], [17.4, 9.4, 0.9, 0.75, 0.9, "table"],
+      [-6, 17.7, 2, 1.4, 4.2, "car"], [0, 17.7, 2, 1.4, 4.2, "car"], [6, 17.7, 2, 1.4, 4.2, "car"], [-19.5, 16, 1, 2, 4, "trolleybay"]
     ]
   },
 
@@ -183,8 +184,8 @@
         "shutters": [[-6, -10, -6, 4], [-18, 4, -6, 4]] },
       { "id": "middle",  "name": "Sweets, pop and freezers", "areas": ["aisle4", "sweets", "freezer", "backwalk"],
         "shutters": [[-6, 4, 8, 4], [8, -2, 8, 4]] },
-      { "id": "produce", "name": "Fruit and veg",    "areas": ["produce"],
-        "shutters": [[8, 4, 8, 12]] },
+      { "id": "produce", "name": "Fruit, veg and the caf\u00e9", "areas": ["produce", "cafe"],
+        "shutters": [[8, 4, 8, 12], [14.4, 12, 17.4, 12]] },
       { "id": "front",   "name": "Tills and entrance", "areas": ["tills", "entrance"],
         "shutters": [[-16, 12, -13, 12]] }
     ]

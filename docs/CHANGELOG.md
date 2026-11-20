@@ -2,6 +2,19 @@
 
 Newest first. One entry per build session (one prompt from the Build guide in the doc "STACKED – Game Plan").
 
+## 2026-11-20 · Fix 4 of 6 (M1-F4): The way out, and carrying together
+
+- **Café side exit:** a 3 m gap in the shop's front wall at the café corner (`side` in the doors list) opens onto the car park right by the getaway gate. A bot carries Nan's cake from the bakery to the gate in 7.7 s. The exit is 3 m wide (not 2) so two coats carrying the cake side by side fit through. It shuts with the fruit and veg at Closing Time (that step is now "Fruit, veg and the café"); Panic does not lock it, and the Heat 3 line now says "the café side exit and the back door still work". One café table moved off the path.
+- **Parked cars** moved up against the far fence (z 15.6 to 19.8), leaving a clear 3.5 m lane from the entrance to the gate. A bot carries the cake from the entrance to the gate in 11 s without getting stuck.
+- **Kids still inside:** at the gate, the first E (with kids still in the shop: coats not at the gate, or loose kids) warns only that player: "2 kids still inside! E again to leave without them", and the hint says "E again: leave 2 kids behind (they go to the Lost & Found)". E again within 6 s (`job.gateWarnSeconds`) ends the job; the left-behind kids go to the Lost & Found and the results say "Left behind: 2 kids. They're waiting in the Lost & Found."
+- **Carrying together:**
+  - Co-carried loot sits between the two coats, turned along the line between them, with both coats' sleeves reaching for it.
+  - The area name signs over the shop fade out while a coat is under them, so they never cover you.
+  - Carrying together is steadier: every wobble fill is ×0.45 (`wobble.coCarry`).
+  - In the test two coats carry the cake 15 m+ (through the side exit) without a kid falling out.
+- The edge arrows sit a bit lower, clear of the announcements.
+- Tests: new `test/logic/wayout.test.mjs` (the side exit and its Closing Time step, the cake from the bakery and from the entrance to the gate, the gate warning and the Lost & Found, the 15 m co-carry). The online-play and couch tests and the browser online check press E twice when someone is still inside. New screenshots `wayout_*.png` and `online_gate_warning.png`.
+
 ## 2026-11-19 · Fix 3 of 6 (M1-F3): Sweets and loot that make sense
 
 - **Sweets to the plan's scale** (data only, `data/places/supermarket.json`): every loot value divided by 10 (Nan's cake 80, giant lolly 40, pop crate 50, coin jar 30, small sweets 6 to 20; all of it together 298) and the quota 1500 → 150. Del's prices (30 to 55) now matter: a job that just meets the quota buys two or three things, not the whole stall.

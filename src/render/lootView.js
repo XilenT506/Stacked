@@ -19,6 +19,14 @@ function signTex(text) {
   const t = new T.CanvasTexture(c); t.colorSpace = T.SRGBColorSpace; return t;
 }
 
+// a coat's arm reaching out to the loot it carries: a sleeve from its chest to the loot's edge
+const SLEEVE = new T.MeshStandardMaterial({ color: '#6b4a33', roughness: 0.9 }), UP = new T.Vector3(0, 1, 0);
+function placeArm(m, from, to) {
+  const d = new T.Vector3().subVectors(to, from), len = d.length();
+  m.visible = len > 0.05; if (!m.visible) return;
+  m.position.copy(from).addScaledVector(d, 0.5); m.scale.set(1, len, 1); m.quaternion.setFromUnitVectors(UP, d.normalize());
+}
+
 export class LootView {
   constructor(scene, loot, job = null) {
     this.loot = loot; this.t = 0; const tex = star();
@@ -26,7 +34,8 @@ export class LootView {
       const s = it.look.shape || [0.2, 0.2, 0.2];
       const m = new T.Mesh(new T.BoxGeometry(...s), new T.MeshStandardMaterial({ color: it.look.color || '#f4c542', roughness: 0.5 })); m.castShadow = true;
       const st = new T.Sprite(new T.SpriteMaterial({ map: tex, depthTest: false })); st.scale.setScalar(it.kind === 'big' ? 0.55 : 0.35); st.renderOrder = 9;
-      scene.add(m, st); return { it, m, st, h: s[1] };
+      const arms = [0, 1].map(() => { const a = new T.Mesh(new T.CylinderGeometry(0.07, 0.07, 1, 6), SLEEVE); a.visible = false; a.castShadow = true; scene.add(a); return a; });
+      scene.add(m, st); return { it, m, st, h: s[1], w: Math.max(s[0], s[2]) / 2, arms };
     });
     const target = job?.targetLoot && this.views.find((v) => v.it.id === job.targetLoot);
     if (target) {
@@ -40,9 +49,20 @@ export class LootView {
     for (const v of this.views) {
       const it = v.it, show = it.state === 'lying' || it.state === 'carried';
       v.m.visible = show; v.st.visible = it.state === 'lying';
+      const cs = it.state === 'carried' ? it.carriers : [];
+      v.arms.forEach((a, i) => { a.visible = !!cs[i]; });
       if (!show) continue;
       v.m.position.set(it.x, it.y + v.h / 2, it.z);
-      if (it.state === 'carried') v.m.rotation.y = it.carriers[0].walker.yaw;
+      if (cs.length === 1) v.m.rotation.y = cs[0].walker.yaw;
+      // carried together: the loot sits between the two coats, turned to face along the line between them,
+      // with both coats' arms reaching for it (so both players can see who is holding it)
+      if (cs.length === 2) { const a = cs[0].walker.feet, b = cs[1].walker.feet; v.m.rotation.y = Math.atan2(b.x - a.x, b.z - a.z) + Math.PI / 2; }
+      cs.forEach((c, i) => {
+        const f = c.walker.feet, h = (c.state?.height ?? 2.2), chest = new T.Vector3(f.x, f.y + h * 0.55, f.z), mid = new T.Vector3(it.x, it.y + v.h / 2, it.z);
+        const toward = new T.Vector3(f.x - it.x, 0, f.z - it.z); const l = toward.length();
+        if (l > 0.01) mid.addScaledVector(toward, Math.min(v.w, l * 0.5) / l);
+        placeArm(v.arms[i], chest, mid);
+      });
       v.st.position.set(it.x, it.y + v.h + 0.35 + Math.sin(this.t * 3 + it.n) * 0.06, it.z);
     }
     if (this.sign) {
