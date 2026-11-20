@@ -2,6 +2,15 @@
 
 Newest first. One entry per build session (one prompt from the Build guide in the doc "STACKED – Game Plan").
 
+## 2026-11-20 · Task 17b: M1 gate, round 2
+
+- **Gate failed again:** average score 6.0 (rule: 7 or more) and 0 of 3 would play another round (rule: at least 2). Up from 5.0 in round 1.
+- **Who played:** an agent playtest again, at Nick's request. Claude played in Nick's seat and two separate AI agents played as first-time friends (one solo, one in 2-player online co-op on one computer), through a slow headless browser (4 to 8 frames a second) with no sound. A playtest with real people is still the real test.
+- **Loved:** the grown-ups' lines, Del's jokes, acting natural and posing with the mannequins, and prank chains (a forgotten banana peel flooring a guard, DOMINO ×4 from one water balloon, DOMINO ×7 from a lone kid's cream cake). Nobody got lost on the way to the cake or stuck typing a room code any more.
+- **Confused:** getting caught still snowballs and ends the run within a minute or two, kids fall out and the coat slides for no clear reason, pranks miss or show nothing, Giggles don't match the fun, and words on screen contradict or cover each other. Job 2 is a copy of job 1.
+- Answers written into "STACKED – M1 Playtest Sheet" and into the Game Plan ("Round 2 (AI agents, after the fixes)"; the heading says AI agents, not people, because no real people played). Five new fix prompts are in the Game Plan under "M1 fixes, round 2" (M1-F7 to M1-F11).
+- No game code changed.
+
 ## 2026-11-20 · Fix 6 of 6 (M1-F6): Camera, co-op and the playtest build
 
 - **The camera never turns.** It never yawed (no ride, trolley or pile-up turns it, and WASD always meant the same screen directions), but screen shake added a small roll each shake, up to about 1 degree on a big hit. With hits coming one after another that reads as the camera tilting about. The camera's angle is now fixed once and copied every frame; a shake only moves it (`src/render/followCamera.js`). New `test/logic/camera.test.mjs`: a coat rides a trolley up and right, lets go, unstacks, gets piled on by four grown-ups, takes a whack and a full shake, and the camera's angle never changes (the test catches the old roll: 1.01°). W rides and walks up the screen throughout.
