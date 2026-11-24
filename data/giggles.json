@@ -39,10 +39,27 @@
       "reel": "Knocked flat by a burp.",
       "small": true
     },
+    "cushion": {
+      "shout": "PFFFRRT!",
+      "reel": "Sat right on the whoopee cushion.",
+      "small": true
+    },
+    "bubblePop": {
+      "shout": "POP POP POP!",
+      "reel": "Every step a pop.",
+      "small": true
+    },
     "peelSlip": {
       "shout": "BANANA!",
       "reel": "The oldest trick in the book.",
       "small": true
     }
+  },
+  "causes": {
+    "_about": "what caused a Giggle, said under the shout ('your water balloon', 'Player 2's banana peel'). Gadgets use their own name from data/gadgets.json; these are the rest.",
+    "burp_blaster": "Burp Blaster",
+    "pose": "pose",
+    "getaway": "getaway",
+    "coat": "coat"
   }
 }

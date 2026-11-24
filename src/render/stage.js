@@ -53,6 +53,14 @@ export class Stage {
   }
 
   // draw one frame. watch = the coat whose HUD and meters are shown; focus = where the camera looks
+  // what caused a Giggle, from this screen's point of view: "your water balloon", "Player 2's banana peel"
+  causeLine(e, me) {
+    if (!e.cause) return '';
+    const what = this.data.gadgets.gadgets[e.cause]?.name ?? this.data.giggles.causes?.[e.cause] ?? e.cause;
+    const slot = this.model.coats.find((c) => c.pid === e.by)?.slot, who = e.by == null ? '' : me.includes(e.by) ? 'your' : `Player ${(slot ?? 0) + 1}'s`;
+    return `${who} ${what.toLowerCase()}`.trim();
+  }
+
   update(dt, { watch, focus, aims = [], camera, events = [], me = [] }) {
     if (this.model.jobNo !== this.jobNo) this.build(this.model);
     this.syncCoats();
@@ -91,7 +99,7 @@ export class Stage {
       else if (e.k === 'say') this.voices.say(e.who, e.clip, { x: e.x, z: e.z });
       else if (e.k === 'announce') { const mine = !e.to || me.includes(e.to); if (mine || e.others) this.hud.announce(mine ? e.text : e.others, e.title); }
       else if (e.k === 'shout') { const g = people.get(e.who); if (g) this.peopleView.shout(g, e.text, e.sec); }
-      else if (e.k === 'giggle') this.hud.giggle(e);
+      else if (e.k === 'giggle') this.hud.giggle({ ...e, from: this.causeLine(e, me) });
       else if (e.k === 'coat') { const c = coats.get(e.pid); if (c) { const l = this.pops.get(c) ?? []; l.push({ type: e.type }); this.pops.set(c, l); } }
     }
   }

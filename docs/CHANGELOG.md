@@ -2,6 +2,14 @@
 
 Newest first. One entry per build session (one prompt from the Build guide in the doc "STACKED – Game Plan").
 
+## 2026-11-24 · Round 2 fix 4 of 5 (M1-F10): Giggles that match the fun
+
+- **Every trap pays when it springs, to whoever set it,** however long ago. A banana peel ("BANANA!", 5), a whoopee cushion ("PFFFRRT!", 5, new) and bubble wrap ("POP POP POP!", 3, new) on a grown-up. The numbers are in `balance.giggles.moments`, the words in `data/giggles.json`. A test drops a peel, waits a full minute and walks a guard onto it. That paid 5 Giggles even before this fix, so I couldn't find why the tester got 0. Now every shout says whose trap it was, so a missing payout would show.
+- **Every Giggle says what caused it**, under the shout: "DOMINO ×4! your water balloon · +50 Giggles". On a friend's screen it's "Player 1's water balloon". A Domino remembers the gadget (or the burp) that started its chain. The words for things that aren't gadgets ("pose", "getaway", "Burp Blaster") are in `data/giggles.json` `causes`.
+- **What Giggles are for:** the meter says "Be funny: fill it for a Giggle Rush" (during a Rush: "Faster, and endless ammo!"). The results card says "Giggles: 55 (these turn into Pocket Money later, not sweets)", on its own line, apart from the sweets sum. The prompt said "Sugar Rush", but the game calls the full meter a Giggle Rush (a Sugar Rush for the whole team), so the label uses Giggle Rush.
+- Tests: new `test/logic/traps.test.mjs` (a peel a minute later, a whoopee cushion, a Domino naming the water balloon, every moment naming a cause).
+- New screenshots `f10_giggle_shout.png` and `f10_results_giggles.png`.
+
 ## 2026-11-24 · Round 2 fix 3 of 5 (M1-F9): Pranks that land
 
 - **First, aiming at normal speed.** In a logic test at 60 steps a second, with the cursor on a shopper walking 6 m away, the old water pistol already hit on the second shot. So the testers' 43 misses came mostly from three things:

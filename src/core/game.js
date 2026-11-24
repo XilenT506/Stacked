@@ -335,7 +335,7 @@ export class Game {
   // Giggles: the shout, the meter, the Giggle Rush (drawn by the HUD)
   presentGiggles() {
     for (const e of this.giggles.take()) {
-      if (e.type === 'moment') { this.emit({ k: 'giggle', label: e.m.label, giggles: e.giggles, kind: e.m.kind, by: e.m.by, bigger: e.bigger, small: e.m.small }); this.fx('giggle', e.m.at, e.m.by); }
+      if (e.type === 'moment') { this.emit({ k: 'giggle', label: e.m.label, giggles: e.giggles, kind: e.m.kind, by: e.m.by, cause: e.m.cause ?? null, bigger: e.bigger, small: e.m.small }); this.fx('giggle', e.m.at, e.m.by); }
       if (e.type === 'rush') { this.emit({ k: 'giggle', label: e.label, rush: true }); this.fx('rush'); }
     }
   }

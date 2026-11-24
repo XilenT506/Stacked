@@ -266,7 +266,9 @@
         "distance": 10,
         "switchDistance": 6
       },
-      "soakFriend": {"giggles": 10, "every": 20}, "firstSoak": {"giggles": 4}, "burpKnock": {"giggles": 5}, "peelSlip": {"giggles": 5},
+      "soakFriend": {"giggles": 10, "every": 20}, "firstSoak": {"giggles": 4}, "burpKnock": {"giggles": 5},
+      "_traps": "a trap pays when it springs on a grown-up, however long ago it was set, to whoever set it (M1-F10)",
+      "peelSlip": {"giggles": 5, "gadget": "banana_peel"}, "cushion": {"giggles": 5, "gadget": "whoopee_cushion"}, "bubblePop": {"giggles": 3, "gadget": "bubble_wrap"},
       "mannequin": {
         "giggles": 20,
         "range": 2.5,

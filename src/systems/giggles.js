@@ -4,6 +4,10 @@
 //   Trick shot  a gadget hits a grown-up from right across the shop, or flips a switch from far away
 //   Soak a friend  your water hits a teammate's coat (once per friend per soakFriend.every seconds)
 //   Small ones (M1-F5): the first soak of each grown-up, a burp that floors someone, a banana-peel slip
+//   Traps (M1-F10): a peel, a whoopee cushion or bubble wrap pays when it springs on a grown-up, however long
+//               ago it was set, to whoever set it
+// Every moment says what caused it (cause: a gadget id, 'burp_blaster', 'pose', 'getaway') and who (by), so
+// the shout can say "DOMINO ×4: your water balloon" even when the chain finished off screen.
 //   Nerves of steel  posing in the mannequin row while the guard inspects you from up close, and he walks off
 //   Just in time    getting away as the last shutters come down, or with a grown-up right behind you
 //   One kid show    getting away with only one kid left in the coat
@@ -54,41 +58,49 @@ export class Giggles {
       const before = chain.moment ? chain.moment.giggles : 0, giggles = M.giggles + M.perExtra * (n - M.min);
       if (this.closed) return;
       if (chain.moment) { chain.moment.n = n; chain.moment.giggles = giggles; chain.moment.label = this.shout('domino', n); this.add(giggles - before, chain.moment, true); }
-      else chain.moment = this.moment('domino', { n, at: p, by: chain.by, giggles, chain: chain.id });
+      else chain.moment = this.moment('domino', { n, at: p, by: chain.by, giggles, chain: chain.id, cause: chain.cause ?? null });
       chain.shouted = n; chain.moment.signals = chain.n; chain.moment.types = [...chain.types];      // how long the chain was, for the reel
     }
   }
 
   // ---- gadgets: trick shots and soaking a friend ----
   gadget(e) {
-    if (e.by && e.at) { const ch = this.chainAt(e.at, this.time); if (ch && !ch.by) ch.by = e.by.pid; }     // whoever threw it started that chain
+    if (e.by && e.at) { const ch = this.chainAt(e.at, this.time); if (ch) { ch.by ??= e.by.pid; ch.cause ??= e.gadget; } }     // whoever threw it started that chain
     if (e.type === 'trigger') return this.trigger(e);
     if (e.type !== 'hit' || !e.by || !e.from) return;
     const M = this.G.moments, d = Math.hypot(e.at.x - e.from.x, e.at.z - e.from.z);
-    if (e.target === 'grownup' && d >= M.trickShot.distance) this.moment('trickShot', { at: e.at, by: e.by.pid, dist: Math.round(d) });
-    if (e.target === 'thing' && e.toggled && d >= M.trickShot.switchDistance) this.moment('trickShot', { at: e.at, by: e.by.pid, dist: Math.round(d) });
+    if (e.target === 'grownup' && d >= M.trickShot.distance) this.moment('trickShot', { at: e.at, by: e.by.pid, dist: Math.round(d), cause: e.gadget });
+    if (e.target === 'thing' && e.toggled && d >= M.trickShot.switchDistance) this.moment('trickShot', { at: e.at, by: e.by.pid, dist: Math.round(d), cause: e.gadget });
     if (e.target === 'coat' && e.effect === 'soaked' && e.coat !== e.by) {
       // FRIENDLY FIRE: once per friend per soakFriend.every seconds (holding the trigger on a mate is not a joke 30 times)
       const key = `${e.by.pid}>${e.coat.pid}`, last = this.friendly.get(key);
-      if (last === undefined || this.time - last >= (M.soakFriend.every ?? 0)) { this.friendly.set(key, this.time); this.moment('soakFriend', { at: e.at, by: e.by.pid, who: e.coat.pid }); }
+      if (last === undefined || this.time - last >= (M.soakFriend.every ?? 0)) { this.friendly.set(key, this.time); this.moment('soakFriend', { at: e.at, by: e.by.pid, who: e.coat.pid, cause: e.gadget }); }
     }
     // the first soak of each grown-up this job
-    if (e.target === 'grownup' && e.effect === 'soaked' && !this.soakedOnce.has(e.who.id)) { this.soakedOnce.add(e.who.id); this.moment('firstSoak', { at: e.at, by: e.by.pid }); }
+    if (e.target === 'grownup' && e.effect === 'soaked' && !this.soakedOnce.has(e.who.id)) { this.soakedOnce.add(e.who.id); this.moment('firstSoak', { at: e.at, by: e.by.pid, cause: e.gadget }); }
   }
 
-  // a grown-up stepped on your banana peel and went down
-  trigger(e) { if (e.target === 'grownup' && e.by && e.effect === 'slipped') this.moment('peelSlip', { at: e.at, by: e.by.pid }); }
+  // a grown-up sprang one of your traps (a banana peel, a whoopee cushion, bubble wrap), however long ago you set it
+  trigger(e) {
+    if (e.target !== 'grownup' || !e.by) return;
+    const kind = Object.keys(this.G.moments).find((k) => this.G.moments[k]?.gadget === e.gadget);
+    if (kind) this.moment(kind, { at: e.at, by: e.by.pid, cause: e.gadget });
+  }
 
   // a burp floored someone (they also count in the chain they fell in, towards a Domino)
-  burp(coat, floored) { if (floored > 0) this.moment('burpKnock', { at: coat.walker.feet, by: coat.pid, n: floored }); }
+  burp(coat, floored) {
+    if (floored <= 0) return;
+    this.moment('burpKnock', { at: coat.walker.feet, by: coat.pid, n: floored, cause: 'burp_blaster' });
+    const ch = this.chainAt(coat.walker.feet, this.time); if (ch) { ch.by ??= coat.pid; ch.cause ??= 'burp_blaster'; }
+  }
 
   // ---- the getaway: just in time, or one kid left ----
   getaway(coat, { closing, people }) {
     const M = this.G.moments, f = coat.walker.feet;
     const lastShutters = closing.started && closing.next >= closing.sections.length - 1 && closing.warnT > 0 && closing.warnT <= M.lastSecond.shutterSeconds;
     const chased = people.list.some((g) => (g.state === 'chase' || g.state === 'grab') && Math.hypot(g.feet.x - f.x, g.feet.z - f.z) <= M.lastSecond.chaseRange);
-    if (lastShutters || chased) this.moment('lastSecond', { at: f, by: coat.pid, why: lastShutters ? 'shutters' : 'chased' });
-    if (coat.count === 1) this.moment('oneKid', { at: f, by: coat.pid });
+    if (lastShutters || chased) this.moment('lastSecond', { at: f, by: coat.pid, why: lastShutters ? 'shutters' : 'chased', cause: 'getaway' });
+    if (coat.count === 1) this.moment('oneKid', { at: f, by: coat.pid, cause: 'coat' });
   }
 
   // ---- every step: the mannequin row, the Giggle Rush, the recorder ----
@@ -102,7 +114,7 @@ export class Giggles {
       if (g.state === 'inspect' && c?.hidden?.mode === 'pose' && Math.hypot(c.walker.feet.x - g.feet.x, c.walker.feet.z - g.feet.z) <= M.range) this.watching.set(g, c);
       else if (w && g.state !== 'inspect') {
         this.watching.delete(g);
-        if (w.hidden?.mode === 'pose' && !g.hostile.has(w)) this.moment('mannequin', { at: w.walker.feet, by: w.pid });
+        if (w.hidden?.mode === 'pose' && !g.hostile.has(w)) this.moment('mannequin', { at: w.walker.feet, by: w.pid, cause: 'pose' });
       }
     }
     // the Giggle Rush wears off

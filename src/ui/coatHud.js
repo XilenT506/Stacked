@@ -30,7 +30,7 @@ export class CoatHud {
     const el = this.gigEl ??= document.getElementById('giggles');
     if (!g) { el.style.display = 'none'; return; }
     el.style.display = 'block'; el.className = rush ? 'rush' : '';
-    const html = `<b>GIGGLES</b> ${g.total}${rush ? ' · <b>GIGGLE RUSH!</b>' : ''}<div class="gb"><div style="width:${Math.min(100, (g.meter / max) * 100)}%"></div></div>`;
+    const html = `<b>GIGGLES</b> ${g.total}${rush ? ' · <b>GIGGLE RUSH!</b>' : ''}<div class="gb"><div style="width:${Math.min(100, (g.meter / max) * 100)}%"></div></div><div class="gl">${rush ? 'Faster, and endless ammo!' : 'Be funny: fill it for a Giggle Rush'}</div>`;
     if (html !== this.lastGig) { el.innerHTML = html; this.lastGig = html; }
   }
 
@@ -39,7 +39,8 @@ export class CoatHud {
   giggle(e) {
     if (this.resEl?.style.display === 'block') { (this.popQueue ??= []).push(e); return; }
     const el = this.popEl ??= document.getElementById('giggle');
-    el.innerHTML = `${e.label}${e.giggles ? `<small>+${e.giggles} Giggles</small>` : ''}`;
+    // what caused it, so a chain that finished off screen still makes sense (M1-F10)
+    el.innerHTML = `${e.label}${e.giggles || e.from ? `<small>${e.from ? `${e.from}${e.giggles ? ' · ' : ''}` : ''}${e.giggles ? `+${e.giggles} Giggles` : ''}</small>` : ''}`;
     el.classList.toggle('small', !!e.small);
     this.popT = 2.4;                                                      // drawn frame by frame in tickPop
   }
@@ -90,7 +91,7 @@ export class CoatHud {
       <ul>${r.items.map((i) => `<li>${i.name}<b>${i.value}${i.value < i.base ? ` <s>${i.base}</s>` : ''}</b></li>`).join('') || '<li>Nothing at all...</li>'}</ul>
       <p>Loot <b>${r.banked}</b> × ${r.mult} ${r.bonusName ? `(${r.bonusName}${r.clean ? '' : `, Heat ${r.heat}`})` : ''} = <b>${r.total}</b> sweets</p>
       ${r.leftBehind ? `<p class="no">Left behind: ${r.leftBehind} kid${r.leftBehind > 1 ? 's' : ''}. They're waiting in the Lost & Found.</p>` : ''}
-      ${r.giggles ? `<p class="gg">Giggles: ${r.giggles.total}</p><ul class="gg">${r.giggles.moments.map((m) => `<li>${m.label}${m.count > 1 ? ` ×${m.count}` : ''}<b>+${m.giggles}</b></li>`).join('') || '<li>No funny business. Suspicious.</li>'}</ul>` : ''}
+      ${r.giggles ? `<p class="gg">Giggles: ${r.giggles.total} <span class="gs">(these turn into Pocket Money later, not sweets)</span></p><ul class="gg">${r.giggles.moments.map((m) => `<li>${m.label}${m.count > 1 ? ` ×${m.count}` : ''}<b>+${m.giggles}</b></li>`).join('') || '<li>No funny business. Suspicious.</li>'}</ul>` : ''}
       <p class="${r.met ? 'ok' : 'no'}">${r.met ? `Quota met! (${r.quota})` : `Quota missed by ${r.short} (needed ${r.quota}).`}</p>
       <p class="small">${next}</p>`;
   }
