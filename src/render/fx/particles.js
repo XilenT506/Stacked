@@ -43,6 +43,10 @@ export class Particles {
       case 'whoosh': for (let i = 0; i < 8; i++) this.add({ shape: 'flake', x: x + rnd(-0.5, 0.5), y: rnd(0.8, 1.8), z: z + rnd(-0.5, 0.5), vx: rnd(-3, 3), vy: 0, vz: rnd(-3, 3), g: 0, drag: 4, size: 0.5, life: 0.35, color: '#ffffff', fade: true }); break;
       case 'exclaim': this.add({ shape: 'star', x, y: 2.8, z, vx: 0, vy: 1.5, vz: 0, g: 3, size: 0.9, grow: 0.5, life: 0.6, color: '#d0453a', face: true }); this.burst('sparkle', x, z, '#ffd0c8'); break;
       case 'ring': this.ring(x, z, color ?? '#ffffff', 3); break;
+      // a Burp Blaster: a green blast rolling out along the floor (M1-F9: testers never saw the burp)
+      case 'burp': for (let i = 0; i < 28; i++) { const a = i / 28 * Math.PI * 2, s = rnd(5, 8); this.add({ shape: 'ball', x, y: rnd(0.3, 1.2), z, vx: Math.cos(a) * s, vy: rnd(0, 1), vz: Math.sin(a) * s, g: 0, drag: 2.2, size: rnd(0.3, 0.5), grow: 1.5, life: rnd(1, 1.4), color: color ?? '#9fd46a', fade: true }); } this.ring(x, z, color ?? '#9fd46a', 4.5); this.ring(x, z, '#d8f0b0', 2.5); break;
+      // a stink bomb: a green cloud that hangs about for a few seconds
+      case 'stink': for (let i = 0; i < 34; i++) this.add({ shape: 'ball', x: x + rnd(-1.6, 1.6), y: rnd(0.2, 1.6), z: z + rnd(-1.6, 1.6), vx: rnd(-0.3, 0.3), vy: rnd(0.05, 0.3), vz: rnd(-0.3, 0.3), g: 0, drag: 0.5, size: rnd(0.5, 0.9), grow: 0.4, life: rnd(3, 4.5), color: i % 3 ? color ?? '#a8c94a' : '#c8de7a', fade: true }); break;
       case 'ping': this.pings.push({ x, z, t: 0, life: 2.2, color: color ?? '#f4c542' }); this.ring(x, z, '#f4c542', 1); break;
       default: break;
     }

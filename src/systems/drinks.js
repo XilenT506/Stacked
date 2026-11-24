@@ -24,7 +24,8 @@ export class Drinks {
       const d = Math.hypot(g.feet.x - f.x, g.feet.z - f.z); if (d > S.radius) continue;
       const v = away(g.feet, S.knock); g.walker.vel.x += v.x; g.walker.vel.z += v.z;
       if (d <= S.slipRadius) { if (g.state !== 'slipped') floored++; g.applyEffect('slipped', 2.4); } else g.applyEffect('embarrassed', 1.5);
-      g.struckFrom(f);
+      g.struckFrom(f); g.burped = 2;                                     // (blown into a coat is not "watch where you're going")
+      this.events.push({ type: 'burpHit', who: g });
     }
     for (const c of coats) {
       if (c === coat) continue;

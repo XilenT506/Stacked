@@ -57,6 +57,14 @@
     "spillSpeed": 3.5,
     "headStart": 2
   },
+  "aimHelp": {
+    "_about": "M1-F9: a shot at a grown-up inside cone radians (either side of the cursor) and range m goes at them: lead x their walking speed x the flight time ahead, lifted to arrive at chest height (m), and its spread multiplied by spread",
+    "cone": 0.26,
+    "range": 12,
+    "lead": 1,
+    "chest": 1.1,
+    "spread": 0.3
+  },
   "unstack": {
     "_about": "warnDistance/warnSeconds: R with a grown-up watching within warnDistance m only warns (hint line); R again within warnSeconds unstacks anyway",
     "restackRadius": 1.3,

@@ -5,12 +5,15 @@
 //   place:      put down in front of you; whoever steps on it gets the onTrigger
 // What a hit does is data too: an effect (soaked, slipped, blinded, embarrassed), a knock, and signals.
 // It works the same on grown-ups, on friends (friendly fire is always on), on loose kids and on things.
+// A little aim help (M1-F9, balance.aimHelp): a shot at a grown-up inside a small cone round the cursor goes
+// at them (a step ahead of a walking one, lifted enough to reach), with less spread (src/systems/aim.js).
 //   gadgets.arm(coat); every step: gadgets.use(coat, dt, input); gadgets.step(dt, coats)
+import { help } from './aim.js';
 const lerp = (r, k) => (Array.isArray(r) ? r[0] + (r[1] - r[0]) * k : r);
 
 export class Gadgets {
   constructor(data, { R, world, signals, things = null, people = null, sus = null, balance = null }) {
-    this.data = data; this.R = R; this.world = world; this.signals = signals; this.things = things; this.people = people; this.sus = sus;
+    this.data = data; this.R = R; this.world = world; this.signals = signals; this.things = things; this.people = people; this.sus = sus; this.B = balance;
     this.projectiles = []; this.items = []; this.events = []; this.seed = 7; this.counts = {};   // counts: hits by target, for tests
   }
 
@@ -47,7 +50,10 @@ export class Gadgets {
   fire(coat, id, power, aim) {
     const d = this.def(id), w = coat.walker, f = w.feet, G = coat.gadgets;
     if (!(coat.superT > 0)) G.ammo[id]--;
-    const fw = aim && Math.hypot(aim.x, aim.z) > 0.01 ? aim : { x: Math.sin(w.yaw), z: Math.cos(w.yaw) }, l = Math.hypot(fw.x, fw.z), dir = { x: fw.x / l, z: fw.z / l };
+    const fw = aim && Math.hypot(aim.x, aim.z) > 0.01 ? aim : { x: Math.sin(w.yaw), z: Math.cos(w.yaw) }, l = Math.hypot(fw.x, fw.z);
+    let dir = { x: fw.x / l, z: fw.z / l };
+    const H = this.B?.aimHelp, aid = d.mode !== 'place' && aim ? help(f, { ...dir, d: aim.d }, this.people?.list, H, d, power, w.height) : null;
+    if (aid) dir = aid.dir;
     this.events.push({ type: 'fire', gadget: id, coat, power, sound: d.sound, at: { ...f } });
     if (d.mode === 'place') {
       const it = d.item, p = { x: f.x + dir.x * (it.ahead ?? 0.8), z: f.z + dir.z * (it.ahead ?? 0.8) };
@@ -55,10 +61,10 @@ export class Gadgets {
       this.send(d.onPlace, p, id);
       return;
     }
-    const P = d.projectile, sp = lerp(P.speed, power), spread = (this.rnd() - 0.5) * 2 * (P.spread ?? 0);
+    const P = d.projectile, sp = lerp(P.speed, power), spread = (this.rnd() - 0.5) * 2 * (P.spread ?? 0) * (aid ? H.spread ?? 1 : 1);
     const c = Math.cos(spread), s = Math.sin(spread), vx = (dir.x * c - dir.z * s) * sp, vz = (dir.x * s + dir.z * c) * sp;
     const h = (P.height ?? 1.2) * (w.height / 2.2);
-    this.projectiles.push({ id, def: d, power, owner: coat, from: { x: f.x, z: f.z }, x: f.x + dir.x * 0.45, y: f.y + h, z: f.z + dir.z * 0.45, vx, vy: d.mode === 'thrown' ? lerp(P.lift ?? 3, power) : P.lift ?? 0, vz, life: P.life ?? 2 });
+    this.projectiles.push({ id, def: d, power, owner: coat, from: { x: f.x, z: f.z }, x: f.x + dir.x * 0.45, y: f.y + h, z: f.z + dir.z * 0.45, vx, vy: d.mode === 'thrown' ? lerp(P.lift ?? 3, power) : aid?.vy ?? P.lift ?? 0, vz, life: P.life ?? 2 });
   }
 
   // send a hit's or a landing's signals

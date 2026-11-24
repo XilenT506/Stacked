@@ -201,7 +201,7 @@ function frame(now) {
   const pts = mine.length ? mine.map((c) => c.walker.feet) : model.coats.map((c) => c.walker.feet);
   const focus = pts.length ? { x: pts.reduce((a, p) => a + p.x, 0) / pts.length, z: pts.reduce((a, p) => a + p.z, 0) / pts.length } : { x: -14, z: 14 };
   const spread = pts.reduce((m, p) => Math.max(m, Math.hypot(p.x - focus.x, p.z - focus.z)), 0);
-  camRig.update(dt, focus, mine.length === 1 ? inputs[0].I.aim : null, Math.min(2.2, 1 + Math.max(0, spread - 3) / 9));
+  camRig.update(dt, focus, mine.length === 1 ? inputs[0].I.aim : null, Math.min(2.2, 1 + Math.max(0, spread - 3) / 9), mine.length === 1 && inputs[0].I.use);
   // the crayon map: drop scribbles the game has, then draw the map for whoever has it open
   if (model.jobNo !== mapJob) { mapJob = model.jobNo; for (const l of locals) l.outbox = []; }
   for (const l of locals) { const ack = +(model.map.acks.get(mode === 'client' ? myId : l.id) ?? 0); if (l.outbox.length) l.outbox = l.outbox.filter((s) => s.sid > ack); }
@@ -211,7 +211,7 @@ function frame(now) {
   const owner = mapOwner();
   crayonMap.show(!!owner);
   if (owner) crayonMap.draw(dt, model, mode === 'client' ? myId : owner.id, owner !== locals[0] || owner.input.device === 'pad' ? owner.input.pad : null);
-  stage.update(dt, { watch, focus, camera, events, me: mode === 'client' ? [myId] : locals.map((l) => l.id), aims: inputs.map(({ l, I }) => ({ aim: I.aim, at: coatOf(mode === 'client' ? myId : l.id)?.walker.feet ?? focus })) });
+  stage.update(dt, { watch, focus, camera, events, me: mode === 'client' ? [myId] : locals.map((l) => l.id), aims: inputs.map(({ l, I }) => { const c = coatOf(mode === 'client' ? myId : l.id); return { aim: I.aim, at: c?.walker.feet ?? focus, coat: c }; }) });
   // the HUD shows player 1 of this screen
   if (watch) {
     areaNow = place.areaAt(watch.walker.feet.x, watch.walker.feet.z);

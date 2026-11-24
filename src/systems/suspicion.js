@@ -94,6 +94,7 @@ export class Suspicion {
         // (walking into someone is a lot less odd than charging into them; standing still they bumped into you)
         if (d < 0.8 && c.count > 1 && (this.bumps.get(g) ?? -1) < this.time && (c.walker.flatSpeed ?? 1) > (S.bumpMinSpeed ?? 0)) {
           const k = c.running ? 1 : S.bumpWalking ?? 1;
+          if (g.burped > 0) continue;                                  // blown into you by a burp: not your fault
           this.bumps.set(g, this.time + (S.bumpEvery ?? 1.2)); this.bump(g, c, S.bump * k, 'bump');
           for (const o of people.list) if (o !== g && o.sees(cf)) this.bump(o, c, S.bumpSeenByOthers * k, 'bump');
           this.events.push({ type: 'bump', who: g, coat: c });

@@ -4,5 +4,7 @@
   "blinded": ["My hat! I can't see!", "Who turned the lights off?!", "Argh! My eyes!"],
   "slipped": ["Whoaaa!", "Not again!", "Mind the floor!"],
   "embarrassed": ["Oh! How rude!", "Well, I never!", "Pardon ME!"],
-  "hit": ["Ow! Who threw that?", "Oi!", "Hey! Watch it!"]
+  "hit": ["Ow! Who threw that?", "Oi!", "Hey! Watch it!"],
+  "burp": ["Pardon YOU!", "Was that a BURP?!", "Disgusting!", "Say excuse me!"],
+  "smell": ["What is that SMELL?!", "Ugh! Who did that?", "I'm off!"]
 }

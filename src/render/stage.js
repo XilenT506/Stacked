@@ -12,6 +12,7 @@ import { GadgetView } from './gadgetView.js';
 import { LootView } from './lootView.js';
 import { CageView } from './cageView.js';
 import { WallFade } from './wallFade.js';
+import { AimMarker } from './aimMarker.js';
 import { ChalkView } from './chalkView.js';
 import { Juice } from './juice.js';
 
@@ -70,9 +71,9 @@ export class Stage {
       if ((c.whistleT = (c.whistleT ?? 0) - dt) <= 0) { c.whistleT = W.every; c.whistleN = ((c.whistleN ?? -1) + 1) % W.notes.length; this.sfx.play(W.notes[c.whistleN], c.walker.feet); }
     }
     this.pops = new Map();
-    // aim rings for local players
-    while (this.aimMarks.length < aims.length) { const m = new T.Mesh(new T.RingGeometry(0.18, 0.26, 24), new T.MeshBasicMaterial({ color: 0xc4553d, transparent: true, opacity: 0.8 })); m.rotation.x = -Math.PI / 2; this.scene.add(m); this.aimMarks.push(m); }
-    this.aimMarks.forEach((m, i) => { const a = aims[i]; m.visible = !!a?.aim; if (a?.aim) m.position.set(a.at.x + a.aim.x * 1.6, 0.03, a.at.z + a.aim.z * 1.6); });
+    // aim markers for local players: where the shot will land, lit up over a grown-up (M1-F9)
+    while (this.aimMarks.length < aims.length) this.aimMarks.push(new AimMarker(this.scene, this.data));
+    this.aimMarks.forEach((m, i) => { this.aimAt = m.update(dt, aims[i], this.model.people.list); });
     // the sun's shadows follow the camera; the lights follow the light switch
     this.lights.sun.position.set(focus.x - 6, 12, focus.z + 6); this.lights.sun.target.position.set(focus.x, 0, focus.z);
     const k = this.model.lightsOff ? 0.12 : 1;

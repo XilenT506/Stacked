@@ -13,7 +13,7 @@ import { readFileSync } from 'node:fs';
 const J = JSON.parse(readFileSync(new URL('../../data/juice.json', import.meta.url)));
 const SOUNDS = JSON.parse(readFileSync(new URL('../../data/sounds.json', import.meta.url))).sounds;
 const CONTROLS = JSON.parse(readFileSync(new URL('../../data/controls.json', import.meta.url)));
-const FX = new Set(['splash', 'splashSmall', 'dust', 'puff', 'stars', 'sparkle', 'confetti', 'burst', 'coins', 'ping', 'ring', 'paper', 'exclaim', 'whoosh']);
+const FX = new Set(['splash', 'splashSmall', 'dust', 'puff', 'stars', 'sparkle', 'confetti', 'burst', 'coins', 'ping', 'ring', 'paper', 'exclaim', 'whoosh', 'burp', 'stink']);
 const R = await initPhysics();
 const idle = (extra = {}) => ({ move: { x: 0, z: 0 }, aim: null, run: false, use: false, natural: false, presses: {}, ...extra });
 

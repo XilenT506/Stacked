@@ -2,6 +2,20 @@
 
 Newest first. One entry per build session (one prompt from the Build guide in the doc "STACKED – Game Plan").
 
+## 2026-11-24 · Round 2 fix 3 of 5 (M1-F9): Pranks that land
+
+- **First, aiming at normal speed.** In a logic test at 60 steps a second, with the cursor on a shopper walking 6 m away, the old water pistol already hit on the second shot. So the testers' 43 misses came mostly from three things:
+  - The slow browser (4 to 8 frames a second).
+  - The camera sliding toward the mouse while they aimed.
+  - An aim ring that sat 1.6 m in front of the coat whatever you aimed at.
+- **The camera holds still while you fire.** While a fire button is down, the look-ahead stays where it was, so the spot under a still mouse stays put. When you let go it eases back. A test: the look-at point moves 0.000 m while firing, against 0.85 m without holding.
+- **An aim marker where the shot lands.** It follows the water stream's drop, the slingshot stone, the balloon's arc, or where a peel goes down. Over a grown-up the shot will hit, it turns yellow, grows and pulses. Same sums as the game (`src/systems/aim.js`), so the marker tells the truth. The aim now carries how far away the cursor is (online too).
+- **A little aim help** (`balance.aimHelp`): a shot at a grown-up within 0.26 rad (about 15°) of the cursor and 12 m goes at them. It aims a step ahead of a walking one, is lifted to arrive at chest height, and has 30% of the usual spread. Now: water pistol and slingshot both hit a walking shopper 6 m away with the first shot.
+- **The burp shows.** The Burp Blaster's green ring is stronger and lasts 1.4 s instead of 0.9 s, and a green blast of puffs rolls out along the floor. Grown-ups it reaches say "Pardon YOU!", "Was that a BURP?!", "Disgusting!" or "Say excuse me!". Someone it blows into your coat no longer says "Oi! Watch where you're going!". The screen effects run on real time, while a slow browser plays the game in slow motion. At 4 frames a second the burp was over before anyone saw it, which is probably why the testers missed it. At normal frame rates it shows.
+- **The stink bomb clears the area.** A green cloud hangs about for 3 to 4.5 seconds. Everyone within 5 m clears out, staff behind a counter included (they come back after), saying "What is that SMELL?!".
+- Tests: new `test/logic/aim.test.mjs` (water pistol within 5 shots, slingshot within 3, the camera holding still, the marker lighting up and landing where the water lands). The juice test knows the two new effects.
+- New screenshots `f9_aim_marker.png` and `f9_burp.png`. For the burp shot the ring's timer was held mid-blast, because the slow headless browser skips past it.
+
 ## 2026-11-24 · Round 2 fix 2 of 5 (M1-F8): The coat stays together, and says why when it doesn't
 
 - **A slip is a short skid.** After `slippery.skidMax` (2.4 m) of sliding, the feet find the floor again and the coat brakes (`brakeGrip` 2), so a skid stops at about 3 m. A new skid can only start once the coat has stopped. Before: letting go on a trail of puddles slid a coat 7 to 29 m and spilled 2 kids. Now: about 2.2 to 2.9 m.

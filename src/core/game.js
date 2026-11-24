@@ -256,6 +256,7 @@ export class Game {
     for (const p of this.players) { for (const e of p.events) if (['spill', 'hit', 'restack', 'unstack', 'stumble', 'effect'].includes(e.type)) { this.emit({ k: 'coat', pid: p.id, type: e.type }); this.fx('coat:' + e.type, p.coat, p.id); } p.events = []; }
     for (const e of this.people.take()) {
       if (e.type === 'grabKid' || e.type === 'grabCoat') this.breather();
+      if (e.type === 'smelt') this.react(e.who, 'smell');
       if (e.type === 'slip') this.giggles.floored(e.who, this.coats);
       if (GROWNUP.has(e.type)) this.fx('grownup:' + (e.type === 'grabCoat' || e.type === 'grabKid' ? 'grab' : e.type), e.who.feet);
       if (e.type === 'say' && e.clip) this.emit({ k: 'say', who: e.who.id, clip: e.clip, x: e.who.feet.x, z: e.who.feet.z });
@@ -303,6 +304,7 @@ export class Game {
       if (e.type === 'drop') this.emit({ k: 'sound', name: 'box_thud', x: at.x, z: at.z });
     }
     for (const e of this.drinks?.take() ?? []) {
+      if (e.type === 'burpHit') { this.react(e.who, 'burp'); continue; }
       this.emit({ k: 'sound', name: 'gulp', x: e.at.x, z: e.at.z }); this.emit({ k: 'sound', name: this.D.shop.drinks[e.id].sound, x: e.at.x, z: e.at.z });
       const type = e.id === 'burp_blaster' ? 'burp' : 'sugar';
       this.emit({ k: 'coat', pid: e.coat.pid, type }); this.fx('coat:' + type, e.coat, e.coat.pid);

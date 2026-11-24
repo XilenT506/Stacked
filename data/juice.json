@@ -170,7 +170,7 @@
     },
     "coat:burp": {
       "sound": "burp",
-      "fx": "ring",
+      "fx": "burp",
       "shake": 0.6,
       "freeze": 60
     },
@@ -444,7 +444,7 @@
     },
     "land:stink_bomb": {
       "sound": "splat",
-      "fx": "puff",
+      "fx": "stink",
       "color": "#a8c94a"
     },
     "hit:banana_peel": {

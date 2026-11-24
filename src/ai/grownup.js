@@ -45,7 +45,7 @@ export class GrownUp {
   hear(s) {
     if (s.source === this || BUSY.has(this.state)) return;
     const p = s.position, run = this.type.run;
-    if (s.type === 'smell' && !s.data?.nice) { if (!this.type.stays) this.flee(p); this.say('smell'); return; }
+    if (s.type === 'smell' && !s.data?.nice) { this.flee(p); this.say('smell'); this.events.push({ type: 'smelt' }); return; }   // everyone clears out, staff too (M1-F9); they come back after
     if (s.type === 'food' || s.type === 'smell') {                         // food, or a nice smell of baking
       if (!this.type.stays && this.state !== 'crowd') { this.go('crowd', p, this.type.walk * 1.4, this.T.crowdTime); this.say('food'); } return; }
     if (s.type === 'noise' || s.type === 'crash' || s.type === 'alarm' || s.type === 'spill') {
@@ -82,6 +82,7 @@ export class GrownUp {
     this.look(coats);
     this.think(dt, coats, time);
     this.checkSlip();
+    if (this.burped > 0) this.burped -= dt;
     this.makeRoom(coats);
     for (const k of Object.keys(this.effects)) this.effects[k] = Math.max(0, this.effects[k] - dt);
     // soaked shoes: a sharp turn and they go over
