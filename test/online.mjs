@@ -20,12 +20,13 @@ await host.waitForFunction(() => __stacked2.mode === 'host', null, { timeout: 60
 const ok = (name, cond, info = '') => { console.log(name, info, cond ? 'OK' : 'FAIL'); if (!cond) failed = true; };
 let failed = false;
 const a = await open('');
-ok('friend A sees the start card', await a.evaluate(() => __stacked2.card.open && getComputedStyle(document.getElementById('net')).visibility === 'hidden'));
+ok('friend A sees the start card, with the small Online box usable beside it', await a.evaluate(() => __stacked2.card.open && getComputedStyle(document.getElementById('net')).visibility === 'visible' && document.getElementById('net').classList.contains('small')));
 await a.keyboard.press('KeyR'); await a.waitForTimeout(400);
 const soloCoat = () => a.evaluate(() => { const c = __stacked2.coat, f = c.walker.feet; return { x: +f.x.toFixed(3), z: +f.z.toFixed(3), count: c.count, pile: !!c.pile }; });
 const s0 = await soloCoat();
 ok('the key that closed the card did not unstack the coat', !s0.pile && s0.count === 3 && !(await a.evaluate(() => __stacked2.card.open)), JSON.stringify(s0));
-await a.click('#net input'); await a.keyboard.type(ROOM, { delay: 120 }); await a.waitForTimeout(500);
+ok('playing alone, the Online box starts small', await a.evaluate(() => document.getElementById('net').classList.contains('small')));
+await a.click('#net b'); await a.click('#net input'); await a.keyboard.type(ROOM, { delay: 120 }); await a.waitForTimeout(500);
 const s1 = await soloCoat(), typed = await a.evaluate(() => document.querySelector('#net input').value.toUpperCase());
 ok('typing the room code keeps every letter and does not move the coat', typed === ROOM && Math.hypot(s1.x - s0.x, s1.z - s0.z) < 0.05 && !s1.pile && s1.count === 3, JSON.stringify({ typed, s0, s1 }));
 await a.keyboard.press('Enter');
@@ -103,6 +104,8 @@ await b.screenshot({ path: 'test/shots/online_result.png' });
 // Dodgy Del's: after the results everyone is at the stall; friend A buys a Sugar Rush, everyone presses Next,
 // and friend A carries it into the next job
 await host.evaluate(() => { __stacked2.game.run.sweets = 200; });
+// the results card waits for a key (M1-F11): friend B presses one
+for (let i = 0; i < 40 && !(await b.evaluate(() => __stacked2.mirror.phase === 'shop')); i++) { await b.keyboard.press('KeyE'); await b.waitForTimeout(500); }
 ok('everyone is at Del\'s', await until(a, () => __stacked2.mirror.phase === 'shop' && !!__stacked2.mirror.shop, null, 60000) && await until(b, () => __stacked2.mirror.phase === 'shop', null, 30000));
 const sugarAt = await a.evaluate(() => { const i = __stacked2.mirror.shop.stock.findIndex((s) => s.id === 'sugar_rush'), b = __stacked2.delShop.boxes.find((q) => q.i === i); return [b.x + b.w / 2, b.y + b.h / 2]; });
 await a.mouse.click(...sugarAt);

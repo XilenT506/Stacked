@@ -139,6 +139,9 @@ async function joinGame(code) {
   mirror = new Mirror(DATA); client = new ClientSession(mirror, link); stage.build(mirror);
   netStatus(`In room ${code}. Waiting for the host...`); net.classList.add('on');
 }
+// the Online box starts small (just "Online"); a click opens it (M1-F11: it sat over the game when playing alone)
+net.classList.add('small');
+net.querySelector('b').onclick = () => net.classList.toggle('small');
 net.querySelector('.host').onclick = (e) => { e.target.blur(); hostGame(); };
 net.querySelector('.join').onclick = (e) => { e.target.blur(); joinGame(net.querySelector('input').value); };
 net.querySelector('input').addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.target.blur(); joinGame(e.target.value); } });
@@ -157,7 +160,8 @@ addEventListener('keydown', (e) => {
 });
 
 // the start card before the first job (not with ?dev=1 unless ?card=1); playing alone, the job waits for it
-const card = new StartCard(document.getElementById('startcard'), STARTCARD, SUPERMARKET.job.goal);
+const JOB1 = SUPERMARKET.job, JOB1_LOOT = SUPERMARKET.loot.list.find((e) => e.id === JOB1.targetLoot), JOB1_NAME = LOOT.items?.[JOB1.targetLoot]?.name ?? JOB1.sign;
+const card = new StartCard(document.getElementById('startcard'), STARTCARD, JOB1.goal, STARTCARD.money.replace('{name}', JOB1_NAME).replace('{value}', JOB1_LOOT?.value ?? '?').replace('{quota}', JOB1.quota));
 card.onClose = () => { document.body.classList.remove('carded'); for (const l of locals) l.swallow = true; };
 if (dev && params.get('card') !== '1') card.close(); else document.body.classList.add('carded');
 const pointerHud = new PointerHud(document.getElementById('pointer'));
@@ -180,7 +184,7 @@ function frame(now) {
   // hosting, the game goes on for the friends and what happened meanwhile is shown straight after)
   const holding = (stage.juice?.freezeT ?? 0) > 0;
   if (holding) stage.juice.freezeT -= dt;
-  const waiting = card.open && mode === 'solo';
+  const waiting = card.open && !!game;                        // Closing Time starts when the start card is closed (M1-F11)
   if (game) {
     if ((!holding || host) && !waiting) {
       const steps = clock.advance(dt);
@@ -219,7 +223,13 @@ function frame(now) {
     hud.gadgets(watch, { ...GADGETS, drinks: DEL.drinks });
   }
   // the arrows at the screen edge: the way to go, and each of your loose kids in their colour
-  const kids = watch ? (watch.loose ?? []).filter((k) => !k.caged).map((k) => ({ x: k.x, z: k.z, label: k.carriedBy ? 'KID! (grabbed)' : 'KID!', to: 'kid', color: '#' + (KID_COLORS[k.id] ?? 0xffffff).toString(16).padStart(6, '0') })) : [];
+  // your loose kids (kids close together share one arrow: "2 KIDS!")
+  const kids = [];
+  for (const k of watch ? (watch.loose ?? []).filter((k) => !k.caged) : []) {
+    const near = kids.find((o) => o.grabbed === !!k.carriedBy && Math.hypot(o.x - k.x, o.z - k.z) < 2);
+    if (near) { near.n++; near.label = `${near.n} KIDS!${near.grabbed ? ' (grabbed)' : ''}`; continue; }
+    kids.push({ x: k.x, z: k.z, n: 1, grabbed: !!k.carriedBy, label: k.carriedBy ? 'KID! (grabbed)' : 'KID!', to: 'kid', color: '#' + (KID_COLORS[k.id] ?? 0xffffff).toString(16).padStart(6, '0') });
+  }
   pointerHud.update(card.open || shopping || !watch ? [] : [pointerFor(model, watch, SUPERMARKET), ...kids], camera, innerWidth, innerHeight);
   hud.status(model.sus, model.closing, model.rescue); hud.giggleMeter(shopping ? null : model.giggles, BALANCE.giggles.meter, model.coats.some((c) => c.superT > 0)); hud.quota(model.job, model.loot, model.sus); hud.results(shopping ? null : model.job?.result, model.run?.sweets);
   sfx.listener = voices.listener = { x: focus.x, z: focus.z };

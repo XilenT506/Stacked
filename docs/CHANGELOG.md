@@ -2,6 +2,40 @@
 
 Newest first. One entry per build session (one prompt from the Build guide in the doc "STACKED – Game Plan").
 
+## 2026-11-24 · Round 2 fix 5 of 5 (M1-F11): Clear words, and a next job that feels new
+
+- **Getting started:**
+  - Closing Time only starts once the start card is closed, for a host too (before, only playing alone waited).
+  - The Online box can be used while the start card is up.
+  - A click on any button or box (Host, Join, the code box, the results card, Del's) is never also a shot.
+- **Playing alone:** no "Player 1 joined!" (a second player is still greeted), and the Online box starts small (just "Online ▸"; a click opens it).
+- **Messages that agree:**
+  - The line under the Wobble bar tells kids apart: loose ones ("walk over them"), ones being carried to the Lost & Found, and ones in it.
+  - Kids close together share one edge arrow ("2 KIDS!").
+  - A new job clears old announcements, so an old "Heat 1" can't carry over.
+  - The free samples announcement no longer says itself twice.
+  - "Nan's birthday cake" keeps its capital and needs no "the".
+  - At the gate, only kids really inside the shop building count as "still inside" (a friend in the car park doesn't).
+  - E within 2 seconds of banking at the gate, or while still carrying loot there, never starts the getaway; the hint says "Banked!" first.
+- **Nothing covers anything:**
+  - Area signs fade near grown-ups and the aim marker, as they already did near coats.
+  - Edge arrows keep off the gadget slots and are moved apart when two would overlap.
+  - The hint box and the coat HUD have width limits so they can't meet.
+  - Announcements (like "Locked in!") wait until the results card is gone.
+- **Numbers explained before the results:**
+  - The start card adds: "Nan's birthday cake is worth 80 sweets and the quota is 150, so grab more on the way. Loot only counts once you carry it into the gate circle. Getting noticed raises the Heat, and more Heat means a bigger Chaos Bonus." (`data/startcard.json`)
+  - The gadget slots say "60 shots" or "5 left".
+  - Full pockets say "Pockets full (6 of 6): bank them at the getaway gate".
+  - E picks the loot in front of the coat, and small loot before big.
+- **The results card waits for a key** ("Press any key", after at least 2 s, from any player). Before, it moved on by itself after 8 s (`shop.resultsSeconds` is now the shortest time it shows). Del's button reads "Next job! Ready: 0 of 1".
+- **Each job asks for something new.** Job 1 is Nan's cake (quota 150), job 2 the crate of fizzy pop from the storeroom (175), job 3 the giant lolly from the sweet aisle (200). Then the list starts again, 75 higher each time round (`jobs` in the place file). Job 2 onward opens with its own briefing ("Job 2: Get the crate of fizzy pop..."). The arrow, the floating sign and the crayon map follow the new target, online too.
+- Tests:
+  - New `test/logic/words.test.mjs`: no "joined" alone, job 2 differs, the results card waits, the messages, the gate, E picks what's in front, full pockets.
+  - Updated for the waiting results card: the shop tests, the wipe test and the online check (a friend presses a key).
+  - The money-line test now sees "Banked!" at the gate first.
+  - The online check: the Online box starts small and shows beside the start card.
+- New screenshots `f11_start_card.png`, `f11_solo_hud.png`, `f11_results.png`, `f11_del.png`.
+
 ## 2026-11-24 · Round 2 fix 4 of 5 (M1-F10): Giggles that match the fun
 
 - **Every trap pays when it springs, to whoever set it,** however long ago. A banana peel ("BANANA!", 5), a whoopee cushion ("PFFFRRT!", 5, new) and bubble wrap ("POP POP POP!", 3, new) on a grown-up. The numbers are in `balance.giggles.moments`, the words in `data/giggles.json`. A test drops a peel, waits a full minute and walks a guard onto it. That paid 5 Giggles even before this fix, so I couldn't find why the tester got 0. Now every shout says whose trap it was, so a missing payout would show.

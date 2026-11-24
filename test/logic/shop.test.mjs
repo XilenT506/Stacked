@@ -17,11 +17,14 @@ const idle = (extra = {}) => ({ move: { x: 0, z: 0 }, aim: null, run: false, use
 const put = (coat, x, z) => coat.walker.body.setTranslation({ x, y: coat.walker.body.translation().y, z }, true);
 const P = DATA.balance.shop.prices;
 
-// end a job with some sweets banked and wait out the results
+// the results card waits for a key (M1-F11): someone presses one after it has been up a moment
+const pressOn = (g) => { for (const p of g.players) g.setInput(p.id, idle({ presses: { grab: 99 } })); g.step(); };
+// end a job with some sweets banked, look at the results, press a key
 function toShop(g, sweets) {
   g.loot.items[0].state = 'banked'; g.loot.banked.push(g.loot.items[0]); g.finish('got away');
   g.run.sweets = sweets;
   for (let i = 0; i < 60 * (DATA.balance.shop.resultsSeconds + 0.5); i++) g.step();
+  pressOn(g);
 }
 const order = (g, id, list) => { g.setInput(id, idle({ shop: list })); g.step(); };
 
@@ -29,9 +32,9 @@ test('after the results, Del opens: 4 different gadgets and the 2 drinks, at bal
   const g = new Game(R, DATA); g.addPlayer('p1');
   g.loot.items[0].state = 'banked'; g.loot.banked.push(g.loot.items[0]); g.finish('got away');
   assert.equal(g.run.sweets, g.job.result.total, 'the job\'s sweets go in the jar');
-  for (let i = 0; i < 60 * (DATA.balance.shop.resultsSeconds - 1); i++) g.step();
-  assert.equal(g.phase, 'job', 'results first');
-  for (let i = 0; i < 90; i++) g.step();
+  for (let i = 0; i < 60 * (DATA.balance.shop.resultsSeconds + 5); i++) g.step();
+  assert.equal(g.phase, 'job', 'results first, and they wait for a key (M1-F11)');
+  pressOn(g);
   assert.equal(g.phase, 'shop');
   const st = g.shop.stock;
   assert.equal(st.length, 6);
@@ -118,6 +121,7 @@ test('everyone caught ends the run: an empty jar and the starter gadgets again',
   g.run.sweets = 500; g.run.of('p1').gadgets.push({ id: 'stink_bomb', copies: 1 });
   g.finish('all caught');
   for (let i = 0; i < 60 * (DATA.balance.shop.resultsSeconds + 0.5); i++) g.step();
+  pressOn(g);
   assert.equal(g.phase, 'job', 'no shop: straight into a new run');
   assert.equal(g.run.sweets, 0);
   assert.deepEqual(g.players[0].coat.gadgets.slots, DATA.gadgets.loadout.slots);

@@ -34,7 +34,7 @@ export function snapshot(game, events = [], { withScribbles = true } = {}) {
       r2(g.effects?.soaked ?? 0), r2(g.effects?.blinded ?? 0), game.players.map((p) => r2(g.sus.get(p.coat) ?? 0)), ids([...g.hostile].filter((c) => c.pid !== undefined))];
   });
   return {
-    job: game.jobNo, t: r2(game.time), order: game.order, waiting: game.waiting,
+    job: game.jobNo, t: r2(game.time), order: game.order, waiting: game.waiting, brief: game.brief,
     coats, things, people,
     mess: game.mess.patches.map((p) => [r2(p.x), r2(p.z), r2(p.r), p.color, p.slippery ? 1 : 0]),
     loot: game.loot.items.map((it) => [LOOT.indexOf(it.state), r2(it.x), r2(it.y), r2(it.z), it.value, ids(it.carriers), it.owner?.pid ?? null]),
@@ -157,6 +157,7 @@ export class Mirror {
   apply(S) {
     this.got++;
     if (S.job !== this.jobNo) { this.newJob = this.jobNo !== 0; this.jobNo = S.job; }
+    if (S.brief) { this.brief = S.brief; this.job.quota = S.brief.quota; this.job.target = S.brief.target; }
     this.order = S.order; this.waiting = S.waiting;
     // coats
     const live = new Set();

@@ -227,7 +227,8 @@
     "maxGadgets": 5,
     "maxDrinks": 3,
     "maxCopies": 3,
-    "resultsSeconds": 8,
+    "_resultsSeconds": "the results card stays at least this long, then waits for any key from any player (M1-F11: it used to move on by itself after 8 s)",
+    "resultsSeconds": 2,
     "startSweets": 0
   },
   "drinks": {

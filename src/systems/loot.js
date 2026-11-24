@@ -20,27 +20,34 @@ export class Loot {
   get bankedValue() { return this.banked.reduce((a, it) => a + it.value, 0); }
   inHand(coats) { return this.items.filter((it) => (it.state === 'pocket' || it.state === 'carried')).reduce((a, it) => a + it.value, 0); }
 
-  // the loot E would act on for this coat (or null): your carried piece first, then the nearest in reach
+  // the loot E would act on for this coat (or null): your carried piece first, then what's in reach, the one in
+  // front of the coat before one behind it, and small before big (M1-F11: E grabbed the giant lolly instead of
+  // the chocolate right in front)
   near(coat) {
     const c = this.carried(coat); if (c) return c;
-    const f = coat.walker.feet; let best = null, bd = this.L.reach;
+    const f = coat.walker.feet, fx = Math.sin(coat.walker.yaw ?? 0), fz = Math.cos(coat.walker.yaw ?? 0); let best = null, bd = Infinity;
     for (const it of this.items) {
       const free = it.state === 'lying' || (it.state === 'carried' && it.kind === 'big' && it.carriers.length === 1);
       if (!free) continue;
       if (it.kind === 'small' && this.pockets(coat).length >= this.L.pockets) continue;
       if (it.kind === 'big' && it.state === 'lying' && this.carried(coat)) continue;
-      const d = Math.hypot(it.x - f.x, it.z - f.z); if (d < bd) { best = it; bd = d; }
+      const d = Math.hypot(it.x - f.x, it.z - f.z); if (d >= this.L.reach) continue;
+      const behind = d > 0.2 && ((it.x - f.x) * fx + (it.z - f.z) * fz) / d < 0.3;
+      const score = d + (behind ? 1 : 0) + (it.kind === 'big' ? 0.4 : 0);
+      if (score < bd) { best = it; bd = score; }
     }
     return best;
   }
 
   hint(coat) {
-    const it = this.near(coat); if (!it) return '';
+    const it = this.near(coat), full = this.pockets(coat).length >= this.L.pockets;
+    if (full && (!it || it.kind === 'big') && this.smallInReach(coat)) return `Pockets full (${this.L.pockets} of ${this.L.pockets}): bank them at the getaway gate`;
+    if (!it) return '';
     // carrying big loot with small loot in reach: say why E won't pocket it
-    if (it.state === 'carried' && it.carriers.includes(coat) && this.smallInReach(coat)) return `Hands full: drop the ${it.name.toLowerCase()} first (E)`;
+    if (it.state === 'carried' && it.carriers.includes(coat) && this.smallInReach(coat)) return `Hands full: drop the ${lower(it.name)} first (E)`;
     if (it.state === 'carried' && it.carriers.includes(coat)) return `${it.name} (${it.value}): E put it down${it.carriers.length > 1 ? ' (you are carrying it together)' : ''}`;
-    if (it.state === 'carried') return `E: help carry the ${it.name.toLowerCase()}`;
-    return `E: ${it.kind === 'small' ? 'pocket' : 'pick up'} the ${it.name.toLowerCase()} (${it.value} sweets)`;
+    if (it.state === 'carried') return `E: help carry ${the(it.name)}`;
+    return `E: ${it.kind === 'small' ? 'pocket' : 'pick up'} ${the(it.name)} (${it.value} sweets)`;
   }
 
   smallInReach(coat) {
@@ -139,3 +146,8 @@ export class Loot {
 
   take() { const e = this.events; this.events = []; return e; }
 }
+
+// "the big chocolate bar", but "Nan's birthday cake" keeps its capital and needs no "the" (M1-F11)
+const own = (name) => /^[A-Z][a-z]*'s /.test(name);
+const lower = (name) => (own(name) ? name : name[0].toLowerCase() + name.slice(1));
+const the = (name) => (own(name) ? name : 'the ' + lower(name));

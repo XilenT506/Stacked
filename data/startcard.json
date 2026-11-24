@@ -9,5 +9,7 @@
     { "what": "Unstack and restack", "keys": "R", "pad": "B" },
     { "what": "Crayon map", "keys": "Tab", "pad": "View" }
   ],
+  "_money": "M1-F11: how the sweets work, before the first job ({name}, {value}, {quota} come from the job and its target loot)",
+  "money": "{name} is worth {value} sweets and the quota is {quota}, so grab more on the way. Loot only counts once you carry it into the gate circle. Getting noticed raises the Heat, and more Heat means a bigger Chaos Bonus.",
   "go": { "keys": "Press any key", "pad": "Press any button" }
 }

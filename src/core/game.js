@@ -21,7 +21,7 @@ import { ClosingTime } from '../systems/closingTime.js';
 import { Security } from '../systems/security.js';
 import { Gadgets } from '../systems/gadgets.js';
 import { Loot } from '../systems/loot.js';
-import { Job, moneyLine } from '../systems/job.js';
+import { Job, moneyLine, jobBrief } from '../systems/job.js';
 import { Rescue } from '../systems/rescue.js';
 import { TeamMap } from '../systems/teamMap.js';
 import { Run, Shop } from '../systems/shop.js';
@@ -74,10 +74,11 @@ export class Game {
     this.closing = new ClosingTime(R, this.world, this.place, B, { nav: this.people.nav });
     this.security = new Security({ people: this.people, closing: this.closing, suspicion: this.sus, place: this.place, balance: B });
     this.rescue = new Rescue({ R, world: this.world, place: this.place, people: this.people, balance: B, solo: this.order.length <= 1, suspicion: this.sus, closing: this.closing });
-    this.loot = new Loot(this.place, D.loot, B); this.job = new Job(this.place, B);
+    this.brief = jobBrief(D.place, this.run.jobs);              // what this job asks for (a new target each job)
+    this.loot = new Loot(this.place, D.loot, B); this.job = new Job(this.place, B, this.brief);
     this.gadgets = new Gadgets(D.gadgets, { R, world: this.world, signals: this.signals, things: this.things, people: this.people, sus: this.sus, balance: B });
-    this.jobEvents = new JobEvents(D.events.events, { signals: this.signals, things: this.things, spots: D.place.events, say: (text, title) => { this.emit({ k: 'announce', text, title }); this.emit({ k: 'sound', name: 'tannoy_ding' }); } }, B.events);
-    this.map = new TeamMap(this.place, D.crayonmap);
+    this.jobEvents = new JobEvents(D.events.events, { signals: this.signals, things: this.things, spots: D.place.events, say: (text) => { this.emit({ k: 'announce', text, title: 'Tannoy' }); this.emit({ k: 'sound', name: 'tannoy_ding' }); } }, B.events);   // (the title once said the same thing again)
+    this.map = new TeamMap(this.place, D.crayonmap, this.brief);
     this.drinks = new Drinks(B, { people: this.people, things: this.things, signals: this.signals });
     // Giggles watch every signal (chains) and keep the game state of the best moments for the highlight reel
     this.giggles = new Giggles(B, D.giggles, { capture: () => snapshot(this, [], { withScribbles: false }) });
@@ -85,7 +86,8 @@ export class Game {
     this.jobEvents.onFire = (e, at) => this.map.note(e.name, at);
     this.players = [];
     for (const id of this.order) this.spawnPlayer(id);
-    this.emit({ k: 'newJob', job: this.jobNo }); this.fx('job:start', this.place.data.spawns.players[0] && { x: this.place.data.spawns.players[0][0], z: this.place.data.spawns.players[0][1] });
+    this.emit({ k: 'newJob', job: this.jobNo });
+    if (this.run.jobs > 0) this.emit({ k: 'announce', title: `Job ${this.run.jobs + 1}`, text: `${this.brief.goal} Quota: ${this.brief.quota}.` }); this.fx('job:start', this.place.data.spawns.players[0] && { x: this.place.data.spawns.players[0][0], z: this.place.data.spawns.players[0][1] });
   }
 
   spawnPlayer(id) {
@@ -106,7 +108,7 @@ export class Game {
   addPlayer(id) {
     if (this.order.includes(id) || this.waiting.includes(id)) return this.player(id) ? 'playing' : 'waiting';
     if (this.order.length + this.waiting.length >= 4) return 'full';
-    if (!this.players.length || this.time < this.joinWindow) { this.order.push(id); this.spawnPlayer(id); this.rescue.solo = this.order.length <= 1; this.emit({ k: 'announce', text: `Player ${this.order.length} joined!`, title: 'Hello' }); return 'playing'; }
+    if (!this.players.length || this.time < this.joinWindow) { this.order.push(id); this.spawnPlayer(id); this.rescue.solo = this.order.length <= 1; if (this.order.length > 1) this.emit({ k: 'announce', text: `Player ${this.order.length} joined!`, title: 'Hello' }); return 'playing'; }
     this.waiting.push(id); this.emit({ k: 'announce', text: 'A friend is waiting to join: they come in at the next job.', title: 'Hello' });
     return 'waiting';
   }
@@ -124,6 +126,10 @@ export class Game {
   //         shop: orders at Del's not yet acknowledged ({ sid, a: 'buy' | 'reroll' | 'ready', i }) }
   // presses are counters (they only ever go up), so a press is never lost between network packets
   setInput(id, input) { const p = this.player(id); if (p) p.input = input; }
+  // has anyone pressed a key (any of the counted buttons) since `before` (a total from keyTotal)?
+  keyTotal() { return this.players.reduce((a, p) => a + Object.values(p.input.presses ?? {}).reduce((x, n) => x + (+n || 0), 0), 0); }
+  keySince(before) { return before !== undefined && this.keyTotal() > before; }
+
   pressed(p, name) { const n = p.input.presses?.[name] ?? 0, was = p.seen[name] ?? 0; if (n > was) { p.seen[name] = n; return true; } return false; }
 
   emit(e) { this.out.push(e); }
@@ -135,7 +141,8 @@ export class Game {
     this.time += dt;
     // after the results: Del's shop, or (everyone caught) a fresh run
     // (a wipe after the quota was met keeps the banked sweets and the run: M1-F7)
-    if (this.job.over && (this.after += dt) >= B.shop.resultsSeconds) return this.job.why === 'all caught' && !this.job.result?.met ? this.newRun() : this.openShop();
+    // the results card stays a moment, then waits for anyone to press a key (M1-F11)
+    if (this.job.over && (this.after += dt) >= B.shop.resultsSeconds && this.keySince(this.resultKeys)) return this.job.why === 'all caught' && !this.job.result?.met ? this.newRun() : this.openShop();
     this.rescue.step(coats);
     this.people.step(dt, coats); this.rescue.follow();
     this.giggles.step(dt, { coats, people: this.people });
@@ -152,6 +159,8 @@ export class Game {
       }
       let grab = this.pressed(p, 'grab');
       // the getaway: with kids still inside, the first E warns; E again leaves them (to the Lost & Found)
+      // (E right after walking in with loot, or still carrying it, is about the loot: it never starts the getaway: M1-F11)
+      if (grab && c.atGate && !this.job.over && (this.loot.carried(c) || (c.bankedAt ?? -9) > this.time - 2)) grab = false;
       if (grab && c.atGate && !this.job.over) {
         const left = this.kidsInside();
         if (left > 0 && !(p.gateWarn > this.job.time)) { p.gateWarn = this.job.time + this.D.balance.job.gateWarnSeconds; this.emit({ k: 'announce', to: p.id, title: 'Wait!', text: `${left} kid${left > 1 ? 's' : ''} still inside! E again to leave without them` }); this.emit({ k: 'sound', name: 'gasp' }); }
@@ -212,9 +221,11 @@ export class Game {
 
   // kids still in the shop: every kid of a coat that is not at the gate, and every loose kid (not the ones
   // already in the Lost & Found)
+  // kids really inside the shop building (not out in the car park, the yard or at the gate: M1-F11)
   kidsInside() {
+    const inside = (x, z) => { const a = this.place.areaAt(x, z); return !!a && !a.outside; };
     let n = 0;
-    for (const c of this.coats) { if (!c.atGate && !c.inCage) n += c.count; n += (c.loose ?? []).filter((k) => !k.caged).length; }
+    for (const c of this.coats) { const f = c.walker.feet; if (!c.atGate && !c.inCage && inside(f.x, f.z)) n += c.count; n += (c.loose ?? []).filter((k) => !k.caged && inside(k.x, k.z)).length; }
     return n;
   }
 
@@ -227,6 +238,7 @@ export class Game {
     const r = this.job.result, G = this.giggles;
     r.giggles = G.summary(); G.closed = true; r.best = G.best().slice(0, 3).map((m) => ({ label: m.label, reel: m.reel, giggles: m.giggles, by: m.by }));
     this.run.highlights = [...(this.run.highlights ?? []), ...G.best().map((m) => ({ ...m, job: this.jobNo }))].sort((a, b) => b.giggles - a.giggles).slice(0, this.D.balance.giggles.record.keepPerRun);
+    this.resultKeys = this.keyTotal();
     this.run.earn(r); this.emit({ k: 'result', result: r }); this.fx('result:' + why); if (r.met) this.fx('result:quota');
   }
 
@@ -300,7 +312,7 @@ export class Game {
       const at = e.coat ? e.coat.walker.feet : { x: e.item.x, z: e.item.z };
       if (LOOT.has(e.type)) this.fx('loot:' + e.type, at, e.coat?.pid);
       if (e.type === 'pocket' || e.type === 'carry' || e.type === 'coCarry') this.emit({ k: 'sound', name: 'paper_flap', x: at.x, z: at.z });
-      if (e.type === 'bank') this.emit({ k: 'sound', name: 'pose_ding', x: at.x, z: at.z });
+      if (e.type === 'bank') { this.emit({ k: 'sound', name: 'pose_ding', x: at.x, z: at.z }); if (e.coat) e.coat.bankedAt = this.time; }
       if (e.type === 'drop') this.emit({ k: 'sound', name: 'box_thud', x: at.x, z: at.z });
     }
     for (const e of this.drinks?.take() ?? []) {
@@ -346,6 +358,7 @@ export class Game {
     if (p.coat.atGate && !this.job.over) {
       const left = this.kidsInside();
       if (left && p.gateWarn > this.job.time) return `E again: leave ${left} kid${left > 1 ? 's' : ''} behind (they go to the Lost & Found)`;
+      if ((p.coat.bankedAt ?? -9) > this.time - 2) return `Banked! ${moneyLine(this.loot, this.job).text}`;
       return `E: get away! ${moneyLine(this.loot, this.job).text} (this ends the job)${left ? ` · ${left} kid${left > 1 ? 's' : ''} still inside!` : ''}`;
     }
     if (p.stackWarn > this.job.time) return 'A grown-up is watching! R again to unstack anyway';

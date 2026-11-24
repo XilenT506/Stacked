@@ -75,8 +75,9 @@ export class DelShop {
     const by = gy + 2 * (ch + gap) + 4 * k, bw = 220 * k, bh = 54 * k;
     this.button(ctx, gx, by, bw, bh, `Reroll (${S.rerollPrice})`, '#f4c542', 6, k, run.sweets < S.rerollPrice);
     const n = model.coats.length, ready = [...S.ready].length;
-    this.button(ctx, gx + 2 * (cw + gap) + cw - bw, by, bw, bh, `Next job! (${ready}/${n})`, '#7fbf5f', 7, k, false);
-    this.boxes.push({ x: gx, y: by, w: bw, h: bh, i: 6 }, { x: gx + 2 * (cw + gap) + cw - bw, y: by, w: bw, h: bh, i: 7 });
+    const nw = 300 * k;                                     // (wider: "Next job! Ready: 0 of 1", M1-F11)
+    this.button(ctx, gx + 2 * (cw + gap) + cw - nw, by, nw, bh, `Next job! Ready: ${ready} of ${n}`, '#7fbf5f', 7, k, false);
+    this.boxes.push({ x: gx, y: by, w: bw, h: bh, i: 6 }, { x: gx + 2 * (cw + gap) + cw - nw, y: by, w: nw, h: bh, i: 7 });
     // who is ready, and what everyone carries
     this.bags(ctx, model, locals, W, H, k);
     // each local player's ring

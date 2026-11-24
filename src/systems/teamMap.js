@@ -6,10 +6,10 @@
 import { briefedAreas } from './pointer.js';
 
 export class TeamMap {
-  constructor(place, cfg) {
+  constructor(place, cfg, job = place.data.job) {
     this.place = place; this.cfg = cfg; this.seenAreas = new Set(); this.seenPeople = new Map(); this.scribbles = []; this.seq = 0;
     this.acks = new Map(); this.events = []; this.sv = 0; this.route = null; this.time = 0;
-    for (const id of briefedAreas(place)) this.seenAreas.add(id);
+    for (const id of briefedAreas(place, job)) this.seenAreas.add(id);
   }
 
   // a scribble from a player: { sid (the player's own counter), kind: line|arrow|circle|sticker, pts: [[x, z]...], text }

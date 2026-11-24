@@ -7,6 +7,7 @@
 //   input.device -> 'keys' or 'pad'  (whichever was used last)
 // Raw state can also be set directly, which is how the logic tests drive it.
 // keys typed into a text box (the room code, say) belong to the box, not the game
+export const onPanel = (el) => !!el?.closest?.('button, input, select, textarea, a, #net, #startcard, #results, #shop');
 export const typingIn = (el) => !!el && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.tagName === 'SELECT' || el.isContentEditable);
 
 export class Input {
@@ -26,7 +27,8 @@ export class Input {
     target.addEventListener('keyup', (e) => this.keys.delete(e.code));
     target.addEventListener('blur', () => { this.keys.clear(); this.mouse.clear(); });
     target.addEventListener('mousemove', (e) => { this.mx = e.clientX; this.my = e.clientY; this.mouseMoved = true; this.device = 'keys'; });
-    target.addEventListener('mousedown', (e) => { this.mouse.add(e.button); this.tapMouse.add(e.button); this.device = 'keys'; });
+    // a click on a button or box on the page (Host, Join, the code box...) is not a shot (M1-F11)
+    target.addEventListener('mousedown', (e) => { if (onPanel(e.target)) return; this.mouse.add(e.button); this.tapMouse.add(e.button); this.device = 'keys'; });
     target.addEventListener('mouseup', (e) => this.mouse.delete(e.button));
     target.addEventListener('contextmenu', (e) => e.preventDefault());
     target.addEventListener('wheel', (e) => { this.wheel += Math.sign(e.deltaY); }, { passive: true });

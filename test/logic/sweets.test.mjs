@@ -68,6 +68,8 @@ test('the HUD and the getaway gate show the same money line', () => {
   assert.equal(g.loot.bankedValue, 45, 'standing at the gate banks what you bring');
   const m = moneyLine(g.loot, g.job);
   assert.equal(m.text, 'Banked 45 · Holding 8 · Quota 150');
+  assert.equal(g.hint('p1'), `Banked! ${m.text}`, 'right after banking the gate says so (M1-F11)');
+  run(g, 130);                                                         // a couple of seconds later: the getaway
   assert.ok(g.hint('p1').startsWith(`E: get away! ${m.text} (this ends the job)`), g.hint('p1'));
   // the HUD's money line
   const html = quotaHtml(g.job, g.loot);

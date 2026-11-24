@@ -146,6 +146,14 @@
   },
 
   "job": { "_about": "the job in this place: what the briefing asks for. targetLoot is the loot id the pointer and the floating sign show; goal is the one-sentence goal on the start card", "target": "Nan's birthday cake from the bakery", "quota": 150, "targetLoot": "birthday_cake", "sign": "NAN'S CAKE", "goal": "Get Nan's birthday cake from the bakery and bring it out through the gate in the car park." },
+  "jobs": {
+    "_about": "M1-F11: each job in a run asks for something new (job 1 is 'job' above). After the last one the list starts again, with the quota quotaStep higher per job each time round.",
+    "quotaStep": 25,
+    "list": [
+      { "target": "the crate of fizzy pop from the storeroom", "quota": 175, "targetLoot": "pop_crate", "sign": "FIZZY POP", "goal": "Get the crate of fizzy pop from the storeroom at the back and bring it out through the gate in the car park." },
+      { "target": "the giant lolly from the sweet aisle", "quota": 200, "targetLoot": "giant_lolly", "sign": "GIANT LOLLY", "goal": "Get the giant lolly from the sweet aisle and bring it out through the gate in the car park." }
+    ]
+  },
 
   "loot": {
     "_about": "small fits in a pocket, big is carried (two players can carry together). value in sweets (M1-F3: to the plan's scale, so Del's prices of 30 to 55 matter; all of it together is 298 against a quota of 150). Names and looks in data/loot.json.",

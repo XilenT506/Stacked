@@ -9,6 +9,15 @@ export function moneyLine(loot, job) {
   return { banked, holding, quota, text: `Banked ${banked} · Holding ${holding} · Quota ${quota}` };
 }
 
+// what job n of a run (0 = the first) asks for: the place's job, then its jobs list in turn; each time round the
+// list the quota goes up (M1-F11: the second job used to be a copy of the first)
+export function jobBrief(placeData, n = 0) {
+  const list = [placeData.job, ...(placeData.jobs?.list ?? [])].filter(Boolean);
+  if (!list.length) return { target: '', quota: 0, n };
+  const { _about, ...base } = list[n % list.length], round = Math.floor(n / list.length);
+  return { ...base, n, quota: base.quota + round * list.length * (placeData.jobs?.quotaStep ?? 0) };
+}
+
 export function jobResult({ banked, heat, quota, balance }) {
   const clean = heat === 0, mult = clean ? 1 + balance.job.cleanBonus : balance.heat.chaosBonus[heat];
   const total = Math.round(banked * mult);
@@ -16,8 +25,8 @@ export function jobResult({ banked, heat, quota, balance }) {
 }
 
 export class Job {
-  constructor(place, balance) {
-    this.B = balance; this.target = place.data.job?.target ?? ''; this.quota = place.data.job?.quota ?? 0;
+  constructor(place, balance, brief = jobBrief(place.data)) {
+    this.B = balance; this.brief = brief; this.target = brief.target ?? ''; this.quota = brief.quota ?? 0;
     this.time = 0; this.over = false; this.result = null; this.why = '';
   }
 

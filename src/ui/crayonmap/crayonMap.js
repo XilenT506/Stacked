@@ -124,7 +124,7 @@ export class CrayonMap {
     const key = `${model.jobNo}|${[...M.seenAreas].join(',')}|${model.mess.patches.length}|${this.W}x${this.H}`;
     if (key !== this.baseKey) {
       const b = this.base.getContext('2d'); b.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
-      paper(b, this.W, this.H); drawBase(b, this.V, this.D, model);
+      paper(b, this.W, this.H); drawBase(b, this.V, model.brief ? { ...this.D, job: model.brief } : this.D, model);
       const tw = write(b, this.D.name, 40, 34, 34, '#d0453a', 9, { align: 'left', outline: '#fbf6ea' });
       if (model.job?.target) write(b, `Job: ${model.job.target}`, 40 + tw + 22, 38, 20, '#6b4a2e', 10, { align: 'left' });
       this.baseKey = key;

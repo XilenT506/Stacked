@@ -34,7 +34,7 @@ export class Stage {
     this.peopleView = new PeopleView(scene, model.people, this.data.grownups.models);
     this.shutterView = new ShutterView(scene, model.closing, this.fade);
     this.gadgetView = new GadgetView(scene, model.gadgets);
-    this.lootView = new LootView(scene, model.loot, this.data.place.job);
+    this.lootView = new LootView(scene, model.loot, model.brief ?? this.data.place.job);
     this.cageView = new CageView(scene, model.rescue);
     this.chalkView = new ChalkView(scene, this.data.crayonmap.playerColors);
     this.juice = new Juice(scene, this.data.juice, { sfx: this.sfx, callouts: this.callouts, camRig: this.camRig });
@@ -62,7 +62,7 @@ export class Stage {
   }
 
   update(dt, { watch, focus, aims = [], camera, events = [], me = [] }) {
-    if (this.model.jobNo !== this.jobNo) this.build(this.model);
+    if (this.model.jobNo !== this.jobNo) { this.build(this.model); this.hud.newJob?.(); }
     this.syncCoats();
     this.peopleView.watch = watch;
     this.present(events, me);
@@ -71,7 +71,8 @@ export class Stage {
     // how many grown-ups are right on top of each coat (a pile-on): the coat's outline shows through them
     const crowd = (c) => { const f = c.walker.feet; return this.model.people.list.filter((g) => Math.hypot(g.feet.x - f.x, g.feet.z - f.z) < 1.5).length; };
     for (const [c, v] of this.coatViews) v.update(dt, this.pops?.get(c) ?? [], { crowd: crowd(c), mine: me.includes(c.pid) });
-    this.placeView.fadeSigns(this.model.coats.map((c) => c.walker.feet), dt, camera);
+    // area signs fade near coats, grown-ups and the aim marker so they never cover them (M1-F11)
+    this.placeView.fadeSigns([...this.model.coats.map((c) => c.walker.feet), ...this.model.people.list.map((g) => g.feet), ...(this.aimAt ? [this.aimAt] : [])], dt, camera);
     // acting natural: the coat whistles a little tune (data/juice.json whistle)
     const W = this.data.juice.whistle;
     for (const c of this.model.coats) {

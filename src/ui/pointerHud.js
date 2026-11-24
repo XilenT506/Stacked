@@ -6,7 +6,8 @@
 import * as T from 'three';
 
 // how far from each edge the arrow sits: clear of the quota bar and announcements (top), the hint line and the coat HUD
-// (bottom); and it slides out of the Heat / Closing Time / Giggles boxes (top right) and the Online panel (bottom left)
+// (bottom); and it slides out of the Heat / Closing Time / Giggles boxes (top right), the Online panel (bottom left) and
+// the gadget slots (bottom right). Two arrows that would sit on top of each other are moved apart (M1-F11).
 const M = { top: 122, bottom: 120, side: 60 };
 
 export function arrowFor(sx, sy, behind, w, h) {
@@ -18,6 +19,7 @@ export function arrowFor(sx, sy, behind, w, h) {
   let x = cx + dx * k, y = cy + dy * k;
   if (x > w - 320 && y < 200) { if (dx > 0 && Math.abs(dx) * 0.6 > Math.abs(dy)) y = 200; else x = w - 320; }
   if (x < 270 && y > h - 230) { if (dy > 0 && Math.abs(dy) > Math.abs(dx) * 0.6) x = 270; else y = h - 230; }   // the Online panel and coat HUD, bottom left
+  if (x > w - 330 && y > h - 230) { if (dy > 0 && Math.abs(dy) > Math.abs(dx) * 0.6) x = w - 330; else y = h - 230; }   // the gadget slots, bottom right (the label runs to the right of the arrow)
   return { on: false, x, y, angle: Math.atan2(dy, dx) };
 }
 
@@ -28,8 +30,10 @@ export class PointerHud {
   update(list, camera, w, h) {
     list = (Array.isArray(list) ? list : [list]).filter(Boolean);
     while (this.els.length < list.length) { const e = document.createElement('div'); e.className = 'pointer'; this.el.appendChild(e); this.els.push({ e, label: '' }); }
+    const placed = [];
     this.states = list.map((p, i) => {
       const q = this.v.set(p.x, p.to === 'kid' ? 0.5 : 1, p.z).project(camera), a = arrowFor((q.x + 1) / 2 * w, (1 - q.y) / 2 * h, q.z > 1, w, h), E = this.els[i];
+      if (!a.on) { for (let n = 0; n < 6 && placed.some((b) => Math.abs(b.x - a.x) < 120 && Math.abs(b.y - a.y) < 30); n++) a.y += a.y > h / 2 ? -34 : 34; placed.push({ x: a.x, y: a.y }); }
       E.e.style.display = a.on ? 'none' : 'block';
       if (!a.on) {
         if (E.label !== p.label + p.to) { E.e.innerHTML = `<i>➤</i><span>${p.label}</span>`; E.label = p.label + p.to; }

@@ -7,7 +7,7 @@
 <style>
   html, body { margin: 0; height: 100%; background: #fff3e2; overflow: hidden; font-family: "Trebuchet MS", "Segoe UI", sans-serif; }
   canvas { display: block; }
-  #coathud { position: fixed; left: 16px; bottom: 16px; color: #33201a; font-size: 15px; pointer-events: none; }
+  #coathud { position: fixed; left: 16px; bottom: 16px; color: #33201a; font-size: 15px; pointer-events: none; max-width: 340px; }
   #heads { display: flex; gap: 6px; margin-bottom: 6px; }
   .head { width: 26px; height: 26px; border-radius: 50%; border: 3px solid #33201a; box-sizing: border-box; }
   .head.out { animation: bob 0.3s infinite alternate; opacity: 0.55; }
@@ -15,13 +15,13 @@
   @keyframes bob { to { transform: translateY(-5px); } }
   #wobblebox { width: 220px; height: 14px; border: 3px solid #33201a; border-radius: 8px; overflow: hidden; background: #fff; }
   #wobble { height: 100%; width: 0; }
-  #hint { position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%); background: #33201a; color: #fff3e2; padding: 6px 14px; border-radius: 14px; font-size: 16px; pointer-events: none; transition: opacity 0.2s; opacity: 0; }
+  #hint { position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%); background: #33201a; color: #fff3e2; padding: 6px 14px; border-radius: 14px; font-size: 16px; pointer-events: none; transition: opacity 0.2s; opacity: 0; max-width: max(260px, calc(100vw - 740px)); text-align: center; box-sizing: border-box; }
   #announce { position: fixed; left: 50%; top: 66px; transform: translateX(-50%); max-width: 70%; background: #fff3e2; color: #33201a; border: 3px solid #33201a; padding: 8px 16px; border-radius: 14px; font-size: 18px; pointer-events: none; transition: opacity 0.4s; opacity: 0; text-align: center; }
   #heat, #closing { position: fixed; right: 16px; background: #fff3e2; color: #33201a; border: 3px solid #33201a; border-radius: 12px; padding: 4px 12px; font-size: 16px; pointer-events: none; display: none; }
   #heat { top: 52px; } #closing { top: 92px; }
   #giggles { position: fixed; right: 16px; top: 132px; width: 200px; background: #fff3e2; color: #33201a; border: 3px solid #33201a; border-radius: 12px; padding: 4px 12px; font-size: 15px; pointer-events: none; display: none; }
   #giggles .gb { height: 10px; background: #fff; border: 2px solid #33201a; border-radius: 6px; margin-top: 3px; overflow: hidden; } #giggles .gb div { height: 100%; background: #e2557a; transition: width 0.3s; }
-  #giggles .gl { font-size: 11px; opacity: 0.8; margin-top: 2px; } #results .gs { font-size: 12px; font-weight: 400; opacity: 0.8; }
+  #giggles .gl { font-size: 11px; opacity: 0.8; margin-top: 2px; } #results .gs { font-size: 12px; font-weight: 400; opacity: 0.8; } #results .go { margin: 6px 0 0; font-weight: 700; text-align: center; animation: rush 0.6s infinite alternate; }
   #giggles.rush { background: #ffd1e1; animation: rush 0.3s infinite alternate; } @keyframes rush { from { transform: scale(1); } to { transform: scale(1.05); } }
   #giggle { position: fixed; left: 50%; top: 28%; transform: translate(-50%, -50%) rotate(-4deg); font: 900 54px "Trebuchet MS", sans-serif; color: #e2557a; -webkit-text-stroke: 3px #33201a; text-shadow: 0 4px 0 #33201a; pointer-events: none; opacity: 0; white-space: nowrap; text-align: center; }
   #giggle.small { font-size: 34px; top: 34%; } #giggle.small small { font-size: 18px; }
@@ -48,6 +48,8 @@
   #net input { font: inherit; width: 64px; text-transform: uppercase; border: 2px solid #33201a; border-radius: 8px; padding: 2px 6px; }
   #net.on .row { display: none; }
   #net .kind { opacity: 0.6; }
+  #net b { cursor: pointer; } #net.small { padding: 3px 10px; } #net.small .row, #net.small .kind, #net.small .status { display: none; }
+  #net.small b::after { content: ' \25B8'; font-weight: 400; }
   #hud { position: fixed; left: 16px; top: 64px; max-width: 30%; color: #33201a; font-size: 14px; pointer-events: none; }
   #wobblerow { display: flex; align-items: center; gap: 8px; } #wobblerow b { font-size: 15px; }
   #wobblewhy { font-size: 13px; font-style: italic; opacity: 0.85; white-space: nowrap; }
@@ -60,11 +62,12 @@
   .pointer.gate { color: #5fae4f; }
   .pointer.kid i { font-size: 28px; }
   #startcard { position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 540px; max-width: calc(100% - 32px); box-sizing: border-box; background: #fff3e2; color: #33201a; border: 4px solid #33201a; border-radius: 20px; padding: 18px 26px; display: none; z-index: 20; text-align: center; box-shadow: 0 8px 0 #33201a; }
-  #startcard h1 { margin: 0 0 6px; font-size: 26px; } #startcard .goal { font-size: 18px; margin: 0 0 12px; }
+  #startcard h1 { margin: 0 0 6px; font-size: 26px; } #startcard .goal { font-size: 18px; margin: 0 0 8px; } #startcard .money { font-size: 14px; margin: 0 0 12px; opacity: 0.85; }
   #startcard table { margin: 0 auto 12px; border-collapse: collapse; text-align: left; font-size: 16px; } #startcard td { padding: 3px 8px; }
   #startcard kbd { display: inline-block; min-width: 22px; text-align: center; background: #f4c542; border: 2px solid #33201a; border-radius: 7px; padding: 1px 7px; font: bold 14px "Trebuchet MS", sans-serif; }
   #startcard .go { margin: 0; font-weight: bold; color: #c4553d; animation: bob 0.6s infinite alternate; }
-  body.carded #coathud, body.carded #quota, body.carded #heat, body.carded #closing, body.carded #giggles, body.carded #gadgets, body.carded #hint, body.carded #pointer, body.carded #net { visibility: hidden; }
+  body.carded #coathud, body.carded #quota, body.carded #heat, body.carded #closing, body.carded #giggles, body.carded #gadgets, body.carded #hint, body.carded #pointer { visibility: hidden; }
+  body.carded #net { z-index: 21; }
   body:not(.dev) .dev { display: none; }
 </style>
 </head>

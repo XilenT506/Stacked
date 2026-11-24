@@ -2,6 +2,7 @@
 // a hint for what E does here, and tannoy announcements across the top of the screen.
 import { quotaHtml } from './quotaBar.js';
 import { KID_COLORS } from '../render/coatView.js';
+import { looseLine } from './looseLine.js';
 
 export class CoatHud {
   constructor() {
@@ -62,7 +63,8 @@ export class CoatHud {
     el.style.display = 'block';
     const html = G.slots.map((id, i) => { const d = data.gadgets[id], cur = i === G.i;
       const charge = cur && d.charge ? `<div class="charge"><div style="width:${Math.min(100, G.charge / d.charge.full * 100)}%"></div></div>` : '';
-      return `<div class="slot${cur ? ' cur' : ''}"><b>${i + 1}</b> ${d.name} <span>${G.ammo[id]}</span>${charge}</div>`; }).join('');
+      const n = G.ammo[id], word = d.mode === 'projectile' ? (n === 1 ? 'shot' : 'shots') : 'left';      // "60 shots", not a bare 60 (M1-F11)
+      return `<div class="slot${cur ? ' cur' : ''}"><b>${i + 1}</b> ${d.name} <span>${n} ${word}</span>${charge}</div>`; }).join('');
     const drinks = (coat.drinks || []).map((id) => data.drinks?.[id]?.name ?? id);
     const all = html + (drinks.length ? `<div class="slot drink"><b>F</b> ${drinks.join(', ')}</div>` : '');
     if (all !== this.lastGad) { el.innerHTML = all; this.lastGad = all; }
@@ -93,12 +95,16 @@ export class CoatHud {
       ${r.leftBehind ? `<p class="no">Left behind: ${r.leftBehind} kid${r.leftBehind > 1 ? 's' : ''}. They're waiting in the Lost & Found.</p>` : ''}
       ${r.giggles ? `<p class="gg">Giggles: ${r.giggles.total} <span class="gs">(these turn into Pocket Money later, not sweets)</span></p><ul class="gg">${r.giggles.moments.map((m) => `<li>${m.label}${m.count > 1 ? ` ×${m.count}` : ''}<b>+${m.giggles}</b></li>`).join('') || '<li>No funny business. Suspicious.</li>'}</ul>` : ''}
       <p class="${r.met ? 'ok' : 'no'}">${r.met ? `Quota met! (${r.quota})` : `Quota missed by ${r.short} (needed ${r.quota}).`}</p>
-      <p class="small">${next}</p>`;
+      <p class="small">${next}</p><p class="go">Press any key</p>`;
   }
 
   top(text) { this.topEl.textContent = text; }
 
+  // a new job: nothing from the last one stays on screen (M1-F11: an old "Heat 1" carried over)
+  newJob() { this.annT = 0; if (this.annEl) { this.annEl.style.opacity = 0; this.annEl.innerHTML = ''; } this.popQueue = []; this.annQueue = []; this.popT = 0; }
+
   announce(text, title = 'Tannoy') {
+    if (this.resEl?.style.display === 'block') { (this.annQueue ??= []).push([text, title]); return; }    // waits for the results card (M1-F11)
     this.annEl.innerHTML = `<b>${title}:</b> “${text}”`; this.annEl.style.opacity = 1; this.annT = 4.5;
   }
 
@@ -117,10 +123,11 @@ export class CoatHud {
     this.bar.parentElement.style.transform = this.shake ? `translateX(${Math.sin(this.shake * 80) * 4}px)` : '';
     const hidden = coat.hidden ? ` · hidden (${{ inside: 'in a box', pose: 'posing', stand: 'standing still', shopping: 'on the belt' }[coat.hidden.mode] || coat.hidden.mode})` : '';
     this.label.textContent = (area ? area.name + ' · ' : '') + (coat.pile ? 'Just a kid (the coat is on the floor: R there to stack up)'
-      : coat.state.label + (coat.loose.length ? ` · ${coat.loose.length} kid${coat.loose.length > 1 ? 's' : ''} loose! walk over them` : '')) + hidden;
+      : coat.state.label + looseLine(coat.loose)) + hidden;
     if (this.fillEl) this.fillEl.textContent = coat.fillText && !coat.pile ? coat.fillText : '';
     if (this.whyEl) this.whyEl.textContent = coat.whyText ?? '';
     this.hintEl.textContent = hint || ''; this.hintEl.style.opacity = hint ? 1 : 0;
     this.annT -= dt; if (this.annT <= 0) this.annEl.style.opacity = 0;
+    if (this.annQueue?.length && this.resEl?.style.display !== 'block' && this.annT <= 0) this.announce(...this.annQueue.shift());
   }
 }

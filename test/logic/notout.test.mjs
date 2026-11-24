@@ -129,6 +129,7 @@ test('a wipe after the quota is met keeps the banked sweets and the run', () => 
   for (let i = 0; i < 3; i++) { g.setInput('p1', inp()); g.step(); }
   assert.equal(g.job.why, 'all caught'); assert.ok(g.job.result.met, 'the quota was met');
   for (let t = 0; t < B.shop.resultsSeconds + 1 && g.phase === 'job'; t += DT) { g.setInput('p1', inp()); g.step(); }
+  g.setInput('p1', inp({ grab: 99 })); g.step();                 // (the results card waits for a key)
   assert.equal(g.phase, 'shop', "on to Del's, not a new run");
   assert.equal(g.run.no, runNo, 'same run');
   assert.ok(g.run.sweets >= jar + g.job.quota, `the sweets are in the jar (${g.run.sweets})`);
@@ -137,5 +138,6 @@ test('a wipe after the quota is met keeps the banked sweets and the run', () => 
   const h = new Game(R, DATA); h.addPlayer('p1'); h.take(); const d = h.players[0].coat;
   h.rescue.spares = 0; lone(d); h.rescue.caught(d, h.people.byType('guard')[0]);
   for (let t = 0; t < B.shop.resultsSeconds + 1; t += DT) { h.setInput('p1', inp()); h.step(); }
+  h.setInput('p1', inp({ grab: 99 })); h.step();
   assert.equal(h.run.no, runNo + 1, 'a new run');
 });
