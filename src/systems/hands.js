@@ -92,7 +92,7 @@ export class Hands {
   throw(aim) {
     const f = aim && Math.hypot(aim.x, aim.z) > 0.01 ? aim : this.forward, l = Math.hypot(f.x, f.z);
     const t = this.release({ x: f.x / l * this.T.throwSpeed, y: this.T.throwUp, z: f.z / l * this.T.throwSpeed });
-    t.thrownBy = this.coat; this.events.push({ type: 'throw', thing: t });
+    t.thrownBy = this.coat; this.coat.ignoreHit(t.body.handle); this.events.push({ type: 'throw', thing: t });   // (M1-F8: your own melon whacked a kid out of you)
   }
 
   // a slippery ketchup trail behind you

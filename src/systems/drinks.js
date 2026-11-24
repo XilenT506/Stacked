@@ -29,7 +29,7 @@ export class Drinks {
     for (const c of coats) {
       if (c === coat) continue;
       const d = Math.hypot(c.walker.feet.x - f.x, c.walker.feet.z - f.z); if (d > S.radius) continue;
-      const v = away(c.walker.feet, S.coatKnock); c.walker.vel.x += v.x; c.walker.vel.z += v.z; c.hit(S.coatKnock * 0.5);
+      const v = away(c.walker.feet, S.coatKnock); c.walker.vel.x += v.x; c.walker.vel.z += v.z; c.hit(S.coatKnock * 0.5, 'burp');
     }
     for (const t of this.things.list) {
       if (t.gone || !t.body || t.def.body !== 'dynamic' || t.carried) continue;

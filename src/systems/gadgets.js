@@ -122,7 +122,7 @@ export class Gadgets {
     } else if (who.kind === 'coat') {        // friendly fire
       const c = who.c;
       if (effect) c.applyEffect(effect, secs);
-      if (knock > 0) c.hit(knock);
+      if (knock > 0) c.hit(knock, 'gadget', d.name);
       this.events.push({ type: 'hit', gadget: p.id, by: p.owner, from: p.from, target: 'coat', coat: c, effect, at });
     } else if (who.kind === 'thing') {
       const t = who.t; let toggled = false;

@@ -21,7 +21,7 @@ export class PlaceView {
     this.g = new T.Group(); scene.add(this.g);
     const D = place.data;
     for (const s of place.statics) {
-      if (s.kind === 'ground') continue;
+      if (s.kind === 'ground' || s.invisible) continue;
       const m = staticMesh(s); this.g.add(m); if (s.fade) fade.add(m);
       if (s.kind === 'shelf' || s.kind === 'sweetshelf') this.stock(s);
     }

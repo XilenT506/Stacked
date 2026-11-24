@@ -49,6 +49,8 @@
   #net .kind { opacity: 0.6; }
   #hud { position: fixed; left: 16px; top: 64px; max-width: 30%; color: #33201a; font-size: 14px; pointer-events: none; }
   #wobblerow { display: flex; align-items: center; gap: 8px; } #wobblerow b { font-size: 15px; }
+  #wobblewhy { font-size: 13px; font-style: italic; opacity: 0.85; white-space: nowrap; }
+  #spillwhy { font-weight: 700; color: #c4553d; font-size: 15px; min-height: 0; transition: opacity 0.3s; }
   #wobblebox.flash { animation: wflash 0.18s infinite alternate; } @keyframes wflash { from { border-color: #33201a; background: #fff; } to { border-color: #c4553d; background: #ffd0c8; transform: scale(1.06); } }
   #pointer { position: fixed; left: 0; top: 0; width: 0; height: 0; pointer-events: none; }
   .pointer { position: fixed; left: 0; top: 0; display: none; color: #c4553d; font: 900 15px "Trebuchet MS", sans-serif; white-space: nowrap; }
@@ -69,7 +71,7 @@
 <div id="hud" class="dev">STACKED, new build</div>
 <div id="net"><b>Online</b> <span class="kind"></span><div class="row"><button class="host">Host</button> or <input maxlength="4" placeholder="CODE"> <button class="join">Join</button></div><div class="status"></div></div>
 <div id="blind"></div><div id="quota"></div><div id="results"></div><div id="gadgets"></div><div id="heat"></div><div id="giggles"></div><div id="giggle"></div><div id="closing"></div><div id="hint"></div><div id="announce"></div><div id="pointer"></div><div id="startcard"></div>
-<div id="coathud"><div id="heads"></div><div id="wobblerow"><b>Wobble</b><div id="wobblebox"><div id="wobble"></div></div></div><div id="height"></div></div>
+<div id="coathud"><div id="heads"></div><div id="wobblerow"><b>Wobble</b><div id="wobblebox"><div id="wobble"></div></div><span id="wobblewhy"></span></div><div id="spillwhy"></div><div id="height"></div></div>
 <script type="module" src="./main.js"></script>
 </body>
 </html>

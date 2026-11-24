@@ -12,6 +12,7 @@ import { Mess } from '../systems/mess.js';
 import { JobEvents } from '../systems/jobEvents.js';
 import { Hands } from '../systems/hands.js';
 import { Things } from '../world/interact/loader.js';
+import { WorldEdges } from '../world/edges.js';
 import { buildPlace, spawnThings } from '../world/place.js';
 import { Coat } from '../entities/coat.js';
 import { People } from '../ai/people.js';
@@ -68,6 +69,7 @@ export class Game {
     this.things.announce = (text) => this.emit({ k: 'announce', text, title: 'Tannoy' });
     spawnThings(this.place, this.things);
     this.people = new People(R, this.world, this.place, D.grownups, { signals: this.signals, mess: this.mess, things: this.things.list });
+    this.edges = new WorldEdges(D.place);              // nobody walks through a wall or off the map
     this.sus = new Suspicion(B);
     this.closing = new ClosingTime(R, this.world, this.place, B, { nav: this.people.nav });
     this.security = new Security({ people: this.people, closing: this.closing, suspicion: this.sus, place: this.place, balance: B });
@@ -90,6 +92,7 @@ export class Game {
     const D = this.place.data, i = this.players.length, [sx, sz] = D.spawns.players[i % D.spawns.players.length], B = this.D.balance;
     const coat = new Coat(this.R, this.world, this.signals, B, [sx, 0, sz], KIDS[i % 4], { mess: this.mess });
     coat.floorZones = this.place.slippery; coat.pid = id; coat.slot = i;
+    coat.nameOf = (b) => this.things.list.find((t) => t.body?.handle === b.handle)?.def.name?.toLowerCase() ?? null;   // what hit you
     coat.bounds = { x0: D.bounds[0] + 1, z0: D.bounds[1] + 1, x1: D.bounds[2] - 1, z1: D.bounds[3] - 1 };
     const hands = new Hands(coat, this.things, B); hands.loot = this.loot; hands.rescue = this.rescue;
     const kit = this.run.of(id);
@@ -177,7 +180,20 @@ export class Game {
     this.world.step();
     for (const p of this.players) { const c = p.coat; p.events.push(...c.events.slice(p.evN ?? 0)); c.events = []; c.checkHits(this.world); p.events.push(...c.events); }
     this.things.step(dt); this.signals.flush(dt); this.mess.step(dt); this.jobEvents.step(dt);
+    for (const c of coats) this.edges.keep(c.walker);
+    for (const g of this.people.list) this.edges.keep(g.walker);
+    for (const c of coats) this.coatLines(c);
     this.present();
+  }
+
+  // the one-line reason kids fell out ("Slipped on a puddle! Dropped 26 sweets!") and what fills the wobble bar
+  coatLines(c) {
+    const W = this.D.why ?? {}, S = W.spills ?? {};
+    if (c.whyShow > 0 && c.whyKey) {
+      const k = c.whyKey === 'hit' && !c.whyThing ? 'hitNone' : c.whyKey, t = (S[k] ?? S.wobble ?? '').replace('{thing}', c.whyThing ?? 'thing');
+      c.whyText = t + (c.whyDropped > 0 && S.dropped ? ' ' + S.dropped.replace('{n}', c.whyDropped) : '');
+    } else c.whyText = null;
+    c.fillText = c.filling && c.wobble > 0.05 ? W.filling?.[c.filling] ?? null : null;
   }
 
   // a grown-up who could catch a lone kid is close and can see this coat

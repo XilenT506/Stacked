@@ -26,7 +26,7 @@
   ],
 
   "walls": {
-    "_about": "outer shop walls 3 m, back-room walls 2.6 m, outdoor fences 1.2 m. Gaps are the doors.",
+    "_about": "outer shop walls 3 m, back-room walls 2.6 m, outdoor fences 1.2 m. Gaps are the doors. edge: invisible walls at the end of the map (the gap behind the getaway gate, where testers walked off into nothing).",
     "shop": { "h": 3, "color": "#efd9bd", "list": [
       [-18, 12, -16, 12], [-13, 12, 14.4, 12], [17.4, 12, 18, 12],
       [-18, -10, -18, 12], [18, -10, 18, 12],
@@ -40,6 +40,9 @@
     "fence": { "h": 1.2, "color": "#6f7d6a", "list": [
       [-6, -26, -6, -18], [-6, -26, 22, -26], [22, -26, 22, 20],
       [-22, 20, 13, 20], [19, 20, 22, 20], [-22, 12, -22, 20], [-22, 12, -18, 12]
+    ] },
+    "edge": { "h": 2.5, "color": "#000000", "invisible": true, "list": [
+      [13, 20, 19, 20]
     ] }
   },
 

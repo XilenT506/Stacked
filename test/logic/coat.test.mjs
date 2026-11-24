@@ -83,8 +83,9 @@ test('slippery signal: low grip and the wobble fills while walking on it', () =>
   assert.equal(coat.walker.grip, 1);
   for (let i = 0; i < 300 && coat.walker.grip === 1; i++) run(DT, { x: 1, z: 0 });
   assert.equal(coat.walker.grip, B.slippery.grip, 'walking onto it: low grip');
-  run(1.5, { x: 0.3, z: 0 });
-  assert.ok(coat.wobble > 0.4 || coat.count < 3);
+  run(0.5, { x: 0.3, z: 0 });
+  assert.ok(coat.wobble > 0.15 || coat.count < 3, `wobble ${coat.wobble}`);
+  assert.equal(coat.filling, 'slip', 'and the HUD says the slippery floor is filling the wobble bar');
 });
 
 test('R unstacks into a laundry pile and R at the pile restacks; too far does nothing', () => {

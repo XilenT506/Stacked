@@ -16,5 +16,27 @@
     "kids":    { "bubble": "There's kids running about!",         "heat": "spotted a loose kid" }
   },
   "heatLevels": ["", "People are starting to stare.", "Security has been called!", "PANIC! The front doors are locked: the caf\u00e9 side exit and the back door still work."],
-  "testKey": "pressed the test key"
+  "testKey": "pressed the test key",
+  "_spills": "Why the kids fell out of the coat: one line on the HUD for a few seconds (M1-F8). {thing} is what hit you. The sweets a falling kid dropped are added after it (dropped).",
+  "spills": {
+    "slip":    "Slipped on a puddle!",
+    "slipped": "Slipped and spun round!",
+    "run":     "Ran too fast!",
+    "carry":   "Too heavy to carry!",
+    "turn":    "Turned too sharply!",
+    "ride":    "Wobbled off the ride!",
+    "sugar":   "Too much sugar!",
+    "soaked":  "Soaked and wobbly!",
+    "hit":     "Whacked by a flying {thing}!",
+    "hitNone": "Whacked by something!",
+    "burp":    "Blown over by a burp!",
+    "gadget":  "Hit by a friend's {thing}!",
+    "wobble":  "Too wobbly!",
+    "dropped": "Dropped {n} sweets!"
+  },
+  "_filling": "What is filling the wobble bar right now, shown next to it",
+  "filling": {
+    "run": "running", "carry": "carrying", "slip": "slippery floor", "turn": "sharp turns",
+    "ride": "riding", "sugar": "Sugar Rush"
+  }
 }

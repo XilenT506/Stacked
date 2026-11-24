@@ -12,19 +12,20 @@ const rectArea = (r) => (r[2] - r[0]) * (r[3] - r[1]);
 
 export function buildPlace(R, world, data) {
   const statics = [];
-  const box = (size, pos, color, fade = false, kind = null) => {
+  const box = (size, pos, color, fade = false, kind = null, invisible = false) => {
     world.createCollider(R.ColliderDesc.cuboid(size[0] / 2, size[1] / 2, size[2] / 2).setTranslation(pos[0], pos[1], pos[2]).setFriction(0.7));
-    statics.push({ size, pos, color, fade, kind });
+    statics.push({ size, pos, color, fade, kind, invisible });
   };
   // the ground (one collider), drawn as area floors
   const [gx0, gz0, gx1, gz1] = data.ground.rect;
   box([gx1 - gx0, 0.2, gz1 - gz0], [(gx0 + gx1) / 2, -0.1, (gz0 + gz1) / 2], data.ground.color, false, 'ground');
-  // walls: axis-aligned segments, the gaps between them are the doors
+  // walls: axis-aligned segments, the gaps between them are the doors (a group marked invisible is a wall
+  // nobody sees: the edge of the map behind the getaway gate)
   for (const [name, group] of Object.entries(data.walls)) {
     if (name.startsWith('_')) continue;
     for (const [x0, z0, x1, z1] of group.list) {
       const along = Math.abs(x1 - x0) > Math.abs(z1 - z0), len = Math.hypot(x1 - x0, z1 - z0) + WALL_T;
-      box(along ? [len, group.h, WALL_T] : [WALL_T, group.h, len], [(x0 + x1) / 2, group.h / 2, (z0 + z1) / 2], group.color, group.h > 1.5, name);
+      box(along ? [len, group.h, WALL_T] : [WALL_T, group.h, len], [(x0 + x1) / 2, group.h / 2, (z0 + z1) / 2], group.color, group.h > 1.5 && !group.invisible, name, !!group.invisible);
     }
   }
   // fixed furniture: [x, z, width, height, depth, kind]; anything taller than a coat's waist fades when it hides a player

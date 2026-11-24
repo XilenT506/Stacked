@@ -2,6 +2,20 @@
 
 Newest first. One entry per build session (one prompt from the Build guide in the doc "STACKED – Game Plan").
 
+## 2026-11-24 · Round 2 fix 2 of 5 (M1-F8): The coat stays together, and says why when it doesn't
+
+- **A slip is a short skid.** After `slippery.skidMax` (2.4 m) of sliding, the feet find the floor again and the coat brakes (`brakeGrip` 2), so a skid stops at about 3 m. A new skid can only start once the coat has stopped. Before: letting go on a trail of puddles slid a coat 7 to 29 m and spilled 2 kids. Now: about 2.2 to 2.9 m.
+- **Every fall says why.** One red line under the Wobble bar for 4 seconds (`wobble.whySeconds`): "Slipped on a puddle!", "Ran too fast!", "Too heavy to carry!", "Turned too sharply!", "Whacked by a flying melon!", "Blown over by a burp!", "Hit by a friend's water pistol!" and more (the words are in `data/why.json`, `spills`). Next to the bar, a small word says what is filling it right now ("running", "carrying", "slippery floor"...).
+- **A fallen kid's sweets fall with it.** Each kid holds its share of the pockets (shared out as you pocket). When a kid falls out, its sweets lie on the floor right next to it, ready to pocket again with E. Holding drops at the same moment, and the line adds "Dropped 26 sweets!".
+- **Corners:** when a coat is barely moving against something, it picks a side (the way a corner pushes it, or whichever side gets furthest) and follows the edge round. Still stuck after half a second, it tries the other side. Clipping 8 corners (tills, shelf ends, freezer, crates, counter): before, 0.43 s stuck (on the crates); now 0 s. Walking straight along the till row and aisle ends never stuck before either.
+- **No holes.** An invisible wall closes the gap behind the getaway gate (the new `edge` wall group in the place file). Any coat or grown-up that walks through a wall or off the map in one step goes back to where it was (`src/world/edges.js`). A long jump in one step (a respawn, being carried, a test parking someone) is left alone.
+- **No black lines:** faded walls no longer draw a dark outline (it drew thin black lines across the coat). They fade to 22% instead of 16% so you can still see them.
+- **Your own throw can't whack you:** a thing you throw ignores your own coat for 0.6 s. I couldn't make it happen in a test, though (the test passes on the old code too), so the "threw the melon" spill a tester saw may have had another cause.
+- Tests: new `test/logic/together.test.mjs`. It checks the skid on your own water (under 3 m), the "why" line, a fallen kid's sweets on the floor and pocketed again, the till row and aisle ends (straight and with the test bot), clipping corners, and no holes (gate gap, a hard shove into the outer wall, a shopper shoved through the fence). Changed tests:
+  - The slippery floor test: the skid now ends.
+  - The co-carry test: the friend now walks in the leader's footsteps, and the leader doesn't stop to act natural. Walking through the fruit section, melons bump the leader, so the wobble limit is 0.8.
+- New screenshot `f8_why_line.png`.
+
 ## 2026-11-20 · Round 2 fix 1 of 5 (M1-F7): Caught, but not out
 
 - **The shop takes a breath after a grab.** When a grown-up grabs a kid, for 6 seconds nobody else starts a chase or a shout and no "?" fills. Everyone not carrying a kid gives up and forgets who they busted (their "?" drops to 0.5 at most). Heat drops one level, at most once every 20 seconds, with "Phew. The grown-ups calm down a little."

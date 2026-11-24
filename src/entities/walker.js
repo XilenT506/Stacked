@@ -37,12 +37,37 @@ export class Walker {
     const k = Math.min(1, ACCEL * this.grip * dt / Math.max(1, top));
     this.vel.x += (want.x - this.vel.x) * k; this.vel.z += (want.z - this.vel.z) * k;
     this.vel.y = this.grounded ? -1 : this.vel.y - GRAVITY * dt;
-    this.ctrl.computeColliderMovement(this.collider, { x: this.vel.x * dt, y: this.vel.y * dt, z: this.vel.z * dt }, undefined, undefined, this.ignore.size ? (c) => !this.ignore.has(c.handle) : undefined);
-    const m = this.ctrl.computedMovement(), p = this.position;
+    const filter = this.ignore.size ? (c) => !this.ignore.has(c.handle) : undefined;
+    const tryMove = (vx, vz) => { this.ctrl.computeColliderMovement(this.collider, { x: vx * dt, y: this.vel.y * dt, z: vz * dt }, undefined, undefined, filter); const c = this.ctrl.computedMovement(); return { x: c.x, y: c.y, z: c.z, grounded: this.ctrl.computedGrounded() }; };
+    let m = tryMove(this.vel.x, this.vel.z);
+    // snagged on the end of a shelf, a till or a crate (M1-F8): pick a side (the way the thing you bumped
+    // pushes you sideways, or whichever side gets you furthest when you hit it head on) and follow its edge
+    // that way, round the corner. Still stuck after half a second: try the other side.
+    const wl = Math.hypot(want.x, want.z), got = (q) => (q.x * want.x + q.z * want.z) / (wl || 1);
+    this.sideT = Math.max(0, (this.sideT ?? 0) - dt);
+    if (wl > 0.5 && dt > 0 && Math.hypot(this.vel.x, this.vel.z) > 0.5 && got(m) < 0.4 * wl * dt && Math.hypot(m.x, m.z) < 0.3 * wl * dt) {
+      const turn = (r, f = 0.8) => { const cs = Math.cos(r), sn = Math.sin(r); return tryMove((want.x * cs - want.z * sn) * f, (want.x * sn + want.z * cs) * f); };
+      if (this.sideT <= 0) {
+        let side = 0; const px = -want.z / wl, pz = want.x / wl;
+        for (let i = 0, n = this.ctrl.numComputedCollisions(); i < n; i++) {
+          const c = this.ctrl.computedCollision(i); if (!c || Math.abs(c.normal1.y) > 0.5) continue;   // (not the floor)
+          side += c.normal1.x * px + c.normal1.z * pz;
+        }
+        const was = this.sideSign ?? 0;
+        this.sideSign = was && this.sideT === 0 && this.sideStuck ? -was : Math.abs(side) > 0.2 ? Math.sign(side) : got(turn(0.6)) >= got(turn(-0.6)) ? 1 : -1;
+        this.sideT = 0.5; this.sideStuck = false;
+      }
+      let best = null;
+      for (const a of [0.6, 1.1, 1.5]) { const q = turn(a * this.sideSign); if (!best || got(q) > got(best)) best = q; }
+      if (got(best) <= got(m) + 0.02 * wl * dt) best = turn(1.5 * this.sideSign);      // nothing forward yet: follow the edge
+      if (Math.hypot(best.x, best.z) > Math.hypot(m.x, m.z)) m = best;
+      this.sideStuck = Math.hypot(m.x, m.z) < 0.2 * wl * dt;
+    } else if (this.sideT > 0 && got(m) >= 0.6 * wl * dt) this.sideT = 0, this.sideSign = 0;   // round the corner
+    const p = this.position;
     this.body.setNextKinematicTranslation({ x: p.x + m.x, y: p.y + m.y, z: p.z + m.z });
     // bumping into a wall stops the speed in that direction
     if (dt > 0) { this.vel.x = m.x / dt * 0.5 + this.vel.x * 0.5; this.vel.z = m.z / dt * 0.5 + this.vel.z * 0.5; }
-    this.grounded = this.ctrl.computedGrounded();
+    this.grounded = m.grounded;                                        // (from the move we took, not the last one tried)
     // face where you aim; with no aim, face where you walk
     const f = face && Math.hypot(face.x, face.z) > 0.01 ? face : Math.hypot(move.x, move.z) > 0.1 ? move : null;
     this.turnRate = 0;

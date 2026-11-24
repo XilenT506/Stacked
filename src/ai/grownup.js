@@ -208,7 +208,7 @@ export class GrownUp {
       this.set('carry'); this.goal = { x: lf[0], z: lf[1] };
       this.events.push({ type: 'grabKid', kid: tg.kid.id });
     } else if (tg.coat.count > 1) {    // a whole coat: yank the top kid out and carry that one off
-      const kid = tg.coat.spill();
+      const kid = tg.coat.spill('grab');
       if (kid) { this.target = { coat: tg.coat, kid }; return this.grab(this.target); }
     } else if (this.ctx.rescue) {     // the last kid in the coat: off to the Lost & Found cage (or a Spare Kid steps in)
       this.ctx.rescue.caught(tg.coat, this);

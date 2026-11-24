@@ -7,6 +7,7 @@ export class CoatHud {
   constructor() {
     this.topEl = document.getElementById('hud');
     this.heads = document.getElementById('heads'); this.bar = document.getElementById('wobble'); this.label = document.getElementById('height');
+    this.fillEl = document.getElementById('wobblewhy'); this.whyEl = document.getElementById('spillwhy');      // what fills the bar; why kids fell out
     this.hintEl = document.getElementById('hint'); this.annEl = document.getElementById('announce');
     this.shake = 0; this.annT = 0;
     this.heatEl = document.getElementById('heat'); this.closeEl = document.getElementById('closing');
@@ -116,6 +117,8 @@ export class CoatHud {
     const hidden = coat.hidden ? ` · hidden (${{ inside: 'in a box', pose: 'posing', stand: 'standing still', shopping: 'on the belt' }[coat.hidden.mode] || coat.hidden.mode})` : '';
     this.label.textContent = (area ? area.name + ' · ' : '') + (coat.pile ? 'Just a kid (the coat is on the floor: R there to stack up)'
       : coat.state.label + (coat.loose.length ? ` · ${coat.loose.length} kid${coat.loose.length > 1 ? 's' : ''} loose! walk over them` : '')) + hidden;
+    if (this.fillEl) this.fillEl.textContent = coat.fillText && !coat.pile ? coat.fillText : '';
+    if (this.whyEl) this.whyEl.textContent = coat.whyText ?? '';
     this.hintEl.textContent = hint || ''; this.hintEl.style.opacity = hint ? 1 : 0;
     this.annT -= dt; if (this.annT <= 0) this.annEl.style.opacity = 0;
   }

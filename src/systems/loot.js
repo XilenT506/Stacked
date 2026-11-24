@@ -1,6 +1,8 @@
 // Loot: small pieces go in your pockets, big ones are carried in your arms (slow and wobbly alone,
 // easier with two coats carrying together). Dropping loot (on purpose, when a kid falls out, when a
 // grown-up grabs you) costs some of its value. Bring it to the getaway gate to bank it for the job.
+// Each kid in the coat holds its share of the pockets (it.kid): a kid who falls out drops its sweets on the
+// floor right next to where it lands, ready to pocket again (M1-F8; never back on the shelves).
 //   loot.near(coat) / loot.press(coat): what E does with loot; every step: loot.step(dt, coats)
 export class Loot {
   constructor(place, looks, balance) {
@@ -50,7 +52,7 @@ export class Loot {
   press(coat) {
     const it = this.near(coat); if (!it) return false;
     if (it.state === 'carried' && it.carriers.includes(coat)) { this.drop(it, 'put down', coat); return true; }
-    if (it.kind === 'small') { it.state = 'pocket'; it.owner = coat; this.events.push({ type: 'pocket', item: it, coat }); return true; }
+    if (it.kind === 'small') { it.state = 'pocket'; it.owner = coat; it.kid = this.emptiestKid(coat); this.events.push({ type: 'pocket', item: it, coat }); return true; }
     if (it.state === 'carried') { it.carriers.push(coat); this.events.push({ type: 'coCarry', item: it, coat }); this.load(it); return true; }
     it.state = 'carried'; it.carriers = [coat]; this.load(it); this.events.push({ type: 'carry', item: it, coat });
     return true;
@@ -65,6 +67,29 @@ export class Loot {
     }
   }
   unload(c) { c.carryKg = 0; c.carrySpeedMul = 1; c.carrySilly = false; c.coCarry = false; }
+
+  // the kid in the coat with the fewest sweets in its pockets
+  emptiestKid(coat) {
+    const n = (k) => this.pockets(coat).filter((it) => it.kid === k).length;
+    return coat.stack.reduce((best, k) => (best === null || n(k) < n(best) ? k : best), null);
+  }
+
+  // kids who left the stack (fell out, or were grabbed) drop their sweets around where they landed
+  kidsLeft(c, before) {
+    const gone = before.filter((k) => !c.stack.includes(k) && !c.pile?.kids.includes(k));
+    for (const id of gone) {
+      const kid = c.loose.find((k) => k.id === id), mine = this.pockets(c).filter((it) => it.kid === id);
+      if (!kid || !mine.length) continue;                   // (a Spare Kid replacing a caught one is not a fall)
+      const at = kid; let total = 0;
+      mine.forEach((it, i) => {
+        total += it.value;                                   // what leaves "Holding" (the HUD line drops by this much)
+        this.drop(it, 'a kid fell out', c);
+        const a = i * 2.4 + 0.5; it.x = at.x + Math.sin(a) * 0.45; it.z = at.z + Math.cos(a) * 0.45; it.y = 0; it.kid = null;
+      });
+      c.whyDropped = (c.whyDropped ?? 0) + total;
+      this.events.push({ type: 'kidDrop', coat: c, kid: id, items: mine, value: total });
+    }
+  }
 
   // dropped loot loses some value (never below minValue of what it was worth)
   drop(it, why, coat = null) {
@@ -81,6 +106,8 @@ export class Loot {
       // a kid falling out, or a grown-up grabbing you, makes you drop what you carry (and a pocketful when grabbed)
       const spilled = (c.events || []).some((e) => e.type === 'stumble') || c.count < (c._lootCount ?? c.count);
       c._lootCount = c.count;
+      if (c._lootStack && !c.grabbedBy && !c.caught) this.kidsLeft(c, c._lootStack);
+      c._lootStack = c.stack.slice();
       const big = this.carried(c);
       if (big && (spilled || c.grabbedBy || c.count < 1)) this.drop(big, spilled ? 'a kid fell out' : 'grabbed', c);
       if (c.grabbedBy && !c._lootGrabbed) { const p = this.pockets(c); if (p.length) this.drop(p[p.length - 1], 'grabbed', c); }

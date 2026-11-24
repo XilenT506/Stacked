@@ -1,18 +1,17 @@
-// Walls (and anything else marked fadeable) between the camera and a player fade to a see-through
-// outline, so nobody is ever hidden behind a wall. Several points on each player are checked
+// Walls (and anything else marked fadeable) between the camera and a player fade to see-through, so nobody
+// is ever hidden behind a wall (no dark outline any more: it drew thin black lines across the coat, M1-F8).
+// Several points on each player are checked
 // (feet, middle, head): if any is blocked, the wall in the way fades.
 import * as T from 'three';
 
-const FADED = 0.16, SPEED = 10;
+const FADED = 0.22, SPEED = 10;
 
 export class WallFade {
   constructor() { this.items = []; this.ray = new T.Raycaster(); }
 
   add(mesh) {
     mesh.material = mesh.material.clone(); mesh.material.transparent = true;
-    const edges = new T.LineSegments(new T.EdgesGeometry(mesh.geometry), new T.LineBasicMaterial({ color: 0x33201a, transparent: true, opacity: 0 }));
-    mesh.add(edges);
-    this.items.push({ mesh, edges, k: 1, blocking: false });
+    this.items.push({ mesh, k: 1, blocking: false });
   }
 
   // which fadeable meshes block the view from the camera to these points
@@ -34,7 +33,6 @@ export class WallFade {
       const target = it.blocking ? FADED : 1;
       it.k += (target - it.k) * Math.min(1, dt * SPEED);
       it.mesh.material.opacity = it.k; it.mesh.material.depthWrite = it.k > 0.95;
-      it.edges.material.opacity = (1 - it.k) / (1 - FADED) * 0.9;
     }
   }
 }
